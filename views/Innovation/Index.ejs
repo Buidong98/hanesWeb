@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .btn-light {
+            background: #ced6dd;
+        }
+
+        .page-content {
+            padding-top: 0 !important;
+        }
+
+        .travel-area .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .div-destination .select2-container {
+            width: 32.5% !important;
+            padding: 0;
+        }
+
+        .div-travel .select2-container {
+            width: 100% !important;
+            padding: 0;
+        }
+
+        .select2-container--open {
+            z-index: 99999;
+        }
+
+        .travel-area #formTRReport {
+            width: 300px;
+        }
+
+        .travel-area .modal-footer {
+            border-top: 0;
+        }
+
+        .modal-xlg {
+            width: 1150px;
+        }
+
+        .mdl-tabs__tab-bar a{
+            text-decoration: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("partials/headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="travel-area">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý vật tư</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" style="background: white">
+                                        <div class="row">
+                                            <div class="col-sm-12 col-md-8 float-left form-inline">
+                                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add
+                                                </button>
+                                                <div class="btn-group btn-filter">
+                                                    <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
+                                                        <span class="fa fa-download"></span> Report
+                                                    </button>
+                                                    <div class="dropdown-menu p-3" style="left: -63px;">
+                                                        <form class="form-inline" id="formTRReport">
+                                                            <div style="display: flex;">
+                                                                <div class="">
+                                                                    <p class="mb-1">From date</p>
+                                                                    <input type="text" class="form-control w-100 isDate" id="txtReportFrom" />
+                                                                </div>
+                                                                <div class="ml-2">
+                                                                    <p class="mb-1">To date</p>
+                                                                    <input type="text" class="form-control w-100 isDate" id="txtReportTo" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                <button type="button" class="btn btn-success btn-sm" onclick="Report()">Download</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-light btn-sm" onclick="Refresh()"><i class="fa fa-search"></i>&nbsp;Search</button>
+                                                <button type="button" class="btn btn-light btn-sm" onclick="Refresh()"><i class="fa fa-refresh"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                        <div class="mdl-tabs__tab-bar">
+                                            <a href="#processing-panel" class="mdl-tabs__tab is-active"><strong class="text-warning">Processing Request (25)</strong></a>
+                                            <a href="#warning-panel" class="mdl-tabs__tab"><strong class="text-danger">Warning Part (10)</strong></a>
+                                            <a href="#all-panel" class="mdl-tabs__tab"><strong>All (1500)</strong></a>
+                                        </div>
+
+                                        <div class="mdl-tabs__panel is-active" id="processing-panel">
+                                            <div class="pl-4 pr-4 pt-2">
+                                                <div class="col-md-1 col-lg-1 p-0">
+                                                    <label for="recipient-name" class="col-form-label">Trạng thái:</label>
+                                                    <div class="input-group">
+                                                        <select class="form-control" name="" id="txtStatus">
+                                                            <option value="0"> Chưa xử lý </option>
+                                                            <option value="1"> Đã xử lý </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 pl-lg-3 mb-3">
+                                                    <label for="recipient-name" class="col-form-label">Ngày:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id=""><span class="material-icons" style="font-size: 17px;">insert_invitation</span></span>
+                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="filterRequest()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>STT#</th>
+                                                            <th>Mã</th>
+                                                            <th>Tên</th>
+                                                            <th>Manager</th>
+                                                            <th>Clerk</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="travel-table-body">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="warning-panel">
+                                            <div class="pl-4 pr-4 pt-2">
+                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
+                                                    <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No#</th>
+                                                            <th>Part Code</th>
+                                                            <th>Name</th>
+                                                            <th>Quantity</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="travel-table-body">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="all-panel">
+                                            <div class="pl-4 pr-4 pt-2">
+                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
+                                                    <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No#</th>
+                                                            <th>Part Code</th>
+                                                            <th>Name</th>
+                                                            <th>Manager Status</th>
+                                                            <th>Clerk</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="travel-table-body">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+    </div>
+    </main>
+    </div>
+
+    <!-- Modal add request -->
+    <div class="modal fade" id="modalAddRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Phiếu yêu cầu vật tư</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng yêu cầu</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Lọai máy</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Thực xuất</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/JS/HBI/MEC/index.js"></script>
+    <script>
+
+    </script>
+</body>
+
+</html>

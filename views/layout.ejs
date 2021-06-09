@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        .mdl-layout__drawer {
+            width: 350px;
+            left: -250px;
+            background-color: rgb(33, 97, 140); 
+            border: none;
+        }
+
+        .header-img{
+            max-width: 100%; min-height: 80px; 
+            background-image: url('../Image/2.jpg');
+            background-size: 400px auto;
+        }
+
+        .mdl-layout__drawer.is-visible {
+            left: 0;
+        }
+
+        .mdl-layout__container{
+            top: 0;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title" style="font-size: 24px;">HanesBrands Inc.</span>
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <div class="header-img">
+                <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">
+                    BỘ PHẬN
+                </span>
+                <div class="mdl-layout-spacer"></div>
+            </div>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/home">
+                    <i class="material-icons" style="margin-right: 20px">home</i>
+                    HOME
+                </a>
+                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/innovation">
+                    <i class="material-icons" style="margin-right: 20px">build</i>
+                    INNOVATION
+                </a>
+                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/Production/Production">
+                    <i class="material-icons" style="margin-right: 20px">work</i>
+                    SẢN XUẤT
+                </a>
+                 <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/login">
+                    <i class="material-icons" style="margin-right: 20px">account_circle</i>
+                    ĐĂNG XUẤT
+                </a>
+            </nav>
+        </div>
+
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                 
+            </div>
+        </main>
+    </div>
+</body>
+</html>
