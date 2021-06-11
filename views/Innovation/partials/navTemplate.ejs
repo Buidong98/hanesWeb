@@ -1,30 +1,37 @@
 <style>
     .mdl-layout__drawer {
-        width: 350px;
+        width: 300px;
         left: -250px;
     }
     .mdl-layout__drawer.is-visible {
         left: 0;
     }
-    .abc {
-        color:black;
+  
+    .mdl-navigation__link{
+        color: black!important;
+        font-size: 14px;
     }
-    .abc:hover{
-                color:indigo;
-            }
+
+    .mdl-navigation__link i{
+        margin-right: 20px
+    }
+
 </style>
 <div class="mdl-layout__drawer" style="border: none;">
-    <div style="max-width: 100%; min-height: 80px; background-image: url('../Image/2.jpg');
-        background-size: 400px auto;">
+    <div style="max-width: 100%; min-height: 80px; background-image: url('../Image/2.jpg'); background-size: 400px auto;">
         <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">INNOVATION</span>
         <div class="mdl-layout-spacer"></div>
     </div>
     
     <nav class="mdl-navigation">
         <div style="margin-left: 40px;"><b>Vận Hành</b></div>
-        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/sparepart">
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation">
             <i class="material-icons" style="margin-right: 20px;">build</i>
             Quản lý spare part
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/index">
+            <i class="material-icons" style="margin-right: 20px;">settings</i>
+            Quản lý machine, model
         </a>
         <hr>
         <div style="margin-left: 40px;"><b>Trở Về</b></div>
@@ -34,3 +41,6 @@
         </a>
     </nav>
 </div>
+<!-- Loading -->
+<div class="full-overlay"></div>
+<img id="mainLoadingSVG" src="/Image/oval.svg" />

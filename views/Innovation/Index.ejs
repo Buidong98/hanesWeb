@@ -9,11 +9,11 @@
 
     <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
@@ -72,6 +72,35 @@
         .mdl-tabs__tab-bar a{
             text-decoration: none;
         }
+        
+        .full-overlay {
+            /*display: none;*/
+            position: fixed;
+            background: rgba(0, 0, 0, 1);
+            opacity: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            -webkit-transition: opacity .3s ease;
+            -moz-transition: opacity .3s ease;
+            -o-transition: opacity .3s ease;
+            transition: opacity .3s ease;
+        }
+
+        #mainLoadingSVG {
+            position: fixed;
+            top: calc(50% - 20px);
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            z-index: 1000000;
+            background: #fff;
+            padding: 3px;
+            border-radius: 50%;
+            display: none;
+        }
     </style>
 
 </head>
@@ -120,22 +149,22 @@
                                                                 </div>
                                                             </div>
                                                             <div class="justify-content-between align-items-center mt-3 text-right">
-                                                                <button type="button" class="btn btn-success btn-sm" onclick="Report()">Download</button>
+                                                                <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
                                                             </div>
                                                         </form>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-light btn-sm" onclick="Refresh()"><i class="fa fa-search"></i>&nbsp;Search</button>
-                                                <button type="button" class="btn btn-light btn-sm" onclick="Refresh()"><i class="fa fa-refresh"></i></button>
+                                                <!-- <button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-search"></i>&nbsp;Search</button> -->
+                                                <button type="button" class="btn btn-light btn-sm" onclick="refresh()"><i class="fa fa-refresh"></i></button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
                                         <div class="mdl-tabs__tab-bar">
-                                            <a href="#processing-panel" class="mdl-tabs__tab is-active"><strong class="text-warning">Processing Request (25)</strong></a>
-                                            <a href="#warning-panel" class="mdl-tabs__tab"><strong class="text-danger">Warning Part (10)</strong></a>
-                                            <a href="#all-panel" class="mdl-tabs__tab"><strong>All (1500)</strong></a>
+                                            <a href="#processing-panel" class="mdl-tabs__tab is-active"><strong class="text-warning">Y/C vật tư (25)</strong></a>
+                                            <a href="#warning-panel" class="mdl-tabs__tab"><strong class="text-danger">Cảnh báo (10)</strong></a>
+                                            <a href="#all-panel" class="mdl-tabs__tab"><strong>Tất cả (1500)</strong></a>
                                         </div>
 
                                         <div class="mdl-tabs__panel is-active" id="processing-panel">
@@ -153,7 +182,7 @@
                                                     <label for="recipient-name" class="col-form-label">Ngày:</label>
                                                     <div class="input-group">
                                                         <span class="input-group-addon" id=""><span class="material-icons" style="font-size: 17px;">insert_invitation</span></span>
-                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <input type="text" class="form-control isDate" id="processing-date" placeholder="">
                                                         <span class="input-group-btn">
                                                             <button class="btn btn-success" type="button" onclick="filterRequest()"><i class="fa fa-search"></i></button>
                                                         </span>
@@ -167,12 +196,12 @@
                                                             <th>STT#</th>
                                                             <th>Mã</th>
                                                             <th>Tên</th>
-                                                            <th>Manager</th>
-                                                            <th>Clerk</th>
-                                                            <th>Action</th>
+                                                            <th>QLý</th>
+                                                            <th>Kho</th>
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="travel-table-body">
+                                                    <tbody id="processing-table-body">
 
                                                     </tbody>
                                                 </table>
@@ -183,7 +212,7 @@
                                                 <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
                                                     <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <input type="text" class="form-control" placeholder="">
                                                         <span class="input-group-btn">
                                                             <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
                                                         </span>
@@ -194,13 +223,13 @@
                                                 <table class="table table-hover table-bordered table-scrollable">
                                                     <thead>
                                                         <tr>
-                                                            <th>No#</th>
-                                                            <th>Part Code</th>
-                                                            <th>Name</th>
-                                                            <th>Quantity</th>
+                                                            <th>STT#</th>
+                                                            <th>Mã</th>
+                                                            <th>Tên</th>
+                                                            <th>Số lượng</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="travel-table-body">
+                                                    <tbody id="warning-table-body">
 
                                                     </tbody>
                                                 </table>
@@ -211,10 +240,13 @@
                                                 <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
                                                     <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control isDate" placeholder="">
+                                                        <input type="text" class="form-control" placeholder="" id="search-part">
                                                         <span class="input-group-btn">
                                                             <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
                                                         </span>
+                                                    </div>
+                                                    <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -222,15 +254,15 @@
                                                 <table class="table table-hover table-bordered table-scrollable">
                                                     <thead>
                                                         <tr>
-                                                            <th>No#</th>
-                                                            <th>Part Code</th>
-                                                            <th>Name</th>
-                                                            <th>Manager Status</th>
-                                                            <th>Clerk</th>
-                                                            <th>Action</th>
+                                                            <th>STT#</th>
+                                                            <th>Mã</th>
+                                                            <th>Tên</th>
+                                                            <th>Ảnh</th>
+                                                            <th>Vị trí</th>
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="travel-table-body">
+                                                    <tbody id="all-table-body">
 
                                                     </tbody>
                                                 </table>
@@ -242,9 +274,8 @@
                         </div>
                     </div>
                 </div>
-
-    </div>
-    </main>
+            </div>
+        </main>
     </div>
 
     <!-- Modal add request -->
@@ -304,17 +335,16 @@
                 <div class="modal-footer pr-0">
                     <div class="col-sm-12 col-md-12">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
     <script src="/JS/HBI/MEC/index.js"></script>
-    <script>
-
-    </script>
 </body>
 
 </html>

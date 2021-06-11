@@ -9,9 +9,9 @@
 
     <style>
         .mdl-layout__drawer {
-            width: 350px;
+            width: 300px;
             left: -250px;
-            background-color: rgb(33, 97, 140); 
+            background-color: white; 
             border: none;
         }
 
@@ -29,6 +29,14 @@
             top: 0;
         }
 
+        .mdl-navigation__link{
+            color: black!important;
+            font-size: 14px;
+        }
+
+        .mdl-navigation__link i{
+            margin-right: 20px
+        }
     </style>
 
 </head>
@@ -39,28 +47,31 @@
                 <span class="mdl-layout-title" style="font-size: 24px;">HanesBrands Inc.</span>
             </div>
         </header>
-        <div class="mdl-layout__drawer">
-            <div class="header-img">
-                <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">
-                    BỘ PHẬN
-                </span>
+        
+        <div class="mdl-layout__drawer" style="border: none;">
+            <div style="max-width: 100%; min-height: 80px; background-image: url('../Image/2.jpg');
+                background-size: 400px auto;">
+                <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">BỘ PHẬN</span>
                 <div class="mdl-layout-spacer"></div>
             </div>
+            
             <nav class="mdl-navigation">
-                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/home">
-                    <i class="material-icons" style="margin-right: 20px">home</i>
+                <a class="mdl-navigation__link" href="/home">
+                    <i class="material-icons">home</i>
                     HOME
                 </a>
-                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/innovation">
-                    <i class="material-icons" style="margin-right: 20px">build</i>
-                    INNOVATION
+                <a class="mdl-navigation__link" href="/innovation">
+                    <i class="material-icons">build</i>
+                    MECHANIC
                 </a>
-                <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/Production/Production">
-                    <i class="material-icons" style="margin-right: 20px">work</i>
+                <a class="mdl-navigation__link" href="/Production/Production">
+                    <i class="material-icons">work</i>
                     SẢN XUẤT
                 </a>
-                 <a class="mdl-navigation__link" style="color: white; font-size: 14px;" href="/login">
-                    <i class="material-icons" style="margin-right: 20px">account_circle</i>
+                <hr>
+                <div style="margin-left: 40px;"><b>Trở Về</b></div>
+                <a class="mdl-navigation__link" href="/login">
+                    <i class="material-icons">account_circle</i>
                     ĐĂNG XUẤT
                 </a>
             </nav>

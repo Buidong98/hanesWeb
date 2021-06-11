@@ -48,6 +48,7 @@ var LocalStrategy = require('passport-local').Strategy;
 //cau hinh python read - write
 const { PythonShell } = require('python-shell');
 var formidable = require('formidable');
+var UserModel = require(__dirname + '/models/user.model.js');
 
 var staticResource = '//10.113.98.238/Realtime/Pilot';
 var staticResource2 = '//10.113.98.238/Realtime'
@@ -57,10 +58,13 @@ var staticResource5 = '//pbv-h0m2wv2/BK_Bundle1/Backup/'
 var staticResource6 = '//pbv-h0m2wv2/BK_Bundle2/Others/'
 var staticResource7 = '//pbv-h0m2wv2/BK_Bundle2/Backup/'
 var staticResource8 = '//pbv-h0m2wv2/BK_Bundle3/Backup/'
-var staticResource9 = '//pbvfps1/PBShare3/Scan/'
+var staticResource9 = '//10.113.98.238/Realtime/Scan lai/'
+var staticResource10 = '//10.113.98.238/Realtime/not scan/'
 var staticReport = '//pbvfps1/PBShare2/Scan/Report/ReportWebserver/'
 app.use('/image', express.static(staticResource));
 app.use('/image2', express.static(staticResource2));
+app.use('/image3', express.static(staticResource9));
+app.use('/image4', express.static(staticResource10));
 app.use('/report', express.static(staticReport));
 app.use(express.static("public"));
 
@@ -164,6 +168,7 @@ app.post("/login", passport.authenticate('local', {successRedirect:'/home', fail
         }
     })
 });
+
 passport.use(new LocalStrategy(
     (username, password, done) => {
         con2.getConnection(function (err, connection) {
@@ -183,7 +188,10 @@ passport.use(new LocalStrategy(
                     if (password != result[0].Password) {
                         return done(null, {status: false, message: "Sai mật khẩu"});
                     }
-                    return done(null, username);
+
+                    // return done(null, username);
+                    var userLogin = new UserModel("tunguyen", "nguyen van  tuyen", 6, [1, 2, 3]);
+                    return done(null, userLogin);
                 }
             });
         });
@@ -3630,6 +3638,7 @@ var cronUpdateTicketCutting = require('node-cron');
 var cronUpdateDeactiveCutting = require('node-cron');
 const { query, request } = require('express');
 const { info, time, group } = require('console');
+const { default: User } = require('./models/user.model');
 /*
 cronPythonScanTicket: scan folder Pilot will start at 5:30AM and run continously until 23:15 PM
 */

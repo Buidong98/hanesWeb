@@ -1,11 +1,11 @@
 var logHelper = require("../common/log.js");
 var mysql = require("mysql");
 var con = mysql.createConnection({
-    host: "localhost",
+    host: "hyspayqsqlv",
     port: 3306,
     user: "root",
-    password: "123456",
-    database: "hbi"
+    password: "Hy$2020",
+    database: "mec_system"
 });
 con.connect(function (err) {
     if (err)
