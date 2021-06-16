@@ -1,0 +1,9 @@
+6/16/2021, 1:09:34 PM: innovation.addModel
+Cannot read property 'username' of undefined
+---------------------------------------------
+6/16/2021, 1:10:11 PM: innovation.addModel
+Cannot read property 'username' of undefined
+---------------------------------------------
+6/16/2021, 1:11:21 PM: innovation.addModel
+type is not defined
+---------------------------------------------

@@ -1,5 +1,4 @@
 'use strict';
-
 class UserModel{
     constructor(username, fullname, dept, roles, email){
         this.username = username;

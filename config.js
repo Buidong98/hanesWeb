@@ -1,5 +1,5 @@
 var config = {};
 
-config.logFilePath = "D:\\Working\\programming\\NodeJS\\nodejs_api\\log\\";
+config.logFilePath = "C:/NGUYENVANTUYEN/NodeJS/HaneApp/Hanes/logs/";
 
 module.exports = config;

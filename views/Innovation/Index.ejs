@@ -69,38 +69,63 @@
             width: 1150px;
         }
 
-        .mdl-tabs__tab-bar a{
+        .mdl-tabs__tab-bar a {
             text-decoration: none;
         }
-        
-        .full-overlay {
-            /*display: none;*/
-            position: fixed;
-            background: rgba(0, 0, 0, 1);
-            opacity: 0;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            -webkit-transition: opacity .3s ease;
-            -moz-transition: opacity .3s ease;
-            -o-transition: opacity .3s ease;
-            transition: opacity .3s ease;
+
+        .part-result {
+            border-bottom: 1px dashed yellowgreen;
         }
 
-        #mainLoadingSVG {
-            position: fixed;
-            top: calc(50% - 20px);
-            left: calc(50% - 20px);
-            width: 40px;
-            height: 40px;
-            z-index: 1000000;
-            background: #fff;
-            padding: 3px;
-            border-radius: 50%;
-            display: none;
+        .part-result:hover {
+            background: #7d7d80;
+            cursor: pointer;
         }
+
+        .search-image {
+            margin: 10px 10px 10px 10px;
+            object-fit: contain;
+            border-radius: 5px;
+            align-self: flex-start;
+        }
+
+        .onscrollbar::-webkit-scrollbar {
+            width: 0px;
+            background-color: #7d7d80;
+        }
+
+        .table-scrollable{
+           
+        }
+
+        #processing-table-body i{
+            font-size: 32px;
+        }
+
+        @media (max-width: 575.98px) { 
+            .part-img {
+                width: 100%;
+            }
+
+            .onscrollbar{
+                height: 270px;
+            }
+
+            .onscrollbar::-webkit-scrollbar {
+                width: 0px;
+                background-color: #7d7d80;
+            }
+         }
+     
+        @media (min-width: 992px){ 
+            .part-img {
+                width: 20%;
+            }
+
+            .onscrollbar{
+                height: 420px;
+            }
+         }
     </style>
 
 </head>
@@ -126,12 +151,11 @@
                         </div>
                         <div class="bg-white">
                             <div class="d-sm-block">
-                                <div class="panel panel-default">
+                                <div class="panel panel-default m-0">
                                     <div class="panel-heading" style="background: white">
                                         <div class="row">
                                             <div class="col-sm-12 col-md-8 float-left form-inline">
-                                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add
-                                                </button>
+                                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
                                                 <div class="btn-group btn-filter">
                                                     <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
                                                         <span class="fa fa-download"></span> Report
@@ -154,7 +178,6 @@
                                                         </form>
                                                     </div>
                                                 </div>
-                                                <!-- <button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-search"></i>&nbsp;Search</button> -->
                                                 <button type="button" class="btn btn-light btn-sm" onclick="refresh()"><i class="fa fa-refresh"></i></button>
                                             </div>
                                         </div>
@@ -162,14 +185,14 @@
 
                                     <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
                                         <div class="mdl-tabs__tab-bar">
-                                            <a href="#processing-panel" class="mdl-tabs__tab is-active"><strong class="text-warning">Y/C vật tư (25)</strong></a>
-                                            <a href="#warning-panel" class="mdl-tabs__tab"><strong class="text-danger">Cảnh báo (10)</strong></a>
-                                            <a href="#all-panel" class="mdl-tabs__tab"><strong>Tất cả (1500)</strong></a>
+                                            <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
+                                            <a href="#warning-panel" class="mdl-tabs__tab" onclick="getWarningPart()"><strong class="text-danger">Cảnh báo <span id="warning-part-count"></strong></a>
+                                            <a href="#all-panel" class="mdl-tabs__tab" onclick="getAllPart()"><strong>Tất cả <span id="all-part-count"></span></strong></a>
                                         </div>
 
                                         <div class="mdl-tabs__panel is-active" id="processing-panel">
-                                            <div class="pl-4 pr-4 pt-2">
-                                                <div class="col-md-1 col-lg-1 p-0">
+                                            <div class="d-flex pl-4 pr-4 pt-2">
+                                                <div class="p-0">
                                                     <label for="recipient-name" class="col-form-label">Trạng thái:</label>
                                                     <div class="input-group">
                                                         <select class="form-control" name="" id="txtStatus">
@@ -178,33 +201,37 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 pl-lg-3 mb-3">
+                                                <div class="col-sm-6 col-md-2 col-lg-2 p-0 pl-2 mb-3">
                                                     <label for="recipient-name" class="col-form-label">Ngày:</label>
                                                     <div class="input-group">
                                                         <span class="input-group-addon" id=""><span class="material-icons" style="font-size: 17px;">insert_invitation</span></span>
                                                         <input type="text" class="form-control isDate" id="processing-date" placeholder="">
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-success" type="button" onclick="filterRequest()"><i class="fa fa-search"></i></button>
+                                                            <button class="btn btn-success" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
                                                         </span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="">
-                                                <table class="table table-hover table-bordered table-scrollable">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead>
                                                         <tr>
-                                                            <th>STT#</th>
-                                                            <th>Mã</th>
-                                                            <th>Tên</th>
-                                                            <th>QLý</th>
-                                                            <th>Kho</th>
-                                                            <th></th>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='20%'>Tên</th>
+                                                            <th width='20%'>QLý</th>
+                                                            <th width='20%'>Kho</th>
+                                                            <th width='10%'></th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="processing-table-body">
-
-                                                    </tbody>
                                                 </table>
+                                                <div class="onscrollbar" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="processing-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mdl-tabs__panel" id="warning-panel">
@@ -212,27 +239,32 @@
                                                 <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
                                                     <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control" placeholder="">
+                                                        <input type="text" class="form-control" id="txtWarningPart" placeholder="">
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
+                                                            <button class="btn btn-success" type="button" onclick="getWarningPart()"><i class="fa fa-search"></i></button>
                                                         </span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="">
-                                                <table class="table table-hover table-bordered table-scrollable">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead>
                                                         <tr>
-                                                            <th>STT#</th>
-                                                            <th>Mã</th>
-                                                            <th>Tên</th>
-                                                            <th>Số lượng</th>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='30%'>Tên</th>
+                                                            <th width='20%'>SL</th>
+                                                            <th width='20%'>SL Min</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="warning-table-body">
-
-                                                    </tbody>
                                                 </table>
+                                                <div class="onscrollbar" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="warning-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mdl-tabs__panel" id="all-panel">
@@ -240,32 +272,33 @@
                                                 <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
                                                     <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control" placeholder="" id="search-part">
+                                                        <input type="text" class="form-control" placeholder="" id="txtAllPart">
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-success" type="button"><i class="fa fa-search"></i></button>
+                                                            <button class="btn btn-success" type="button" onclick="getAllPart()"><i class="fa fa-search"></i></button>
                                                         </span>
-                                                    </div>
-                                                    <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
-
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="">
-                                                <table class="table table-hover table-bordered table-scrollable">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead>
                                                         <tr>
-                                                            <th>STT#</th>
-                                                            <th>Mã</th>
-                                                            <th>Tên</th>
-                                                            <th>Ảnh</th>
-                                                            <th>Vị trí</th>
-                                                            <th></th>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='20%'>Tên</th>
+                                                            <th width='20%'>SL</th>
+                                                            <th width='20%'>Vị trí</th>
+                                                            <th width='10%'></th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="all-table-body">
-
-                                                    </tbody>
                                                 </table>
+                                                <div class="onscrollbar" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="all-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -274,12 +307,79 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+    </div>
+    </main>
     </div>
 
     <!-- Modal add request -->
     <div class="modal fade" id="modalAddRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Phiếu yêu cầu vật tư</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtPartName">
+                            </div>
+                            <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtPartCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng yêu cầu</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Lý do</label>
+                            <div class="">
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtPartLocation" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Lọai máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtMachineType" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal add request -->
+    <div class="modal fade" id="modalUpdateRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -328,6 +428,70 @@
                             <label for="">Thực xuất</label>
                             <div class="">
                                 <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal update part -->
+    <div class="modal fade" id="modalUpdatePart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Chi tiết vật tư</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDPartName">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDPartCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDPartQty">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDPartLocation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mô tả</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDPartDes">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Lọai máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtMachineType">
                             </div>
                         </div>
                     </div>

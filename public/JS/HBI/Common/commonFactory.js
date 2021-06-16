@@ -31,21 +31,51 @@ var PostDataAjax = function (url, data, callBack, timeout) {
         },
 
         error: function (error) {
-            // LoadingHide();
+            LoadingHide();
             // toastr.error(error.statusText);
         }
     });
 };
 
-function LoadingShow() {
-    $('.full-overlay').css({ 'z-index': 1000000, 'opacity': .5 });
-    $('#mainLoadingSVG').show();
-}
+var GetDataAjax = function (url, callBack, timeout) {
+  var tokenString = "";
+  var uuid = "";
+  var storeID = 0;
 
-function LoadingHide() {
-    $('.full-overlay').css({ 'z-index': -1, 'opacity': 0 });
-    $('#mainLoadingSVG').hide();
-}
+  $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+          "Token-String": tokenString,
+          "Device-UUID": uuid,
+      },
+
+      cache: true,
+      dataType: "json",
+      processData: true,
+      beforeSend: function () { },
+      async: true,
+      tryCount: 0,
+      retryLimit: 3,
+
+      success: function (response) {
+          if (response) {
+              setTimeout(function () {
+                  callBack(response);
+              }, 10);
+          } else {
+              setTimeout(callBack, 10);
+          }
+      },
+
+      error: function (error) {
+          LoadingHide();
+          // toastr.error(error.statusText);
+      }
+  });
+};
+
+////////////////////////////////////////////////////////////////////////////////
 
 (function(window,undefined){
     '$:nomunge'; // Used by YUI compressor.
@@ -109,3 +139,23 @@ function LoadingHide() {
     
   })(this);
 
+////////////////////////////////////////////////////////////////////
+
+function LoadingShow() {
+  $('.full-overlay').css({ 'z-index': 1000000, 'opacity': .5 });
+  $('#mainLoadingSVG').show();
+}
+
+function LoadingHide() {
+  $('.full-overlay').css({ 'z-index': -1, 'opacity': 0 });
+  $('#mainLoadingSVG').hide();
+}
+
+function CheckNullOrEmpty(input, strError) {
+  if (input === undefined || input.val() == null || input.val().trim() === "" || input.val().trim() == "") {
+      toastr.error(strError);
+      input.focus();
+      return false;
+  }
+  return true;
+}

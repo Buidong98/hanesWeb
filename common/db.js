@@ -16,9 +16,12 @@ class Database {
     excuteQuery(queryString, callback){
         try {
             con.query(queryString, function (err, result, fields) {
-                if (err)
-                    throw err;
-                callback(result);
+                if (err){
+                    callback({rs: false, msg: err});
+                }
+                else{
+                    callback({rs: true, msg: "", data: result});
+                }
             })
         }
         catch(error) {
@@ -30,9 +33,12 @@ class Database {
     excuteSP(queryString, callback){
         try {
             con.query(queryString, function (err, result, fields) {
-                if (err)
-                    throw err;
-                callback(result[0]);
+                if (err){
+                    callback({rs: false, msg: err});
+                }
+                else{
+                    callback({rs: true, msg: "", data: result[0]});
+                }
             })
         }
         catch(error) {

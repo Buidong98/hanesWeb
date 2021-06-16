@@ -70,10 +70,11 @@ app.use(express.static("public"));
 
 app.use(session({
     secret: "secret",
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: true,
-    cookie: { maxAge: 1200000 }
+    cookie: { maxAge: 86400000 }
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -92,35 +93,20 @@ server.listen(8000, '10.113.99.3', function(){
     console.log('Server Start Running');
 });
 
-app.get("/", function (request, respone) {
-    if (!request.isAuthenticated()) {
-        respone.render("login", {msg: ""});
-    } else {
-        respone.render("home", { ID: request.user });
-    }
+var authController = require('./middleware/auth.controller');
+app.get("/", authController.authenticate, function (request, respone) {
+    respone.render("home", { ID: request.user });
 });
 
-app.get("/home", function (request, respone) {
-    if (!request.isAuthenticated()) {
-        respone.render("login", {msg: ""});
-    } else {
-        if (request.user.status == false){
-            respone.render("login", {msg: request.user.message});
-        }
-        else{
-            respone.render("home", { ID: request.user });
-        }
-    }
+app.get("/home", authController.authenticate, function (request, respone) {
+    respone.render("home", { ID: request.user });
 });
 
 // Innovation route
 var userRoutes = require('./routes/innovation');
 
-app.use("/innovation", userRoutes);
-
-// app.get("/innovation", function (request, response) {
-//     response.render("Innovation/Index");
-// });
+app.use("/innovation", authController.authenticate, userRoutes);
+//app.use("/innovation", userRoutes);
 
 //======================================LOGIN==============================================
 
