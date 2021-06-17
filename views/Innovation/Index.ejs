@@ -11,68 +11,14 @@
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        .btn-light {
-            background: #ced6dd;
-        }
-
-        .page-content {
-            padding-top: 0 !important;
-        }
-
-        .travel-area .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-        }
-
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        .div-destination .select2-container {
-            width: 32.5% !important;
-            padding: 0;
-        }
-
-        .div-travel .select2-container {
-            width: 100% !important;
-            padding: 0;
-        }
-
-        .select2-container--open {
-            z-index: 99999;
-        }
-
-        .travel-area #formTRReport {
-            width: 300px;
-        }
-
-        .travel-area .modal-footer {
-            border-top: 0;
-        }
-
-        .modal-xlg {
-            width: 1150px;
-        }
-
-        .mdl-tabs__tab-bar a {
-            text-decoration: none;
-        }
-
         .part-result {
             border-bottom: 1px dashed yellowgreen;
         }
@@ -102,30 +48,6 @@
             font-size: 32px;
         }
 
-        @media (max-width: 575.98px) { 
-            .part-img {
-                width: 100%;
-            }
-
-            .onscrollbar{
-                height: 270px;
-            }
-
-            .onscrollbar::-webkit-scrollbar {
-                width: 0px;
-                background-color: #7d7d80;
-            }
-         }
-     
-        @media (min-width: 992px){ 
-            .part-img {
-                width: 20%;
-            }
-
-            .onscrollbar{
-                height: 420px;
-            }
-         }
     </style>
 
 </head>
@@ -152,7 +74,16 @@
                         <div class="bg-white">
                             <div class="d-sm-block">
                                 <div class="panel panel-default m-0">
-                                    <div class="panel-heading" style="background: white">
+                                
+                                    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                        <div class="mdl-tabs__tab-bar">
+                                            <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
+                                            <a href="#warning-panel" class="mdl-tabs__tab" onclick="getWarningPart()"><strong class="text-danger">Cảnh báo <span id="warning-part-count"></strong></a>
+                                            <a href="#all-panel" class="mdl-tabs__tab" onclick="getAllPart()"><strong>Tất cả <span id="all-part-count"></span></strong></a>
+                                        </div>
+
+                                        <div class="mdl-tabs__panel is-active" id="processing-panel">
+                                        <div class="panel-heading" style="background: white">
                                         <div class="row">
                                             <div class="col-sm-12 col-md-8 float-left form-inline">
                                                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
@@ -182,15 +113,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
-                                        <div class="mdl-tabs__tab-bar">
-                                            <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
-                                            <a href="#warning-panel" class="mdl-tabs__tab" onclick="getWarningPart()"><strong class="text-danger">Cảnh báo <span id="warning-part-count"></strong></a>
-                                            <a href="#all-panel" class="mdl-tabs__tab" onclick="getAllPart()"><strong>Tất cả <span id="all-part-count"></span></strong></a>
-                                        </div>
-
-                                        <div class="mdl-tabs__panel is-active" id="processing-panel">
                                             <div class="d-flex pl-4 pr-4 pt-2">
                                                 <div class="p-0">
                                                     <label for="recipient-name" class="col-form-label">Trạng thái:</label>
@@ -246,6 +168,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            
                                             <div class="">
                                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead>
@@ -268,11 +191,15 @@
                                             </div>
                                         </div>
                                         <div class="mdl-tabs__panel" id="all-panel">
-                                            <div class="pl-4 pr-4 pt-2">
-                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
-                                                    <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
+                                            <div class="d-flex pl-4 pr-4 mt-3 mb-3">
+                                                <div class="p-0">
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control" placeholder="" id="txtAllPart">
+                                                        <button class="btn btn-success" data-target="#modalAddPart" data-toggle="modal"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="pl-2 input-sm-100">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="txtAllPart" placeholder="Tên vật tư">
                                                         <span class="input-group-btn">
                                                             <button class="btn btn-success" type="button" onclick="getAllPart()"><i class="fa fa-search"></i></button>
                                                         </span>
@@ -307,8 +234,8 @@
                         </div>
                     </div>
                 </div>
-    </div>
-    </main>
+            </div>
+        </main>
     </div>
 
     <!-- Modal add request -->
@@ -377,7 +304,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modal add request -->
     <div class="modal fade" id="modalUpdateRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -441,7 +367,86 @@
             </div>
         </div>
     </div>
-
+      <!-- Modal add part -->
+      <div class="modal fade" id="modalAddPart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Chi tiết vật tư</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartName">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã vật tư</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartQty">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng tối thiểu</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartMinQty">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartLocation">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mô tả</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartDes">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Đơn vị</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAPartLocation">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6 d-flex">
+                            <label for="" class="mr-3">Ảnh</label>
+                            <div class="">
+                                <label class="d-flex align-items-center justify-content-center">
+                                    <img id="part-img" src="/Image/upload.png" width="150px" height="150px">
+                                    <input type="file" accept=".jpg, .jpeg, .png" id="part-image-upload" onchange="uploadImage(event)" class="d-none">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addPart()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Modal update part -->
     <div class="modal fade" id="modalUpdatePart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -453,6 +458,7 @@
                     </button>
                 </div>
                 <div class="modal-body p-0">
+                    <input type="hidden" id="txtDPartId">
                     <div class="form-row">
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Tên vật tư</label>
@@ -488,18 +494,12 @@
                                 <input type="text" class="form-control" id="txtDPartDes">
                             </div>
                         </div>
-                        <div class="form-group col-sm-12 col-md-6">
-                            <label for="">Lọai máy</label>
-                            <div class="">
-                                <input type="text" class="form-control" id="txtMachineType">
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer pr-0">
                     <div class="col-sm-12 col-md-12">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
+                        <button type="button" class="btn btn-success" onclick="updatePart()">Submit</button>
                     </div>
                 </div>
             </div>

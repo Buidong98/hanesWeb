@@ -14,6 +14,7 @@ router.post("/parts", controller.getAllPart)
 router.get("/parts/:id", controller.getPartDetail)
 router.post("/parts/add", controller.addPart)
 router.post("/parts/update", controller.updatePart)
+router.post("/part/upload", controller.upload)
 
 
 // Machine

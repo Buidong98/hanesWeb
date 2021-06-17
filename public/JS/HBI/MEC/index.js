@@ -214,6 +214,7 @@ function getPartDetail(id){
         if(response.rs){
             let data = response.data;
 
+            $("#txtDPartId").val(data.id);
             $("#txtDPartName").val(data.name);
             $("#txtDPartCode").val(data.part_code);
             $("#txtDPartQty").val(data.quantity);
@@ -226,4 +227,125 @@ function getPartDetail(id){
     });
     
     $("#modalUpdatePart").modal("show");
+}
+
+// add part 
+function addPart(){
+    let name =  $("#txtAPartName");
+    let code =  $("#txtAPartCode");
+    let qty =  $("#txtAPartQty");
+    let min_qty = $("#txtAPartMinQty");
+    let location =  $("#txtAPartLocation");
+    let des = $("#txtAPartDes");
+    let img = $("#part-image-upload").val();
+
+    if (!CheckNullOrEmpty(name, "Tên loại máy không được để trống"))
+        return false;
+    if (!CheckNullOrEmpty(code, "Tên mã máy không được để trống"))
+        return false;
+
+    let action = baseUrl + 'parts/add';
+    let datasend = {
+        name: name.val(),
+        code: code.val(),
+        qty: qty.val(),
+        min_qty: min_qty.val(),
+        location: location.val(),
+        des: des.val(),
+        img: img
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide(); 
+        if(response.rs){
+            toastr.success("Thành công", "Thêm thành công");
+            getAllPart();
+            $("#modalAddPart").modal("hide");
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+// update part 
+function updatePart(){
+    let id = $("#txtDPartId");
+    let name =  $("#txtDPartName");
+    let code =  $("#txtDPartCode");
+    let qty =  $("#txtDPartQty");
+    let location =  $("#txtDPartLocation");
+    let des = $("#txtDPartDes");
+
+    if (!CheckNullOrEmpty(name, "Tên loại máy không được để trống"))
+        return false;
+    if (!CheckNullOrEmpty(code, "Tên mã máy không được để trống"))
+        return false;
+
+    let action = baseUrl + 'parts/update';
+    let datasend = {
+        id: id.val(),
+        name: name.val(),
+        code: code.val(),
+        qty: qty.val(),
+        location: location.val(),
+        des: des.val()
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if(response.rs){
+            toastr.success("Thành công", "Cập nhật thành công");
+            getAllPart();
+            $("#modalUpdatePart").modal("hide");
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+// upload image 
+function uploadImage(event){
+
+    var files = event.target.files;
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            setTimeout(function () {
+                var img = event.target.result;
+                $("#part-img").attr("src", img);
+                
+                // var file = event.target.files[0];
+                var imageType = /image.*/;
+            
+                if (!file.type.match(imageType)) return;
+            
+                var form_data = new FormData();
+                form_data.append('file', file);
+            
+                for (var key of form_data.entries()) {
+                    console.log(key[0] + ', ' + key[1]);
+                }
+            
+                $.ajax({
+                    url: baseUrl + "part/upload",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: form_data,
+                    type: 'POST',
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+
+            }, 100);
+        };
+        reader.readAsDataURL(file);
+    }
 }

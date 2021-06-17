@@ -1,0 +1,12 @@
+6/17/2021, 11:48:22 AM: innovation.addMachine
+out is not defined
+---------------------------------------------
+6/17/2021, 11:49:46 AM: innovation.addMachine
+type is not defined
+---------------------------------------------
+6/17/2021, 3:43:15 PM: innovation.addMachine
+Cannot read property 'headers' of undefined
+---------------------------------------------
+6/17/2021, 3:58:07 PM: innovation.addMachine
+Cannot read property 'headers' of undefined
+---------------------------------------------
