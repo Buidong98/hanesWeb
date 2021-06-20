@@ -253,7 +253,7 @@
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Tên vật tư</label>
                             <div class="">
-                                <input type="text" class="form-control" id="txtPartName">
+                                <input type="text" class="form-control" id="txtRPartName">
                             </div>
                             <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
 
@@ -262,21 +262,29 @@
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Mã vật tư</label>
                             <div class="">
-                                <input type="text" class="form-control" id="txtPartCode">
+                                <input type="text" class="form-control" id="txtRPartCode" disabled>
                             </div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-sm-12 col-md-6">
-                            <label for="">Số lượng yêu cầu</label>
+                            <label for="">Số lượng yêu cầu (Trong kho: <span class="text-success bold" id="txtPartRemainQty"></span>)</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtRPartQty">
                             </div>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tag máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtRPartTag">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
                             <label for="">Lý do</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtRPartReason">
                             </div>
                         </div>
                     </div>
@@ -284,13 +292,13 @@
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Vị trí</label>
                             <div class="">
-                                <input type="text" class="form-control" id="txtPartLocation" disabled>
+                                <input type="text" class="form-control" id="txtRPartLocation" disabled>
                             </div>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Lọai máy</label>
                             <div class="">
-                                <input type="text" class="form-control" id="txtMachineType" disabled>
+                                <input type="text" class="form-control" id="txtRMachineType" disabled>
                             </div>
                         </div>
                     </div>
@@ -309,23 +317,24 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel"><strong>Phiếu yêu cầu vật tư</strong></h4>
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật phiếu yêu cầu vật tư</strong></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body p-0">
+                    <input type="hidden" id="txtURId">
                     <div class="form-row">
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Tên vật tư</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtURPartName" disabled>
                             </div>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Mã vật tư</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtURPartCode" disabled>
                             </div>
                         </div>
                     </div>
@@ -333,27 +342,28 @@
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Vị trí</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtURPartLocation" disabled>
                             </div>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Số lượng yêu cầu</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtURPartQty" disabled>
                             </div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-sm-12 col-md-6">
-                            <label for="">Lọai máy</label>
+                            <label for="">Tag máy</label>
                             <div class="">
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="txtURTagMachine" disabled>
                             </div>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
                             <label for="">Thực xuất</label>
-                            <div class="">
-                                <input type="text" class="form-control">
+                            <div class="d-flex form-inline">
+                                <input type="text" class="form-control" id="txtURPartQtyExport" placeholder="" style="width: 75.8%">
+                                <button class="btn btn-success ml-2" onclick="updateRequest()">&nbsp;Clerk xử lý</button>
                             </div>
                         </div>
                     </div>
@@ -361,7 +371,6 @@
                 <div class="modal-footer pr-0">
                     <div class="col-sm-12 col-md-12">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
                     </div>
                 </div>
             </div>
@@ -372,7 +381,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel"><strong>Chi tiết vật tư</strong></h4>
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm thông tin vật tư</strong></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

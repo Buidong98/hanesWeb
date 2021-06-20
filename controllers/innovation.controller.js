@@ -1,10 +1,11 @@
 var formidable = require('formidable');
 var fs = require('fs');
 var Database = require("../common/db.js")
-var db = new Database();
-var helper = require('../common/helper.js');
-var logHelper = require('../common/log.js');
+const db = new Database();
+const helper = require('../common/helper.js');
+const logHelper = require('../common/log.js');
 const config = require('../config.js');
+const constant = require('../common/constant');
 
 module.exports.getIndex = function (req, res) {
     res.render('Innovation/Index');
@@ -58,7 +59,7 @@ module.exports.suggestPart = function (req, res) {
         let pageSize = req.body.pageSize;
 
         // execute
-        let query = `SELECT id, part_code, name, image, location FROM mec_part WHERE name LIKE '%${keyword}%' LIMIT ${pageSize}`;
+        let query = `SELECT id, code, quantity, name, image, location FROM mec_part WHERE name LIKE '%${keyword}%' LIMIT ${pageSize}`;
         db.excuteQuery(query, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
@@ -133,22 +134,80 @@ module.exports.getPartDetail = function (req, res) {
     }
 }
 
-module.exports.upload = function (req, res) {
-    var form = new formidable.IncomingForm();
+// add request
+module.exports.addRequest = function (req, res) {
+    try {
+        //parameters
+        let name = req.body.name;
+        let code = req.body.code;
+        let qty = req.body.qty;
+        let location = req.body.location;
+        let tag = req.body.tag;
+        let reason = req.body.reason;
 
-    form.parse(req, function (err, fields, file) {
-        if (err)
-            return res.redirect(303, 'Error');
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNow();
+       
+        // execute
+        let query = `INSERT INTO mec_sparepart_request (name, code, qty, export_qty, tag_machine, location, reason, request_date, requester) 
+                    VALUES('${name}', '${code}', ${qty}, 0, '${tag}', '${location}', '${reason}', '${datetime}', '${user}')`;
+        db.excuteQuery(query, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.addMachine", error);
+    }
+}
 
-        console.log(file);
-        fs.rename(file.file.path, config.imageFilePath + file.file.name, function(err) {
-            if (err)
-                throw err;
-            console.log('renamed complete');  
+var reqService = require("../services/sparePartRequest");
+// update request
+module.exports.updateRequest = function (req, res, next) {
+    try {
+        reqService.getRequestDetail(req.body, function(result){
+            if (!result)
+                return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy request" }));
+            
+            if(result.clerk_status == 2)
+                return res.end(JSON.stringify({ rs: false, msg: "Request đã được clerk xử lý" }));
         });
 
-        res.end();
-    });
+        reqService.updateRequest(req.body, function(result){
+            if (result <= 0) 
+                return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+                
+            return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.updateRequest", error);
+    }
+}
+
+module.exports.upload = function (req, res) {
+    try {
+        let form = new formidable.IncomingForm();
+
+        form.parse(req, function (err, fields, file) {
+            if (err)
+                return res.redirect(303, 'Error');
+
+            fs.rename(file.file.path, config.imageFilePath + file.file.name, function(err) {
+                if (err)
+                    throw err;
+                console.log('upload successfully');  
+            });
+
+            res.end();
+        });
+    } catch (error) {
+        logHelper.writeLog("innovation.upload", error);
+    }
 }
 
 // add part
@@ -171,7 +230,7 @@ module.exports.addPart = function (req, res) {
         // });
 
         // execute
-        let query = `INSERT INTO mec_part (name, part_code, quantity, min_quantity, location, description, image, last_update, user_update) 
+        let query = `INSERT INTO mec_part (name, code, quantity, min_quantity, location, description, image, last_update, user_update) 
                     VALUES('${name}', '${code}', ${qty}, ${min_qty}, '${location}', '${des}', '${img}', '${datetime}', '${user}')`;
         db.excuteQuery(query, function (result) {
             if (!result.rs) {
@@ -202,7 +261,7 @@ module.exports.updatePart = function (req, res) {
 
         // execute
         let query = `UPDATE mec_part
-                    SET name = '${name}', part_code = '${code}', quantity = '${qty}', location = '${location}', 
+                    SET name = '${name}', code = '${code}', quantity = '${qty}', location = '${location}', 
                     last_update = '${datetime}', user_update = '${user}', description = '${des}'
                     WHERE id = ${id}`;
 
@@ -220,16 +279,7 @@ module.exports.updatePart = function (req, res) {
     }
 }
 
-// module.exports.upload = function(req, res) {
-//     var base64Data = req.body.img.replace(/^data:image\/png;base64,/, "");
-
-//     fs.writeFile("/Image/Parts/out.png", base64Data, 'base64', function(err) {
-//         console.log(err);
-//     });
-// }
-
 // Machine
-
 module.exports.getMachineIndex = function (req, res) {
     res.render('Innovation/Machine/MachineIndex');
 }

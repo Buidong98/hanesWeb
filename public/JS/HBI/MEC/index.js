@@ -17,7 +17,7 @@ $(document).on('click', '.day', function (e) {
 
 $(document).ready(function () {
     $('.isDate').datepicker({
-        format: "mm-dd-yyyy",
+        format: "mm/dd/yyyy",
     });
 
     getAllRequest();
@@ -41,11 +41,11 @@ function getAllRequest(){
                 let ele = data[i];
                 html += "<tr>"
                         + "<td width='10%'>"+ ele.id +"</td>"
-                        + "<td width='20%'>"+ ele.part_code +"</td>"
-                        + "<td width='20%'>"+ ele.part_name +"</td>"
-                        + "<td width='20%'>"+ (ele.manager_status == '0' ? "<i class='text-success fa fa-check-circle'></i>" : "<i class='text-danger fa fa-times-circle'></i>") +"</td>"
-                        + "<td width='20%'>"+ (ele.clerk == '0' ? "<i class='text-success fa fa-check-circle'></i>" : "<i class='text-danger fa fa-times-circle'></i>") +"</td>"
-                        + "<td width='10%'><a href='javascript:void(0)'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
+                        + "<td width='20%'>"+ ele.code +"</td>"
+                        + "<td width='20%'>"+ ele.name +"</td>"
+                        + "<td width='20%'>"+ (ele.manager_status == '2' ? "<i class='text-success fa fa-check-circle'></i>" : "<i class='text-danger fa fa-times-circle'></i>") +"</td>"
+                        + "<td width='20%'>"+ (ele.clerk_status == '2' ? "<i class='text-success fa fa-check-circle'></i>" : "<i class='text-danger fa fa-times-circle'></i>") +"</td>"
+                        + "<td width='10%'><a href='javascript:void(0)' onclick='getRequestDetail("+ele.id+")'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
                         + "</tr>";
             }
             $("#processing-table-body").html('');
@@ -58,9 +58,96 @@ function getAllRequest(){
     });
 }    
 
+// get request detail
+function getRequestDetail(id){
+    let action = baseUrl + 'request/' + id;
+    LoadingShow();
+    GetDataAjax(action, function (response) {
+        LoadingHide();
+        if(response.rs){
+            let data = response.data;
+
+            $("#txtURId").val(data.id);
+            $("#txtURPartName").val(data.name);
+            $("#txtURPartCode").val(data.code);
+            $("#txtURPartQty").val(data.qty);
+            $("#txtURPartLocation").val(data.location);
+            $("#txtDPartDes").val(data.description);
+            $("#txtURPartQtyExport").val(data.export_qty);
+        }
+        else{
+
+        }
+    });
+    
+    $("#modalUpdateRequest").modal("show");
+}
+
 // Thêm yêu cầu vặt tư
 function addRequest(){
-    toastr.success("create request uccess");
+    let name =  $("#txtRPartName");
+    let code =  $("#txtRPartCode");
+    let qty =  $("#txtRPartQty");
+    let location =  $("#txtRPartLocation");
+    let reason = $("#txtRPartReason");
+    let tag = $("#txtRPartTag");
+
+    if (!CheckNullOrEmpty(name, "Tên loại máy không được để trống"))
+        return false;
+    if (!CheckNullOrEmpty(code, "Tên mã máy không được để trống"))
+        return false;    
+    let remainQty = parseInt($("#txtPartRemainQty").text());
+    if (remainQty < parseInt(qty.val())) 
+    {
+        toastr.error("Trong kho không đủ số lượng.");
+        return false;
+    }
+
+    let action = baseUrl + 'request/add';
+    let datasend = {
+        name: name.val(),
+        code: code.val(),
+        qty: qty.val(),
+        location: location.val(),
+        reason: reason.val(),
+        tag: tag.val()
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide(); 
+        if(response.rs){
+            toastr.success("Thành công", "Thêm thành công");
+            getAllRequest();
+            $("#modalAddRequest").modal("hide");
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+// Cập nhật yêu cầu vặt tư
+function updateRequest(){
+    let id =  $("#txtURId");
+    let export_qty =  $("#txtURPartQtyExport");
+
+    let action = baseUrl + 'request/update';
+    let datasend = {
+        id: id.val(),
+        export_qty: export_qty.val()
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide(); 
+        if(response.rs){
+            toastr.success("Thành công", "Cập nhật thành công");
+            getAllRequest();
+            $("#modalUpdateRequest").modal("hide");
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 // Tải báo cáo
@@ -69,11 +156,11 @@ function report(){
 }
 
 // tìm kiếm part
-$("#txtPartName").on("keyup", $.debounce(250, searchPart));
+$("#txtRPartName").on("keyup", $.debounce(250, searchPart));
 var partArr = [];
 
 function searchPart(){
-    var keyword = $("#txtPartName").val();
+    var keyword = $("#txtRPartName").val();
     setTimeout(function () {
         if (keyword.length >= 1) {
             let datasend = {
@@ -95,7 +182,7 @@ function searchPart(){
                                             +"<img class='search-image' src='/Image/"+ele.id+".jpg' width='75px' />"
                                             +"<div class=''>"
                                                 +"<h5>Tên: <strong>"+ele.name+"</strong></h5>"
-                                                +"<p class='m-0'>Mã: <strong>"+ele.part_code+"</strong></p>"
+                                                +"<p class='m-0'>Mã: <strong>"+ele.code+"</strong></p>"
                                             +"</div>"
                                         +"</div>";
                             }
@@ -129,9 +216,10 @@ function selectPart(id){
 
     let selectedPart = listPart[0];
     // full fill to input
-    $("#txtPartName").val(selectedPart.name);
-    $("#txtPartCode").val(selectedPart.part_code);
-    $("#txtPartLocation").val(selectedPart.location);
+    $("#txtRPartName").val(selectedPart.name);
+    $("#txtRPartCode").val(selectedPart.code);
+    $("#txtRPartLocation").val(selectedPart.location);
+    $("#txtPartRemainQty").text(selectedPart.quantity);
     
     // close search result panel
     $(".search-result-panel").addClass('d-none');
@@ -155,7 +243,7 @@ function getWarningPart(){
                 let ele = data[i];
                 html += "<tr>"
                         + "<td width='10%'>"+ ele.id +"</td>"
-                        + "<td width='20%'>"+ ele.part_code +"</td>"
+                        + "<td width='20%'>"+ ele.code +"</td>"
                         + "<td width='30%'>"+ ele.name +"</td>"
                         + "<td width='20%'>"+ ele.quantity +"</td>"
                         + "<td width='20%'>"+ ele.min_quantity +"</td>"
@@ -171,7 +259,7 @@ function getWarningPart(){
     });
 }
 
-// Warning part
+// All part
 function getAllPart(){
     let keyword = $("#txtAllPart").val();
     let action = baseUrl + 'parts';
@@ -188,7 +276,7 @@ function getAllPart(){
                 let ele = data[i];
                 html += "<tr>"
                         + "<td width='10%'>"+ ele.id +"</td>"
-                        + "<td width='20%'>"+ ele.part_code +"</td>"
+                        + "<td width='20%'>"+ ele.code +"</td>"
                         + "<td width='20%'>"+ ele.name +"</td>"
                         + "<td width='20%'>"+ ele.quantity +"</td>"
                         + "<td width='20%'>"+ ele.location +"</td>"
@@ -216,7 +304,7 @@ function getPartDetail(id){
 
             $("#txtDPartId").val(data.id);
             $("#txtDPartName").val(data.name);
-            $("#txtDPartCode").val(data.part_code);
+            $("#txtDPartCode").val(data.code);
             $("#txtDPartQty").val(data.quantity);
             $("#txtDPartLocation").val(data.location);
             $("#txtDPartDes").val(data.description);
