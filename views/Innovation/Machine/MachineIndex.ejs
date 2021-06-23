@@ -9,8 +9,7 @@
 
     <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
     <link rel="stylesheet" href="/Contents/css/main.css">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
@@ -84,7 +83,7 @@
                                                     </div>                                                  
                                                 </div>
                                                 <div class="pl-2">
-                                                    <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
+                                                    <button type="button" class="btn btn-light" onclick="downloadMachine()"><i class="fa fa-download"></i></button>
                                                 </div>
                                                 <div class="justify-content-end pl-2">
                                                     <div class="input-group">
@@ -146,7 +145,7 @@
                                                     </div>                                                  
                                                 </div>
                                                 <div class="pl-2">
-                                                    <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
+                                                    <button type="button" class="btn btn-light" onclick="downloadModel()"><i class="fa fa-download"></i></button>
                                                 </div>
                                                 <div class="justify-content-end pl-2">
                                                     <div class="input-group">
@@ -422,7 +421,8 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
     <script src="/JS/HBI/Common/commonFactory.js"></script>
     <script src="/JS/HBI/MEC/machine.js"></script>
 </body>

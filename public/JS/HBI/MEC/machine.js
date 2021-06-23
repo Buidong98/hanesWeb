@@ -74,6 +74,33 @@ function getAllMachine(){
     });
 }    
 
+// download machine
+function downloadMachine() {
+    LoadingShow();
+    let keyword =  $("#txtMachine").val();
+    let machineType = $("#txtFilterMachineType").val();
+
+    let action = baseUrl + 'machine/download';
+    let datasend = {
+        keyword: keyword,
+        type: machineType
+    };
+
+    fetch(action, {
+            method: 'POST',
+            body: JSON.stringify(datasend),
+            headers: {
+                'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_machine.xlsx");
+    });
+}
+
+
 // add machine 
 function addMachine(){
     let name =  $("#txtMachineName");
@@ -163,7 +190,6 @@ function getMachineDetail(id){
     $("#modalUpdateMachine").modal("show");
 }
 
-
 /*
     MODEL
 */
@@ -198,10 +224,33 @@ function getAllModel(){
             $("#model-count").text("(" + data.length + ")");
         }
         else{
-            toastr.error(response.msg, "Thất bại");
+            toastr.error(response.msg, " ");
         }
     });
 }    
+
+// download model
+function downloadModel() {
+    LoadingShow();
+    let keyword = $("#txtModel").val();
+    let action = baseUrl + 'model/download';
+    let datasend = {
+        keyword: keyword == "" ? "" : keyword
+    };
+
+    fetch(action, {
+            method: 'POST',
+            body: JSON.stringify(datasend),
+            headers: {
+                'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_model.xlsx");
+    });
+}
 
 // add machine 
 function addModel(){
@@ -302,4 +351,30 @@ function getModelDetail(id){
     });
     
     $("#modalUpdateModel").modal("show");
+}
+
+// download model
+function downloadModel() {
+    LoadingShow();
+    let keyword =  $("#txtModel").val();
+    let machine = $("#txtFilterMachine").val();
+
+    let action = baseUrl + 'model/download';
+    let datasend = {
+        keyword: keyword,
+        machine: machine
+    };
+
+    fetch(action, {
+            method: 'POST',
+            body: JSON.stringify(datasend),
+            headers: {
+                'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_model.xlsx");
+    });
 }

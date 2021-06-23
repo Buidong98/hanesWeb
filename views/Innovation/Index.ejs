@@ -9,8 +9,7 @@
 
     <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
     <link rel="stylesheet" href="/Contents/css/main.css">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
@@ -86,12 +85,12 @@
                                         <div class="panel-heading" style="background: white">
                                         <div class="row">
                                             <div class="col-sm-12 col-md-8 float-left form-inline">
-                                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
+                                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
                                                 <div class="btn-group btn-filter">
-                                                    <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
+                                                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
                                                         <span class="fa fa-download"></span> Report
                                                     </button>
-                                                    <div class="dropdown-menu p-3" style="left: -63px;">
+                                                    <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
                                                         <form class="form-inline" id="formTRReport">
                                                             <div style="display: flex;">
                                                                 <div class="">
@@ -109,7 +108,7 @@
                                                         </form>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-light btn-sm" onclick="refresh()"><i class="fa fa-refresh"></i></button>
+                                                <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -118,7 +117,8 @@
                                                     <label for="recipient-name" class="col-form-label">Trạng thái:</label>
                                                     <div class="input-group">
                                                         <select class="form-control" name="" id="txtStatus">
-                                                            <option value="0"> Chưa xử lý </option>
+                                                            <option value=""> Tất cả </option>
+                                                            <option value="0" selected> Chưa xử lý </option>
                                                             <option value="1"> Đã xử lý </option>
                                                         </select>
                                                     </div>
@@ -157,9 +157,13 @@
                                             </div>
                                         </div>
                                         <div class="mdl-tabs__panel" id="warning-panel">
-                                            <div class="pl-4 pr-4 pt-2">
-                                                <div class="col-sm-6 col-md-3 col-lg-3 p-0 mb-3">
-                                                    <label for="recipient-name" class="col-form-label">Tên vật tư/ mã vật tư:</label>
+                                            <div class="d-flex pl-4 pr-4 mt-3 mb-3">
+                                                <div class="p-0">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-light" onclick="downloadWarningPart()"><i class="fa fa-download"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="pl-2 input-sm-100">
                                                     <div class="input-group">
                                                         <input type="text" class="form-control" id="txtWarningPart" placeholder="">
                                                         <span class="input-group-btn">
@@ -168,7 +172,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
                                             <div class="">
                                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead>
@@ -195,6 +198,11 @@
                                                 <div class="p-0">
                                                     <div class="input-group">
                                                         <button class="btn btn-success" data-target="#modalAddPart" data-toggle="modal"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="p-0 ml-2">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-light" onclick="downloadPart()"><i class="fa fa-download"></i></button>
                                                     </div>
                                                 </div>
                                                 <div class="pl-2 input-sm-100">
@@ -515,7 +523,8 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
     <script src="/JS/HBI/Common/commonFactory.js"></script>
     <script src="/JS/HBI/MEC/index.js"></script>
 </body>

@@ -1,5 +1,6 @@
-var logHelper = require("../common/log.js");
-var mysql = require("mysql");
+const logHelper = require("../common/log.js");
+const mysql = require("mysql");
+const util = require('util');
 var con = mysql.createConnection({
     host: "hyspayqsqlv",
     port: 3306,
@@ -11,37 +12,73 @@ con.connect(function (err) {
     if (err)
         logHelper.writeLog("con.connect", err.message);
 });
+
+// node native promisify
+const query = util.promisify(con.query).bind(con);
 class Database {
 
-    excuteQuery(queryString, callback){
+    async excuteQueryAsync(queryString) {
+        try {
+            var result = await query(queryString);
+            return result;
+        }
+        catch (error) {
+            logHelper.writeLog("excuteQueryAsync", error.message);
+            return null;
+        }
+    }
+
+    async excuteSPAsync(queryString) {
+        try {
+            var result = await query(queryString);
+            return result;
+        }
+        catch (error) {
+            logHelper.writeLog("excuteSPAsync", error.message);
+            return null;
+        }
+    }
+
+    async excuteNonQueryAsync(queryString) {
+        try {
+            var result = await query(queryString);
+            return result.affectedRows;
+        }
+        catch (error) {
+            logHelper.writeLog("excuteNonQueryAsync", error.message);
+            return null;
+        }
+    }
+
+    excuteQuery(queryString, callback) {
         try {
             con.query(queryString, function (err, result, fields) {
-                if (err){
-                    callback({rs: false, msg: err});
+                if (err) {
+                    callback({ rs: false, msg: err });
                 }
-                else{
-                    callback({rs: true, msg: "", data: result});
+                else {
+                    callback({ rs: true, msg: "", data: result });
                 }
             })
         }
-        catch(error) {
+        catch (error) {
             logHelper.writeLog("excuteQuery", error.message);
             return null;
         }
     }
 
-    excuteSP(queryString, callback){
+    excuteSP(queryString, callback) {
         try {
             con.query(queryString, function (err, result, fields) {
-                if (err){
-                    callback({rs: false, msg: err});
+                if (err) {
+                    callback({ rs: false, msg: err });
                 }
-                else{
-                    callback({rs: true, msg: "", data: result[0]});
+                else {
+                    callback({ rs: true, msg: "", data: result[0] });
                 }
             })
         }
-        catch(error) {
+        catch (error) {
             logHelper.writeLog("excuteSP", error.message);
             return null;
         }
