@@ -91,7 +91,7 @@ module.exports.downloadWarningPart = function (req, res) {
                     // return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
 
                     res.download(filename);
-                });               
+                });
             }
         });
 
@@ -155,7 +155,7 @@ module.exports.downloadPart = function (req, res) {
                     // return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
 
                     res.download(filename);
-                });               
+                });
             }
         });
 
@@ -278,10 +278,11 @@ module.exports.getPartRequest = function (req, res) {
     try {
         //parameters
         let status = req.body.status;
-        let date = req.body.date;
+        let fromDate = req.body.date;
+        let toDate = req.body.date;
 
         // execute
-        db.excuteSP(`CALL USP_Part_Request_Processing_Get ('${status}', '${date}')`, function (result) {
+        db.excuteSP(`CALL USP_Part_Request_Processing_Get ('${status}', '${fromDate}', '${toDate}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -362,15 +363,63 @@ module.exports.updateRequest = async function (req, res, next) {
         if (isSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
         else {
-            // update quantity in mec_part: substract the quantity 
-            isSuccess = await innovationService.updatePartQuantity({ export_qty: req.body.export_qty, code: objReq[0].code });
-            if (isSuccess <= 0)
-                return res.end(JSON.stringify({ rs: false, msg: "Cập nhật số lượng part trong kho không thành công" }));
+            var partObj = await innovationService.getPartDetail({ code: objReq[0].code });
+            if (partObj.length > 0) {
+                if (partObj[0].quantity > 0) {
+                    // update quantity in mec_part: substract the quantity 
+                    isSuccess = await innovationService.updatePartQuantity({ export_qty: req.body.export_qty, code: objReq[0].code });
+                    if (isSuccess <= 0)
+                        return res.end(JSON.stringify({ rs: false, msg: "Cập nhật số lượng part trong kho không thành công" }));
+                    return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+                }
+            }
             return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
         }
     }
     catch (error) {
         logHelper.writeLog("innovation.updateRequest", error);
+    }
+}
+
+module.exports.downloadRequest = function (req, res) {
+    try {
+        //parameters
+        let status = req.body.status;
+        let fromDate = req.body.fromDate;
+        let toDate = req.body.toDate;
+
+        // execute
+        db.excuteSP(`CALL USP_Part_Request_Processing_Get ('${status}', '${fromDate}', '${toDate}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let jsonMachine = JSON.parse(JSON.stringify(result.data));
+
+                let workbook = new excel.Workbook(); //creating workbook
+                let worksheet = workbook.addWorksheet('Machine'); //creating worksheet
+
+                //  WorkSheet Header
+                worksheet.columns = [
+                    { header: 'Id', key: 'id', width: 10 },
+                    { header: 'Name', key: 'name', width: 30 },
+                    { header: 'Code', key: 'code', width: 30 },
+                    { header: 'Qty', key: 'qty', width: 30 }
+                ];
+
+                // Add Array Rows
+                worksheet.addRows(jsonMachine);
+
+                // Write to File
+                let filename = "\sparepart.xlsx";
+                workbook.xlsx.writeFile(filename).then(function () {
+                    res.download(filename);
+                });
+            }
+        });
+
+    } catch (error) {
+        logHelper.writeLog("innovation.downloadRequest", error);
     }
 }
 
@@ -508,7 +557,7 @@ module.exports.downloadMachine = function (req, res) {
                 let filename = "\machine.xlsx";
                 workbook.xlsx.writeFile(filename).then(function () {
                     res.download(filename);
-                }); 
+                });
             }
         });
 
@@ -652,7 +701,7 @@ module.exports.downloadModel = function (req, res) {
                 let filename = "\model.xlsx";
                 workbook.xlsx.writeFile(filename).then(function () {
                     res.download(filename);
-                }); 
+                });
             }
         });
 

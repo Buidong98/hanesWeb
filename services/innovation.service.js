@@ -27,6 +27,16 @@ InnovationService.updateRequest = async function (objDTO) {
 }
 
 // Part 
+InnovationService.getPartDetail = async function (objDTO) {
+    try {
+        let query =`SELECT * FROM mec_part WHERE code = '${objDTO.code}'`;
+        return await db.excuteQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("excuteQueryAsync", error.message);
+    }
+}
+
+
 InnovationService.updatePartQuantity = async function (objDTO) {
     try {
         let query = `UPDATE mec_part 

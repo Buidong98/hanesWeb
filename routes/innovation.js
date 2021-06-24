@@ -12,6 +12,7 @@ router.get("/request/:id", controller.getRequestDetail)
 router.post("/suggest", controller.suggestPart)
 router.post("/request/add", controller.addRequest)
 router.post("/request/update", controller.updateRequest)
+router.post("/request/download", controller.downloadRequest)
 
 router.post("/warning", controller.getWarningPart)
 router.post("/warning/download", controller.downloadWarningPart)

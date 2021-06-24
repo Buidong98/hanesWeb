@@ -93,6 +93,17 @@ server.listen(8000, '10.113.99.3', function(){
     console.log('Server Start Running');
 });
 
+io.on('connection', (socket) => {
+    socket.on('new message', (data) => {
+        console.log(socket.id + " Connected!");
+      
+        io.emit('new message', {
+            username: socket.username,
+            message: data
+        });
+    });
+});
+
 var authController = require('./middleware/auth.controller');
 app.get("/", authController.authenticate, function (request, respone) {
     respone.render("home", { ID: request.user });
@@ -326,8 +337,9 @@ app.post("/Get_RFID", function (req, res) {
         if (err) {
             throw err;
         }
-        sql = "select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position from erpsystem.setup_rfidemplist r inner join erpsystem.setup_emplist e "
-            + " on r.EmployeeID=e.ID where r.CardNo='" + rfid + "' or e.ID='" + rfid + "';";
+        // sql = "select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position from erpsystem.setup_rfidemplist r inner join erpsystem.setup_emplist e "
+        //     + " on r.EmployeeID=e.ID where r.CardNo='" + rfid + "' or e.ID='" + rfid + "';";
+        sql = `select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position from erpsystem.setup_emplist e where e.ID = '${rfid}'`;
         connection.query(sql, function (err, result, fields) {
             connection.release();
             if (err) throw err;

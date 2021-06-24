@@ -1,4 +1,4 @@
-var baseUrl = "/innovation/";
+const baseUrl = "/innovation/";
 
 // Refresh data
 function refresh() {
@@ -31,10 +31,10 @@ $(document).ready(function () {
 })
 
 function getAllRequest() {
-    var status = $("#txtStatus").val();
-    var date = $("#processing-date").val();
-    var action = baseUrl + 'getPartRequest';
-    var datasend = {
+    let status = $("#txtStatus").val();
+    let date = $("#processing-date").val();
+    let action = baseUrl + 'getPartRequest';
+    let datasend = {
         status: status,
         date: date
     };
@@ -125,6 +125,7 @@ function addRequest() {
             toastr.success("Thành công", "Thêm thành công");
             getAllRequest();
             $("#modalAddRequest").modal("hide");
+            socket.emit('new message', { user: "", message: "" });
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -158,7 +159,29 @@ function updateRequest() {
 
 // Tải báo cáo
 function report() {
-    toastr.success("download success");
+    LoadingShow();
+    let status = $("#txtStatus").val();
+    let fromDate = $("#txtReportFrom").val();
+    let toDate = $("#txtReportTo").val();
+    let action = baseUrl + 'request/download';
+    let datasend = {
+        status: status,
+        fromDate: fromDate,
+        toDate: toDate
+    };
+
+    fetch(action, {
+            method: 'POST',
+            body: JSON.stringify(datasend),
+            headers: {
+                'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_spare_part_request.xlsx");
+    });
 }
 
 // tìm kiếm part
@@ -166,7 +189,7 @@ $("#txtRPartName").on("keyup", $.debounce(250, searchPart));
 var partArr = [];
 
 function searchPart() {
-    var keyword = $("#txtRPartName").val();
+    let keyword = $("#txtRPartName").val();
     setTimeout(function () {
         if (keyword.length >= 1) {
             let datasend = {
@@ -449,24 +472,24 @@ function updatePart() {
 // upload image 
 function uploadImage(event) {
 
-    var files = event.target.files;
-    for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        var reader = new FileReader();
+    let files = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let reader = new FileReader();
         reader.onload = function (event) {
             setTimeout(function () {
-                var img = event.target.result;
+                let img = event.target.result;
                 $("#part-img").attr("src", img);
 
-                // var file = event.target.files[0];
-                var imageType = /image.*/;
+                // let file = event.target.files[0];
+                let imageType = /image.*/;
 
                 if (!file.type.match(imageType)) return;
 
-                var form_data = new FormData();
+                let form_data = new FormData();
                 form_data.append('file', file);
 
-                for (var key of form_data.entries()) {
+                for (let key of form_data.entries()) {
                     console.log(key[0] + ', ' + key[1]);
                 }
 
@@ -490,3 +513,10 @@ function uploadImage(event) {
         reader.readAsDataURL(file);
     }
 }
+
+// Socket
+const socket = io();
+
+socket.on('new message', (data) => {
+     getAllRequest();
+});
