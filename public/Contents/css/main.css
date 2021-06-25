@@ -54,12 +54,17 @@ textarea {
         width: 100%;
     }
     .onscrollbar {
-        height: 270px;
+        height: 573px;
     }
     .onscrollbar::-webkit-scrollbar {
         width: 0px;
         background-color: #7d7d80;
     }
+
+    .onscrollbar-import{
+        height: 615px;
+    }
+
     .input-sm-100{
         width: 100%;
     }
@@ -70,6 +75,10 @@ textarea {
         width: 20%;
     }
     .onscrollbar {
-        height: 420px;
+        height: 573px;
+    }
+
+    .onscrollbar-import{
+        height: 615px;
     }
 }

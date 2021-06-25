@@ -42,7 +42,7 @@ function getAllMachine(){
     let keyword =  $("#txtMachine").val();
     let machineType = $("#txtFilterMachineType").val();
 
-    let action = baseUrl + 'get-machine';
+    let action = baseUrl + 'machine/get';
     let datasend = {
         keyword: keyword,
         type: machineType
@@ -198,7 +198,7 @@ function getAllModel(){
     let keyword =  $("#txtModel").val();
     let machine = $("#txtFilterMachine").val();
 
-    let action = baseUrl + 'get-model';
+    let action = baseUrl + 'model/get';
     let datasend = {
         keyword: keyword,
         machine: machine

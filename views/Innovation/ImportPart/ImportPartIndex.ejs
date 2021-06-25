@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../partials/headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý danh sách nhập hảng</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="mdl-tabs__panel is-active">
+                                    <div class="d-flex pl-4 pr-4 mt-3">
+                                        <div class="p-0">
+                                            <div class="input-group">
+                                                <a href="/innovation/import/add" class="btn btn-success"><i class="fa fa-plus"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="p-0 pl-2 mb-3">
+                                            <div class="btn-group btn-filter">
+                                                <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                    <span class="fa fa-filter"></span>
+                                                </button>
+                                                <div class="dropdown-menu p-3" style="left: -30px;">
+                                                    <form class="form-inline" id="">
+                                                        <div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Ngày nhập</p>
+                                                                <input type="text" class="form-control isDate" id="txtImportDate" placeholder="">
+                                                            </div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Nhà cung cấp</p>
+                                                                <input type="text" class="form-control" id="txtVendor" placeholder="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="justify-content-between align-items-center mt-3 text-right">
+                                                            <button type="button" class="btn btn-success btn-sm" onclick="getAllRequest()">Lọc</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>                                                  
+                                        </div>
+                                        <div class="justify-content-end pl-2">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="txtPO" placeholder="Số PO">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-success" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <table class="table table-hover table-bordered table-scrollable mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th width='10%'>#</th>
+                                                    <th width='20%'>PO</th>
+                                                    <th width='30%'>Date</th>
+                                                    <th width='30%'>Vendor</th>
+                                                    <th width='10%'></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                        <div class="onscrollbar onscrollbar-import" style="overflow: auto;">
+                                            <table class="table table-hover table-bordered m-0">
+                                                <tbody id="import-table-body">
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/MEC/import.js"></script>
+</body>
+
+</html>
