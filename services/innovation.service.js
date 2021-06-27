@@ -36,7 +36,6 @@ InnovationService.getPartDetail = async function (objDTO) {
     }
 }
 
-
 InnovationService.updatePartQuantity = async function (objDTO) {
     try {
         let query = `UPDATE mec_part 
@@ -45,7 +44,19 @@ InnovationService.updatePartQuantity = async function (objDTO) {
 
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
-        logHelper.writeLog("excuteQueryAsync", error.message);
+        logHelper.writeLog("updatePartQuantity", error.message);
+    }
+}
+
+InnovationService.addImportRequest = async function(objDTO){
+    try {
+        let query = `UPDATE mec_part 
+            SET quantity = quantity - ${objDTO.export_qty}
+            WHERE code = '${objDTO.code}'`;
+
+        return await db.excuteNonQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("addImportRequest", error.message);
     }
 }
 

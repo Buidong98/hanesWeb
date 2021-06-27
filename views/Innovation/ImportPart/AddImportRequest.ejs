@@ -31,21 +31,80 @@
                 <%- include ("../partials/headerTemplate.ejs"); -%>
             </div>
         </header>
-            <%- include ("../partials/navTemplate.ejs"); -%>
+        <%- include ("../partials/navTemplate.ejs"); -%>
             <main class="mdl-layout__content">
                 <div class="page-content">
                     <div class="">
                         <div class="row">
                             <div class="col-md-12 d-flex">
-                                <a href="/innovation/import" class="btn btn-outline-light" style="font-size: 20px;"><i class="fa fa-arrow-left"></i></a>
+                                <a href="/innovation/import" class="btn btn-outline-success" style="font-size: 20px;" title="Back"><i class="fa fa-chevron-left"></i></a>
                                 <h4 class="page-title m-auto">
                                     <strong class="text-uppercase"> Thêm yêu cầu nhập hàng</strong>
                                 </h4>
+                                <a href="/innovation/import/add" class="btn btn-outline-success" style="font-size: 20px;" title="Back"><i class="fa fa-refresh"></i></a>
                             </div>
                         </div>
                         <div class="bg-white">
-                            <div class="d-sm-block">
+                            <div class="d-sm-block col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><b>Thông tin phiếu</b></div>
+                                    <div class="panel-body">
+                                        <div class="form-row">
+                                            <div class="col-md-2 pl-0 pr-2">
+                                                <label for="txtWO">PO</label>
+                                                <input type="text" class="form-control" id="txtPO" placeholder="" autofocus="">
+                                            </div>
+                                            <div class="col-md-2 pl-0 pr-2">
+                                                <label for="txtSellingStyle">Ngày nhập</label>
+                                                <input type="text" class="form-control isDate" id="txtImportDate" placeholder="">
+                                            </div>
+                                            <div class="col-md-2 pl-0 pr-2">
+                                                <label for="txtSize">Nhà cung cấp</label>
+                                                <input type="text" class="form-control" id="txtVendor" placeholder="">
+                                            </div>
+                                            <div class="col-md-2 pl-0 pr-2">
+                                                <label for="txtMnfColor">Người giao</label>
+                                                <input type="text" class="form-control" id="txtDeliverer" placeholder="">
+                                            </div>
+                                            <div class="col-md-2 pl-0 pr-2">
+                                                <label for="txtMnfColor">Người nhận</label>
+                                                <input type="text" class="form-control" id="txtReceiver" placeholder="">
+                                            </div>
+                                            <button class="btn btn-success btn-position" onclick="addRequest()">Thêm</button>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><b>Danh sách vật tư</b></div>
+                                    <div class="panel-body p-0">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr class="text-center">
+                                                    <th>Part code</th>
+                                                    <th>Tên part</th>
+                                                    <th>Đơn vị</th>
+                                                    <th>SL PO</th>
+                                                    <th>SL nhập</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="list-part-body">
+                                                <tr>
+                                                    <td><input type="text" class="form-control partCode"></td>
+                                                    <td><input type="text" class="form-control partName"></td>
+                                                    <td><input type="text" class="form-control unit"></td>
+                                                    <td><input type="text" class="form-control qtyPO"></td>
+                                                    <td><input type="text" class="form-control qtyImport"></td>
+                                                    <td><button class="btn btn-outline-success" onclick="deleteRow(event, 1)"><i class="fa fa-close"></i></button></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="panel-footer pl-3">
+                                        <button onclick="addRow()"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -56,7 +115,7 @@
     <script src="/Contents/libs/download.min.js"></script>
     <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
     <script src="/JS/HBI/Common/commonFactory.js"></script>
-    <script src="/JS/HBI/MEC/import.js"></script>
+    <script src="/JS/HBI/MEC/addImport.js"></script>
 </body>
 
 </html>

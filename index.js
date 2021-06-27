@@ -67,7 +67,7 @@ app.use('/image3', express.static(staticResource9));
 app.use('/image4', express.static(staticResource10));
 app.use('/report', express.static(staticReport));
 app.use(express.static("public"));
-
+ 
 app.use(session({
     secret: "secret",
     saveUninitialized: false,

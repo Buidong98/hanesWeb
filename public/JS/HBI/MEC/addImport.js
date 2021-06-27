@@ -1,9 +1,4 @@
-var baseUrl = "/innovation/import/";
-
-// Refresh data
-function refresh() {
-    window.location.href = '/innovation/import';
-}
+var baseUrl = "/innovation/";
 
 $(document).on('click', '.dropdown-menu', function (e) {
     e.stopPropagation();
@@ -19,83 +14,16 @@ $(document).ready(function () {
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
     });
-
-    getAllRequest();
+    console.log(partArr);
 })
 
-function getAllRequest(){
-    let po = $("#txtPO").val();
-    let importDate = $("#txtImportDate").val();
-    let vendor = $("#txtVendor").val();
-
-    let action = baseUrl + 'get';
-    let datasend = {
-        po: po,
-        importDate: importDate,
-        vendor: vendor
-    };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if(response.rs){
-            let data = response.data;
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                let ele = data[i];
-                html += "<tr>"
-                        + "<td width='10%'>"+ ele.id +"</td>"
-                        + "<td width='20%'>"+ ele.po +"</td>"
-                        + "<td width='30%'>"+ ele.import_date +"</td>"
-                        + "<td width='30%'>"+ ele.vendor +"</td>"
-                        + "<td width='10%'><a href='javascript:void(0)' onclick='getImportDetail("+ ele.id +")'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
-                        + "</tr>";
-            }
-            $("#import-table-body").html('');
-            $("#import-table-body").html(html);
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-}    
-
-// downloa request
-function downloadRequest() {
-    LoadingShow();
-    let keyword =  $("#txtMachine").val();
-    let machineType = $("#txtFilterMachineType").val();
-
-    let action = baseUrl + 'machine/download';
-    let datasend = {
-        keyword: keyword,
-        type: machineType
-    };
-
-    fetch(action, {
-            method: 'POST',
-            body: JSON.stringify(datasend),
-            headers: {
-                'Content-Type': 'application/json'
-        },
-    }).then(function (resp) {
-        return resp.blob();
-    }).then(function (blob) {
-        LoadingHide();
-        return download(blob, GetTodayDate() + "_machine.xlsx");
-    });
-}
-
+var index = 1;
 var partArr = [
     {
-        id: index,
-        code: "",
-        name: "",
-        unit: "",
-        qtyPo: 0,
-        qtyImport: 0
+        id: index
     }
 ];
-var index = 1;
+var listPart = [];
 // add request 
 function addRequest(){
     let po =  $("#txtPO");
@@ -113,14 +41,38 @@ function addRequest(){
         return false;
     }
 
+    let partCodeList = $(".partCode");
+    let partNameList = $(".partName");
+    let unitList = $(".unit");
+    let qtyPOList = $(".qtyPO");
+    let qtyImportList = $(".qtyImport");
+
+    for (let i = 0; i < partArr.length; i++) {
+        partCode = $(partCodeList[i]).val();
+        partName = $(partNameList[i]).val();
+        unit = $(unitList[i]).val();
+        qtyPO = $(qtyPOList[i]).val();
+        qtyImport = $(qtyImportList[i]).val();
+        
+        listPart.push({
+            code: partCode,
+            name: partName,
+            unit: unit,
+            qty: qtyPO,
+            qtyImport: qtyImport
+        });
+    }
+
     let action = baseUrl + 'import/add';
     let datasend = {
-        po: po.val(),
-        importDate: importDate.val(),
-        vendor: vendor.val(),
-        deliverer: deliverer.val(),
-        receiver: receiver.val(),
-        listPart: []
+        importInfo: {
+            po: po.val(),
+            importDate: importDate.val(),
+            vendor: vendor.val(),
+            deliverer: deliverer.val(),
+            receiver: receiver.val(),
+        },
+        listPart: listPart
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -136,14 +88,9 @@ function addRequest(){
 }
 
 function addRow(){
-    let idx = index++;
+    let idx = ++index;
     partArr.push({
         id: idx,
-        code: "",
-        name: "",
-        unit: "",
-        qtyPo: 0,
-        qtyImport: 0
     })
 
     let html = `<tr id="tr-${idx}">
@@ -162,8 +109,8 @@ function deleteRow(e, idx){
     let obj = partArr.filter((ele) => {
         return ele.id == idx;
     })
-
-    partArr.
+    let i = partArr.indexOf(obj[0]);
+    partArr.splice(i, 1);
 
     $(e.currentTarget).parent().parent().remove();
 }
