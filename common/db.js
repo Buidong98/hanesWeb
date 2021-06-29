@@ -50,6 +50,28 @@ class Database {
         }
     }
 
+    async excuteInsertReturnIdAsync(queryString) {
+        try {
+            var result = await query(queryString);
+            return result.insertId;
+        }
+        catch (error) {
+            logHelper.writeLog("excuteInsertReturnIdAsync", error.message);
+            return 0;
+        }
+    }
+
+    async excuteInsertWithParametersAsync(queryString, parameters) {
+        try {
+            var result = await query(queryString, [[['fsdfsadf', 'fsdfsdfsdaf', 'fsfsdaf', 11, 22, 1]]]);
+            return result.affectedRows;
+        }
+        catch (error) {
+            logHelper.writeLog("excuteInsertReturnIdAsync", error.message);
+            return 0;
+        }
+    }
+
     excuteQuery(queryString, callback) {
         try {
             con.query(queryString, function (err, result, fields) {

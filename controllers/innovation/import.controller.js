@@ -7,6 +7,7 @@ const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
+const innovationService = require("../../services/innovation.service");
 
 // Machine
 module.exports.getImportIndex = function (req, res) {
@@ -39,7 +40,7 @@ module.exports.addUI = function(req, res){
     res.render("Innovation/ImportPart/AddImportRequest");
 }
 
-module.exports.addImportRequest = function (req, res) {
+module.exports.addImportRequest = async function (req, res) {
     try {
         //parameters
         let importInfo = req.body.importInfo;
@@ -47,33 +48,25 @@ module.exports.addImportRequest = function (req, res) {
 
         let user = req.user.username;
         let datetime = helper.getDateTimeNow();
+
+        // add import request then return id to insert into import request detail
+        let idInserted = await innovationService.addImportRequest({
+            po: importInfo.po,
+            importDate: importInfo.importDate,
+            vendor: importInfo.vendor,
+            receiver: importInfo.receiver,
+            deliverer: importInfo.deliverer,
+            requestDate: datetime,
+            user: user
+        });
+        if (idInserted <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Thêm import request không thành công." }));
+
+        // add import request detail
+        let objArr = Object.entries(listPart);
+        let xxx = innovationService.addImportRequestDetail(objArr)
         
-        // Check exist
-        var objReq = await innovationService.getRequestDetail(req.body);
-        if (!objReq)
-            return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy request" }));
 
-        // Check has processed
-        if (objReq[0].clerk_status != constant.Action_Status.None)
-            return res.end(JSON.stringify({ rs: false, msg: "Request đã được clerk xử lý" }));
-
-        // Excute update
-        var isSuccess = await innovationService.updateRequest(req.body);
-        if (isSuccess <= 0)
-            return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
-        else {
-            var partObj = await innovationService.getPartDetail({ code: objReq[0].code });
-            if (partObj.length > 0) {
-                if (partObj[0].quantity > 0) {
-                    // update quantity in mec_part: substract the quantity 
-                    isSuccess = await innovationService.updatePartQuantity({ export_qty: req.body.export_qty, code: objReq[0].code });
-                    if (isSuccess <= 0)
-                        return res.end(JSON.stringify({ rs: false, msg: "Cập nhật số lượng part trong kho không thành công" }));
-                    return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-                }
-            }
-            return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-        }
     }
     catch (error) {
         logHelper.writeLog("innovation.addMachine", error);

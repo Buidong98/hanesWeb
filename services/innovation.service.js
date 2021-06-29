@@ -48,13 +48,25 @@ InnovationService.updatePartQuantity = async function (objDTO) {
     }
 }
 
+// Import part from vendor
 InnovationService.addImportRequest = async function(objDTO){
     try {
-        let query = `UPDATE mec_part 
-            SET quantity = quantity - ${objDTO.export_qty}
-            WHERE code = '${objDTO.code}'`;
+        let query = `INSERT INTO mec_import_request (po, import_date, vendor, receiver, deliverer, request_date, user) 
+                    VALUES ('${objDTO.po}', '${objDTO.importDate}', '${objDTO.vendor}', '${objDTO.receiver}', 
+                    '${objDTO.deliverer}', '${objDTO.requestDate}', '${objDTO.user}')`;
 
-        return await db.excuteNonQueryAsync(query);
+        return await db.excuteInsertReturnIdAsync(query);
+    } catch (error) {
+        logHelper.writeLog("addImportRequest", error.message);
+    }
+}
+
+InnovationService.addImportRequestDetail = async function(objDTO){
+    try {
+        let query = `INSERT INTO mec_import_request_detail (part_code, part_name, unit, qty_po, qty_real, import_request_id) 
+        VALUES ?`;
+
+        return await db.excuteInsertWithParametersAsync(query, objDTO);
     } catch (error) {
         logHelper.writeLog("addImportRequest", error.message);
     }
