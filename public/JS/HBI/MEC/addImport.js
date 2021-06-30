@@ -78,8 +78,7 @@ function addRequest(){
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
         if(response.rs){
-            let data = response.data;
-            toastr.success("Thành công", "Thêm thành công");
+            toastr.success(response.msg, "Thành công");
         }
         else{
             toastr.error(response.msg, "Thất bại");
@@ -115,61 +114,4 @@ function deleteRow(e, idx){
     $(e.currentTarget).parent().parent().remove();
 }
 
-// update machine 
-function updateRequest(){
-    let id = $("#txtUMachineId");
-    let name =  $("#txtUMachineName");
-    let code =  $("#txtUMachineCode");
-    let type =  $("#txtUMachineType");
-    let active =  $("#txtUMachineActive");
 
-    if (!CheckNullOrEmpty(name, "Tên loại máy không được để trống"))
-        return false;
-    if (!CheckNullOrEmpty(code, "Tên mã máy không được để trống"))
-        return false;
-
-    let action = baseUrl + 'machine/update';
-    let datasend = {
-        id: id.val(),
-        name: name.val(),
-        code: code.val(),
-        type: type.val(),
-        active: active.val()
-    };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if(response.rs){
-            let data = response.data;
-            toastr.success("Thành công", "Cập nhật thành công");
-            getAllMachine();
-            $("#modalUpdateMachine").modal("hide");
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-}
-
-// get machine detail
-function getRequestDetail(id){
-    let action = baseUrl + 'machine/' + id;
-    LoadingShow();
-    GetDataAjax(action, function (response) {
-        LoadingHide();
-        if(response.rs){
-            let data = response.data;
-
-            $("#txtUMachineId").val(data.id);
-            $("#txtUMachineName").val(data.name);
-            $("#txtUMachineCode").val(data.code);
-            $("#txtUMachineType").val(data.type);
-            $("#txtUMachineActive").val(data.active);
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-    
-    $("#modalUpdateMachine").modal("show");
-}

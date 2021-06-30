@@ -63,7 +63,7 @@ class Database {
 
     async excuteInsertWithParametersAsync(queryString, parameters) {
         try {
-            var result = await query(queryString, [[['fsdfsadf', 'fsdfsdfsdaf', 'fsfsdaf', 11, 22, 1]]]);
+            var result = await query(queryString, [parameters]);
             return result.affectedRows;
         }
         catch (error) {

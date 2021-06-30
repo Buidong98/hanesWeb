@@ -45,7 +45,9 @@ router.post("/model/download", machineController.downloadModel)
 // Import part from vendor
 router.get("/import", importController.getImportIndex)
 router.post("/import/get", importController.getImport)
+router.post("/import/get-import-detail", importController.getImportDetail)
 router.get("/import/add", importController.addUI)
 router.post("/import/add", importController.addImportRequest)
+router.post("/import/update", importController.updateImportRequest)
 
 module.exports = router;

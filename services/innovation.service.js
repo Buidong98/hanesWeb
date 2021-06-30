@@ -11,7 +11,7 @@ InnovationService.getRequestDetail = async function (objDTO) {
                 WHERE id = ${objDTO.id}`;
         return await db.excuteQueryAsync(query);
     } catch (error) {
-        logHelper.writeLog("excuteQueryAsync", error.message);
+        logHelper.writeLog("InnovationService.getRequestDetail", error.message);
     }
 }
 
@@ -22,7 +22,7 @@ InnovationService.updateRequest = async function (objDTO) {
                     WHERE id = ${objDTO.id}`;
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
-        logHelper.writeLog("excuteQueryAsync", error.message);
+        logHelper.writeLog("InnovationService.updateRequest", error.message);
     }
 }
 
@@ -32,7 +32,7 @@ InnovationService.getPartDetail = async function (objDTO) {
         let query =`SELECT * FROM mec_part WHERE code = '${objDTO.code}'`;
         return await db.excuteQueryAsync(query);
     } catch (error) {
-        logHelper.writeLog("excuteQueryAsync", error.message);
+        logHelper.writeLog("InnovationService.getPartDetail", error.message);
     }
 }
 
@@ -44,7 +44,7 @@ InnovationService.updatePartQuantity = async function (objDTO) {
 
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
-        logHelper.writeLog("updatePartQuantity", error.message);
+        logHelper.writeLog("InnovationService.updatePartQuantity", error.message);
     }
 }
 
@@ -57,7 +57,19 @@ InnovationService.addImportRequest = async function(objDTO){
 
         return await db.excuteInsertReturnIdAsync(query);
     } catch (error) {
-        logHelper.writeLog("addImportRequest", error.message);
+        logHelper.writeLog("InnovationService.addImportRequest", error.message);
+    }
+}
+
+InnovationService.updateImportRequest = async function(objDTO){
+    try {
+        let query = `UPDATE mec_import_request 
+                    SET import_date = '${objDTO.importDate}', vendor = '${objDTO.vendor}', receiver = '${objDTO.receiver}', deliverer = '${objDTO.deliverer}'
+                    WHERE id = ${objDTO.id}`;
+
+        return await db.excuteNonQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("InnovationService.updateImportRequest", error.message);
     }
 }
 
@@ -68,7 +80,37 @@ InnovationService.addImportRequestDetail = async function(objDTO){
 
         return await db.excuteInsertWithParametersAsync(query, objDTO);
     } catch (error) {
-        logHelper.writeLog("addImportRequest", error.message);
+        logHelper.writeLog("InnovationService.addImportRequestDetail", error.message);
+    }
+}
+
+InnovationService.getImportDetail = async function (objDTO) {
+    try {
+        let query = `SELECT * FROM mec_import_request 
+                WHERE id = ${objDTO.id}`;
+        return await db.excuteQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("InnovationService.getImportDetail", error.message);
+    }
+}
+
+InnovationService.getImportDetailItem = async function (objDTO) {
+    try {
+        let query = `SELECT * FROM mec_import_request_detail
+                WHERE import_request_id = ${objDTO.id}`;
+        return await db.excuteQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("InnovationService.getImportDetailItem", error.message);
+    }
+}
+
+InnovationService.deleteImportDetailItem = async function (objDTO) {
+    try {
+        let query = `DELETE FROM mec_import_request_detail
+                WHERE import_request_id = ${objDTO.id}`;
+        return await db.excuteNonQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("InnovationService.deleteImportDetailItem", error.message);
     }
 }
 

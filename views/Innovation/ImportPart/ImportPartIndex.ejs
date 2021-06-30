@@ -112,6 +112,76 @@
     </div>
     </main>
     </div>
+    <div class="modal fade" id="modalImportDetail" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xlg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Chi tiết nhập hàng PO: <span class="text-danger" id="txtDPO"></span></strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex">
+                        <input type="hidden" id="txtDId">
+                        <div class="col-md-3">
+                            <label for="">Ngày nhập</label>
+                            <div class="">
+                                <input type="text" class="form-control isDate" id="txtDImportDate">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Nhà cung cấp</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDVendor">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Người giao</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDDeliverer">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Người nhận</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDReceiver">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default mt-4 mb-0">
+                        <div class="panel-heading text-center"><b>Danh sách vật tư</b></div>
+                        <div class="panel-body">
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Part code</th>
+                                        <th>Tên part</th>
+                                        <th>Đơn vị</th>
+                                        <th>SL PO</th>
+                                        <th>SL nhập</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-part-body">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="panel-footer pl-4">
+                            <button onclick="addRow()"><i class="fa fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0 mt-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="updateRequest()">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="/Contents/libs/download.min.js"></script>
     <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>

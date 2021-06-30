@@ -59,53 +59,19 @@ function getAllRequest(){
     });
 }    
 
-// downloa request
-function downloadRequest() {
-    LoadingShow();
-    let keyword =  $("#txtMachine").val();
-    let machineType = $("#txtFilterMachineType").val();
-
-    let action = baseUrl + 'machine/download';
-    let datasend = {
-        keyword: keyword,
-        type: machineType
-    };
-
-    fetch(action, {
-            method: 'POST',
-            body: JSON.stringify(datasend),
-            headers: {
-                'Content-Type': 'application/json'
-        },
-    }).then(function (resp) {
-        return resp.blob();
-    }).then(function (blob) {
-        LoadingHide();
-        return download(blob, GetTodayDate() + "_machine.xlsx");
-    });
-}
-
-var partArr = [
-    {
-        id: index,
-        code: "",
-        name: "",
-        unit: "",
-        qtyPo: 0,
-        qtyImport: 0
-    }
-];
+var partArr = [];
 var index = 1;
-// add request 
-function addRequest(){
-    let po =  $("#txtPO");
-    let importDate =  $("#txtImportDate");
-    let vendor =  $("#txtVendor");
-    let deliverer =  $("#txtDeliverer");
-    let receiver =  $("#txtReceiver");
+var listPart = [];
+// update request 
+function updateRequest(){
 
-    if (!CheckNullOrEmpty(po, "Mã PO không được để trống"))
-        return false;
+    let id =  $("#txtDId");
+    let po =  $("#txtDPO");
+    let importDate =  $("#txtDImportDate");
+    let vendor =  $("#txtDVendor");
+    let deliverer =  $("#txtDDeliverer");
+    let receiver =  $("#txtDReceiver");
+
     if (!CheckNullOrEmpty(importDate, "Ngày nhập không được để trống"))
         return false;
     if(partArr.length <= 0){
@@ -113,21 +79,45 @@ function addRequest(){
         return false;
     }
 
-    let action = baseUrl + 'import/add';
+    let partCodeList = $(".partCode");
+    let partNameList = $(".partName");
+    let unitList = $(".unit");
+    let qtyPOList = $(".qtyPO");
+    let qtyImportList = $(".qtyImport");
+
+    for (let i = 0; i < partArr.length; i++) {
+        partCode = $(partCodeList[i]).val();
+        partName = $(partNameList[i]).val();
+        unit = $(unitList[i]).val();
+        qtyPO = $(qtyPOList[i]).val();
+        qtyImport = $(qtyImportList[i]).val();
+        
+        listPart.push({
+            code: partCode,
+            name: partName,
+            unit: unit,
+            qty: qtyPO,
+            qtyImport: qtyImport
+        });
+    }
+
+    let action = baseUrl + 'update';
     let datasend = {
-        po: po.val(),
-        importDate: importDate.val(),
-        vendor: vendor.val(),
-        deliverer: deliverer.val(),
-        receiver: receiver.val(),
-        listPart: []
+        importInfo: {
+            id: id.val(),
+            po: po.val(),
+            importDate: importDate.val(),
+            vendor: vendor.val(),
+            deliverer: deliverer.val(),
+            receiver: receiver.val(),
+        },
+        listPart: listPart
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
         if(response.rs){
-            let data = response.data;
-            toastr.success("Thành công", "Thêm thành công");
+            toastr.success(response.msg, "Thành công");
         }
         else{
             toastr.error(response.msg, "Thất bại");
@@ -135,15 +125,58 @@ function addRequest(){
     });
 }
 
+// get import detail
+function getImportDetail(id){
+    partArr = [];
+    let action = baseUrl + 'get-import-detail'
+    let datasend = {
+        id: id
+    }
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if(response.rs){
+            let importInfo = response.data.info;
+            $("#txtDPO").text(importInfo.po);
+            $("#txtDId").val(importInfo.id);
+            $("#txtDImportDate").val(importInfo.import_date);
+            $("#txtDVendor").val(importInfo.vendor);
+            $("#txtDDeliverer").val(importInfo.deliverer);
+            $("#txtDReceiver").val(importInfo.receiver);
+
+            $("#list-part-body").html('');
+            let html = "";
+            let importDetail = response.data.items;
+            for (let i = 0; i < importDetail.length; i++) {
+                let ele = importDetail[i];
+                html += `<tr id="tr-${i + 1}">
+                    <td><input type="text" class="form-control partCode" value='${ele.part_code}'></td>
+                    <td><input type="text" class="form-control partName" value='${ele.part_name}'></td>
+                    <td><input type="text" class="form-control unit" value='${ele.unit}'></td>
+                    <td><input type="text" class="form-control qtyPO" value='${ele.qty_po}'></td>
+                    <td><input type="text" class="form-control qtyImport" value='${ele.qty_real}'></td>
+                    <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${ele.id})"><i class="fa fa-close"></i></button></td>
+                </tr>`;
+
+                partArr.push({
+                    id: i + 1,
+                })
+            }
+            index = importDetail.length;
+            $("#list-part-body").append(html);
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+    
+    $("#modalImportDetail").modal("show");
+}
+
 function addRow(){
-    let idx = index++;
+    let idx = ++index;
     partArr.push({
         id: idx,
-        code: "",
-        name: "",
-        unit: "",
-        qtyPo: 0,
-        qtyImport: 0
     })
 
     let html = `<tr id="tr-${idx}">
@@ -158,71 +191,13 @@ function addRow(){
     $("#list-part-body").append(html);
 }
 
+
 function deleteRow(e, idx){
     let obj = partArr.filter((ele) => {
         return ele.id == idx;
     })
-
-    partArr.
+    let i = partArr.indexOf(obj[0]);
+    partArr.splice(i, 1);
 
     $(e.currentTarget).parent().parent().remove();
-}
-
-// update machine 
-function updateRequest(){
-    let id = $("#txtUMachineId");
-    let name =  $("#txtUMachineName");
-    let code =  $("#txtUMachineCode");
-    let type =  $("#txtUMachineType");
-    let active =  $("#txtUMachineActive");
-
-    if (!CheckNullOrEmpty(name, "Tên loại máy không được để trống"))
-        return false;
-    if (!CheckNullOrEmpty(code, "Tên mã máy không được để trống"))
-        return false;
-
-    let action = baseUrl + 'machine/update';
-    let datasend = {
-        id: id.val(),
-        name: name.val(),
-        code: code.val(),
-        type: type.val(),
-        active: active.val()
-    };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if(response.rs){
-            let data = response.data;
-            toastr.success("Thành công", "Cập nhật thành công");
-            getAllMachine();
-            $("#modalUpdateMachine").modal("hide");
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-}
-
-// get machine detail
-function getRequestDetail(id){
-    let action = baseUrl + 'machine/' + id;
-    LoadingShow();
-    GetDataAjax(action, function (response) {
-        LoadingHide();
-        if(response.rs){
-            let data = response.data;
-
-            $("#txtUMachineId").val(data.id);
-            $("#txtUMachineName").val(data.name);
-            $("#txtUMachineCode").val(data.code);
-            $("#txtUMachineType").val(data.type);
-            $("#txtUMachineActive").val(data.active);
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-    
-    $("#modalUpdateMachine").modal("show");
 }
