@@ -54,16 +54,20 @@ textarea {
     .part-img {
         width: 100%;
     }
-    .onscrollbar {
+    /* .onscrollbar {
         height: 573px;
+    } */
+
+    .onscrollbar-request{
+        height: 320px;
     }
-    .onscrollbar::-webkit-scrollbar {
-        width: 0px;
-        background-color: #7d7d80;
+
+    .onscrollbar-machine{
+        height: 390px;
     }
 
     .onscrollbar-import{
-        height: 615px;
+        height: 415px;
     }
 
     .input-sm-100{
@@ -80,12 +84,20 @@ textarea {
     .part-img {
         width: 20%;
     }
-    .onscrollbar {
+    /* .onscrollbar {
         height: 573px;
+    } */
+
+    .onscrollbar-request{
+        height: 420px;
+    }
+
+    .onscrollbar-machine{
+        height: 490px;
     }
 
     .onscrollbar-import{
-        height: 615px;
+        height: 415px;
     }
 
     .btn-position{

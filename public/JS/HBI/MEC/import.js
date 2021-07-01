@@ -64,6 +64,7 @@ var index = 1;
 var listPart = [];
 // update request 
 function updateRequest(){
+    listPart = [];
 
     let id =  $("#txtDId");
     let po =  $("#txtDPO");

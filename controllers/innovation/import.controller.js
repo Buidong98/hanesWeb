@@ -128,30 +128,27 @@ module.exports.updateImportRequest = async function (req, res) {
 
         // delete all existed item detail
         let isDeleteSuces = await innovationService.deleteImportDetailItem({ id: importInfo.id });
-        if (isDeleteSuces <= 0)
-            return res.end(JSON.stringify({ rs: false, msg: "Xóa chi tiết không thành công." }));
-
+        // if (isDeleteSuces <= 0)
+        //     return res.end(JSON.stringify({ rs: false, msg: "Xóa chi tiết không thành công." }));
 
         // add import request detail
-        setTimeout(function () {
-            let arr = [];
-            for (let i = 0; i < listPart.length; i++) {
-                let eleArr = [];
-                let ele = listPart[i];
-                for (let j = 0; j < Object.values(ele).length; j++) {
-                    eleArr.push(Object.values(ele)[j]);
-                }
-                eleArr.push(importInfo.id);
-                arr.push(eleArr);
+        let arr = [];
+        for (let i = 0; i < listPart.length; i++) {
+            let eleArr = [];
+            let ele = listPart[i];
+            for (let j = 0; j < Object.values(ele).length; j++) {
+                eleArr.push(Object.values(ele)[j]);
             }
+            eleArr.push(importInfo.id);
+            arr.push(eleArr);
+        }
 
-            let isAddDetailSuccess = await innovationService.addImportRequestDetail(arr);
-            if (isAddDetailSuccess <= 0)
-                return res.end(JSON.stringify({ rs: false, msg: "Cập nhật chi tiết không thành công." }));
-            return res.end(JSON.stringify({ rs: true, msg: "Thêm import request thành công." }));
-        }, 500)
+        let isAddDetailSuccess = await innovationService.addImportRequestDetail(arr);
+        if (isAddDetailSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật chi tiết không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Cập nhật import request thành công." }));
     }
     catch (error) {
-        logHelper.writeLog("innovation.addMachine", error);
+        logHelper.writeLog("innovation.updateImportRequest", error);
     }
 }

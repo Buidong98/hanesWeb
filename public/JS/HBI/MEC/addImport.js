@@ -94,7 +94,12 @@ function addRow(){
 
     let html = `<tr id="tr-${idx}">
                     <td><input type="text" class="form-control partCode"></td>
-                    <td><input type="text" class="form-control partName"></td>
+                    <td>
+                        <input type="text" class="form-control partName">
+                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+
+                        </div>
+                    </td>
                     <td><input type="text" class="form-control unit"></td>
                     <td><input type="text" class="form-control qtyPO"></td>
                     <td><input type="text" class="form-control qtyImport"></td>
@@ -114,4 +119,82 @@ function deleteRow(e, idx){
     $(e.currentTarget).parent().parent().remove();
 }
 
+// tìm kiếm part
+// $(".partName").on("keyup", $.debounce(250, searchPart));
+$(document).on("keyup", ".partName", $.debounce(250, searchPart));
+var partArrSearch = [];
+
+function searchPart() {
+    let keyword = $(this).val();
+    setTimeout(function () {
+        if (keyword.length >= 1) {
+            let datasend = {
+                keyword: keyword,
+                pageSize: 5
+            }
+            let action = baseUrl + "suggest";
+            PostDataAjax(action, datasend, function (response) {
+                LoadingHide();
+                setTimeout(function () {
+                    if (response.rs) {
+                        if (response.data.length >= 1) {
+                            let data = response.data;
+                            partArrSearch = data;
+                            let html = "";
+                            for (let i = 0; i < data.length; i++) {
+                                let ele = data[i];
+                                html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ")'>"
+                                    + "<img class='search-image' src='/Image/" + ele.id + ".jpg' width='75px' />"
+                                    + "<div class=''>"
+                                    + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
+                                    + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
+                                    + "</div>"
+                                    + "</div>";
+                            }
+                            // $(".search-result-panel").removeClass('d-none');
+                            // $(".search-result-panel").html('');
+                            // $(".search-result-panel").html(html);
+
+                            $(this).next().removeClass('d-none');
+                            $(this).next().html('');
+                            $(this).next().html(html);
+                        }
+                        else {
+                            // $(".search-result-panel").addClass('d-none');
+                            // $(".search-result-panel").html('');
+
+                            $(this).next().addClass('d-none');
+                            $(this).next().html('');
+                        }
+                    }
+                    else {
+                        $(".search-result-panel").addClass('d-none');
+                        $(".search-result-panel").html('');
+                    }
+                });
+            });
+        } else {
+            $(".search-result-panel").addClass('d-none');
+            $(".search-result-panel").html('');
+        }
+    });
+}
+
+// select part
+function selectPart(id) {
+    let listPart = partArrSearch.filter(function (ele) {
+        return ele.id == id;
+    })
+
+    let selectedPart = listPart[0];
+    // full fill to input
+    $("#txtRPartName").val(selectedPart.name);
+    $("#txtRPartCode").val(selectedPart.code);
+    $("#txtRPartLocation").val(selectedPart.location);
+    $("#txtPartRemainQty").text(selectedPart.quantity);
+
+    // close search result panel
+    $(".search-result-panel").addClass('d-none');
+    $(".search-result-panel").html('');
+}
 
