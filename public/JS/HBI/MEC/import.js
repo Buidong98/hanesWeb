@@ -15,6 +15,7 @@ $(document).on('click', '.day', function (e) {
     e.stopPropagation();
 })
 
+// Load khi tải trang xong
 $(document).ready(function () {
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
@@ -150,9 +151,13 @@ function getImportDetail(id){
             let importDetail = response.data.items;
             for (let i = 0; i < importDetail.length; i++) {
                 let ele = importDetail[i];
-                html += `<tr id="tr-${i + 1}">
+                html += `<tr id="tr-${i + 1}">                   
+                    <td>
+                        <input type="text" class="form-control partName" value='${ele.part_name}'>
+                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+                        </div>
+                    </td>
                     <td><input type="text" class="form-control partCode" value='${ele.part_code}'></td>
-                    <td><input type="text" class="form-control partName" value='${ele.part_name}'></td>
                     <td><input type="text" class="form-control unit" value='${ele.unit}'></td>
                     <td><input type="text" class="form-control qtyPO" value='${ele.qty_po}'></td>
                     <td><input type="text" class="form-control qtyImport" value='${ele.qty_real}'></td>
@@ -180,12 +185,25 @@ function addRow(){
         id: idx,
     })
 
+    // let html = `<tr id="tr-${idx}">
+    //                 <td><input type="text" class="form-control partCode"></td>
+    //                 <td><input type="text" class="form-control partName"></td>
+    //                 <td><input type="text" class="form-control unit"></td>
+    //                 <td><input type="text" class="form-control qtyPO"></td>
+    //                 <td><input type="text" class="form-control qtyImport"></td>
+    //                 <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${idx})"><i class="fa fa-close"></i></button></td>
+    //             </tr>`;
+
     let html = `<tr id="tr-${idx}">
-                    <td><input type="text" class="form-control partCode"></td>
-                    <td><input type="text" class="form-control partName"></td>
-                    <td><input type="text" class="form-control unit"></td>
-                    <td><input type="text" class="form-control qtyPO"></td>
-                    <td><input type="text" class="form-control qtyImport"></td>
+                    <td>
+                        <input type="text" class="form-control partName" data-value='${idx}' id='name-${idx}'>
+                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+                        </div>
+                    </td>
+                    <td><input type="text" class="form-control partCode" id='code-${idx}'></td>
+                    <td><input type="text" class="form-control unit" id='unit-${idx}'></td>
+                    <td><input type="number" class="form-control qtyPO"></td>
+                    <td><input type="number" class="form-control qtyImport"></td>
                     <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${idx})"><i class="fa fa-close"></i></button></td>
                 </tr>`;
 
@@ -201,4 +219,78 @@ function deleteRow(e, idx){
     partArr.splice(i, 1);
 
     $(e.currentTarget).parent().parent().remove();
+}
+
+// tìm kiếm part
+// $(".partName").on("keyup", $.debounce(250, searchPart));
+$(document).on("keyup", ".partName", $.debounce(250, searchPart));
+var partArrSearch = [];
+
+function searchPart() {
+    let currentInput = $(this);
+    let dataValue = currentInput.attr("data-value");
+    let keyword = currentInput.val();
+    setTimeout(function () {
+        if (keyword.length >= 1) {
+            let datasend = {
+                keyword: keyword,
+                pageSize: 5
+            }
+            let action = "/innovation/suggest";
+            PostDataAjax(action, datasend, function (response) {
+                LoadingHide();
+                setTimeout(function () {
+                    if (response.rs) {
+                        if (response.data.length >= 1) {
+                            let data = response.data;
+                            partArrSearch = data;
+                            let html = "";
+                            for (let i = 0; i < data.length; i++) {
+                                let ele = data[i];
+                                html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ", "+ dataValue +")'>"
+                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<div class=''>"
+                                    + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
+                                    + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
+                                    + "</div>"
+                                    + "</div>";
+                            }
+
+                            currentInput.next().removeClass('d-none');
+                            currentInput.next().html('');
+                            currentInput.next().html(html);
+                        }
+                        else {
+                            currentInput.next().addClass('d-none');
+                            currentInput.next().html('');
+                        }
+                    }
+                    else {
+                        currentInput.next().addClass('d-none');
+                        currentInput.next().html('');
+                    }
+                });
+            });
+        } else {
+            currentInput.next().addClass('d-none');
+            currentInput.next().html('');
+        }
+    });
+}
+
+// select part
+function selectPart(id, value) {
+    let listPart = partArrSearch.filter(function (ele) {
+        return ele.id == id;
+    })
+
+    let selectedPart = listPart[0];
+    // full fill to input
+    $("#name-" + value).val(selectedPart.name);
+    $("#code-" + value).val(selectedPart.code);
+    $("#unit-" + value).val(selectedPart.unit);
+
+    // close search result panel
+    $(".search-result-panel").addClass('d-none');
+    $(".search-result-panel").html('');
 }

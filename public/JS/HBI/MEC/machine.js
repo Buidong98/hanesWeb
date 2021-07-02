@@ -16,9 +16,14 @@ $(document).on('click', '.day', function (e) {
     e.stopPropagation();
 })
 
+// Load khi tải trang xong
 $(document).ready(function () {
     $('.isDate').datepicker({
         format: "mm-dd-yyyy",
+    });
+
+    $('.modal').on('shown.bs.modal', function () {
+        $(this).find('[autofocus]').focus();
     });
 
     getAllMachine();

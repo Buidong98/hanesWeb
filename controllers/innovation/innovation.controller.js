@@ -21,7 +21,7 @@ module.exports.suggestPart = function (req, res) {
         let pageSize = req.body.pageSize;
 
         // execute
-        let query = `SELECT id, code, quantity, name, image, location FROM mec_part WHERE name LIKE '%${keyword}%' LIMIT ${pageSize}`;
+        let query = `SELECT id, code, quantity, name, image, location, unit FROM mec_part WHERE name LIKE '%${keyword}%' LIMIT ${pageSize}`;
         db.excuteQuery(query, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));

@@ -15,9 +15,14 @@ $(document).on('click', '.day', function (e) {
     e.stopPropagation();
 })
 
+// Load khi tải trang xong
 $(document).ready(function () {
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
+    });
+
+    $('.modal').on('shown.bs.modal', function () {
+        $(this).find('[autofocus]').focus();
     });
 
     let date = new Date().toLocaleDateString("vi-VN", {
@@ -80,7 +85,7 @@ function getRequestDetail(id) {
             $("#txtURPartQty").val(data.qty);
             $("#txtURPartLocation").val(data.location);
             $("#txtDPartDes").val(data.description);
-            $("#txtURPartQtyExport").val(data.export_qty);
+            $("#txtURPartQtyExport").val(data.export_qty == 0 ? data.qty : data.export_qty);
         }
         else {
 
@@ -208,7 +213,7 @@ function searchPart() {
                             for (let i = 0; i < data.length; i++) {
                                 let ele = data[i];
                                 html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ")'>"
-                                    + "<img class='search-image' src='/Image/" + ele.id + ".jpg' width='75px' />"
+                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
