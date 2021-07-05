@@ -17,10 +17,21 @@ $(document).on('click', '.day', function (e) {
 
 // Load khi tải trang xong
 $(document).ready(function () {
+
+    // init time picker
+    let html = "";
+    for (let i = 0; i < Timepickers.length; i++) {
+        let ele = Timepickers[i];
+        html += `<option value='${ele.value}'>${ele.text}</option>`
+    }
+    $("#txtTime").append(html);
+
+    // init datepicker for all input date type
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
     });
 
+    // initing data
     getAllRequest();
 })
 
@@ -151,21 +162,22 @@ function getImportDetail(id){
             let importDetail = response.data.items;
             for (let i = 0; i < importDetail.length; i++) {
                 let ele = importDetail[i];
-                html += `<tr id="tr-${i + 1}">                   
+                let idx = i + 1;
+                html += `<tr id="tr-${idx}">                   
                     <td>
-                        <input type="text" class="form-control partName" value='${ele.part_name}'>
+                        <input type="text" class="form-control partName" value='${ele.part_name}' data-value='${idx}' id='name-${idx}'>
                         <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
                         </div>
                     </td>
-                    <td><input type="text" class="form-control partCode" value='${ele.part_code}'></td>
-                    <td><input type="text" class="form-control unit" value='${ele.unit}'></td>
+                    <td><input type="text" class="form-control partCode" value='${ele.part_code}' id='code-${idx}'></td>
+                    <td><input type="text" class="form-control unit" value='${ele.unit}' id='unit-${idx}'></td>
                     <td><input type="text" class="form-control qtyPO" value='${ele.qty_po}'></td>
                     <td><input type="text" class="form-control qtyImport" value='${ele.qty_real}'></td>
-                    <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${ele.id})"><i class="fa fa-close"></i></button></td>
+                    <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${idx})"><i class="fa fa-close"></i></button></td>
                 </tr>`;
 
                 partArr.push({
-                    id: i + 1,
+                    id: idx,
                 })
             }
             index = importDetail.length;
@@ -184,15 +196,6 @@ function addRow(){
     partArr.push({
         id: idx,
     })
-
-    // let html = `<tr id="tr-${idx}">
-    //                 <td><input type="text" class="form-control partCode"></td>
-    //                 <td><input type="text" class="form-control partName"></td>
-    //                 <td><input type="text" class="form-control unit"></td>
-    //                 <td><input type="text" class="form-control qtyPO"></td>
-    //                 <td><input type="text" class="form-control qtyImport"></td>
-    //                 <td><button class="btn btn-outline-success" onclick="deleteRow(event, ${idx})"><i class="fa fa-close"></i></button></td>
-    //             </tr>`;
 
     let html = `<tr id="tr-${idx}">
                     <td>
@@ -293,4 +296,29 @@ function selectPart(id, value) {
     // close search result panel
     $(".search-result-panel").addClass('d-none');
     $(".search-result-panel").html('');
+}
+
+function downloadReport(){
+    LoadingShow();
+    let vendor = $("#txtVendor").val();
+    let filterDate = $("#txtTime").val();
+
+    let action = baseUrl + 'download';
+    let datasend = {
+        vendor: vendor,
+        filterDate: filterDate
+    };
+
+    fetch(action, {
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_import_request.xlsx");
+    });
 }

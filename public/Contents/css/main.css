@@ -48,6 +48,22 @@ textarea {
     background-color: #7d7d80;
 }
 
+.part-result {
+    border-bottom: 1px dashed yellowgreen;
+}
+
+.part-result:hover {
+    background: #7d7d80;
+    cursor: pointer;
+}
+
+.search-image {
+    margin: 10px 10px 10px 10px;
+    object-fit: contain;
+    border-radius: 5px;
+    align-self: flex-start;
+}
+
 .table-scrollable {}
 
 @media (max-width: 575.98px) {

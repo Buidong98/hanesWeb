@@ -39,14 +39,11 @@
             background-color: #7d7d80;
         }
 
-        .table-scrollable{
-           
-        }
+        .table-scrollable {}
 
-        #processing-table-body i{
+        #processing-table-body i {
             font-size: 32px;
         }
-
     </style>
 
 </head>
@@ -73,7 +70,7 @@
                         <div class="bg-white">
                             <div class="d-sm-block">
                                 <div class="panel panel-default m-0">
-                                
+
                                     <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
                                         <div class="mdl-tabs__tab-bar">
                                             <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
@@ -82,36 +79,50 @@
                                         </div>
 
                                         <div class="mdl-tabs__panel is-active" id="processing-panel">
-                                        <div class="panel-heading" style="background: white">
-                                        <div class="row">
-                                            <div class="col-sm-12 col-md-8 float-left form-inline">
-                                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
-                                                <div class="btn-group btn-filter">
-                                                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
-                                                        <span class="fa fa-download"></span> Report
-                                                    </button>
-                                                    <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
-                                                        <form class="form-inline" id="formTRReport">
-                                                            <div style="display: flex;">
-                                                                <div class="">
-                                                                    <p class="mb-1">From date</p>
-                                                                    <input type="text" class="form-control w-100 isDate" id="txtReportFrom" />
-                                                                </div>
-                                                                <div class="ml-2">
-                                                                    <p class="mb-1">To date</p>
-                                                                    <input type="text" class="form-control w-100 isDate" id="txtReportTo" />
-                                                                </div>
+                                            <div class="panel-heading" style="background: white">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-8 float-left form-inline">
+                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
+                                                        <div class="btn-group btn-filter">
+                                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                                <span class="fa fa-download"></span> Report
+                                                            </button>
+                                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                                <form class="form-inline" id="formTRReport">
+                                                                    <div class="d-flex">
+                                                                        <div class="">
+                                                                            <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                            <input type="text" class="form-control w-100 isDate" id="txtReportFrom" />
+                                                                        </div>
+                                                                        <div class="ml-2">
+                                                                            <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                            <input type="text" class="form-control w-100 isDate" id="txtReportTo" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Zone</strong></p>
+                                                                            <select class="form-control w-100" name="" id="">
+                                                                                <option>Zone A</option>
+                                                                                <option>Zone B</option>
+                                                                                <option>Zone C</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <p class="mb-1 mr-5"><strong>Chi phí xuất: </strong></p>
+                                                                        <input type="checkbox" class="mt-2" id="" style="transform: scale(1.5);" name="isExportFee" />
+                                                                    </div>
+                                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                        <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
+                                                                    </div>
+                                                                </form>
                                                             </div>
-                                                            <div class="justify-content-between align-items-center mt-3 text-right">
-                                                                <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
-                                                            </div>
-                                                        </form>
+                                                        </div>
+                                                        <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
                                             </div>
-                                        </div>
-                                    </div>
                                             <div class="d-flex pl-4 pr-4 pt-2">
                                                 <div class="p-0">
                                                     <label for="recipient-name" class="col-form-label">Trạng thái:</label>
@@ -201,8 +212,33 @@
                                                     </div>
                                                 </div>
                                                 <div class="p-0 ml-2">
-                                                    <div class="input-group">
-                                                        <button class="btn btn-light" onclick="downloadPart()"><i class="fa fa-download"></i></button>
+                                                    <div class="btn-group btn-filter">
+                                                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="fa fa-download"></span>
+                                                        </button>
+                                                        <div class="dropdown-menu p-3" style="left: -22px; width: 300px;">
+                                                            <form class="form-inline" id="formTRReport">
+                                                                <div class="mt-2">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1"><strong>Tiêu chí</strong></p>
+                                                                        <select class="form-control w-100" name="" id="txtCriteria">
+                                                                            <option value="">Tất cả</option>
+                                                                            <option value="1">Top 10 part dùng nhiều nhất</option>
+                                                                            <option value="2">Top 10 part dùng ít nhất</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1"><strong>Thời gian</strong></p>
+                                                                        <select class="form-control w-100" name="" id="txtTime">
+                                                                           
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                    <button type="button" class="btn btn-success btn-sm" onclick="downloadPart()">Download</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="pl-2 input-sm-100">
@@ -242,8 +278,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+    </div>
+    </main>
     </div>
 
     <!-- Modal add request -->
@@ -404,8 +440,8 @@
             </div>
         </div>
     </div>
-      <!-- Modal add part -->
-      <div class="modal fade" id="modalAddPart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal add part -->
+    <div class="modal fade" id="modalAddPart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">

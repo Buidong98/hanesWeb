@@ -168,3 +168,41 @@ function GetTodayDate() {
 	});
 	return date.replaceAll("/", "_")
 }
+
+// Init time
+var now = new Date();
+var firstDay = new Date();
+var lastDay = new Date();
+var currentDay = now.getDay();
+
+// Sunday - Saturday : 0 - 6
+//This week
+firstDay.setDate(now.getDate() - currentDay);
+lastDay.setDate(firstDay.getDate() + 6);
+var thisWeek = firstDay.getDate().toString().padStart(2, "0") + '/' + (firstDay.getMonth() + 1).toString().padStart(2, "0") + '/' + firstDay.getFullYear() + ';' + lastDay.getDate().toString().padStart(2, "0") + '/' + (lastDay.getMonth() + 1).toString().padStart(2, "0") + '/' + lastDay.getFullYear();
+
+//Last week
+firstDay.setDate(firstDay.getDate() - 7);
+lastDay.setDate(lastDay.getDate() - 7);
+var lastWeek = firstDay.getDate().toString().padStart(2, "0") + '/' + (firstDay.getMonth() + 1).toString().padStart(2, "0") + '/' + firstDay.getFullYear() + ';' + lastDay.getDate().toString().padStart(2, "0") + '/' + (lastDay.getMonth() + 1).toString().padStart(2, "0") + '/' + lastDay.getFullYear();
+
+//This month
+var dayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+lastDay = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
+var thisMonth = firstDay.getDate().toString().padStart(2, "0") + '/' + (firstDay.getMonth() + 1).toString().padStart(2, "0") + '/' + firstDay.getFullYear() + ';' + lastDay.getDate().toString().padStart(2, "0") + '/' + (lastDay.getMonth() + 1).toString().padStart(2, "0") + '/' + lastDay.getFullYear();
+
+//Last month
+lastDay.setDate(firstDay.getDate() - 1);
+firstDay = new Date(lastDay.getFullYear(), lastDay.getMonth(), 1);
+var lastMonth = firstDay.getDate().toString().padStart(2, "0") + '/' + (firstDay.getMonth() + 1).toString().padStart(2, "0") + '/' + firstDay.getFullYear() + ';' + lastDay.getDate().toString().padStart(2, "0") + '/' + (lastDay.getMonth() + 1).toString().padStart(2, "0") + '/' + lastDay.getFullYear();
+
+var Timepickers = [
+    { id: 1, value: thisWeek, text: 'Tuần này' },
+    { id: 2, value: lastWeek, text: 'Tuần trước' },
+    { id: 3, value: thisMonth, text: 'Tháng này' },
+    { id: 4, value: lastMonth, text: 'Tháng trước' },
+    { id: 5, value: '5', text: 'Tùy chọn' }
+]
+
+//End init time

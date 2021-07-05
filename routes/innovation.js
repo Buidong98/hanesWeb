@@ -49,5 +49,6 @@ router.post("/import/get-import-detail", importController.getImportDetail)
 router.get("/import/add", importController.addUI)
 router.post("/import/add", importController.addImportRequest)
 router.post("/import/update", importController.updateImportRequest)
+router.post("/import/download", importController.downloadImportRequest)
 
 module.exports = router;

@@ -17,6 +17,15 @@ $(document).on('click', '.day', function (e) {
 
 // Load khi tải trang xong
 $(document).ready(function () {
+    // init time picker
+    let html = "";
+    for (let i = 0; i < Timepickers.length; i++) {
+        let ele = Timepickers[i];
+        html += `<option value='${ele.value}'>${ele.text}</option>`
+    }
+    $("#txtTime").append(html);
+
+    // init datepicker for all input date type
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
     });
@@ -130,7 +139,7 @@ function addRequest() {
             toastr.success("Thành công", "Thêm thành công");
             getAllRequest();
             $("#modalAddRequest").modal("hide");
-            socket.emit('new message', { user: "", message: "" });
+            socket.emit('add-part-request', { user: "", message: "" });
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -155,6 +164,7 @@ function updateRequest() {
             toastr.success("Thành công", "Cập nhật thành công");
             getAllRequest();
             $("#modalUpdateRequest").modal("hide");
+            socket.emit('update-part-request', { user: "", message: "" });
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -176,10 +186,10 @@ function report() {
     };
 
     fetch(action, {
-            method: 'POST',
-            body: JSON.stringify(datasend),
-            headers: {
-                'Content-Type': 'application/json'
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
         },
     }).then(function (resp) {
         return resp.blob();
@@ -213,7 +223,7 @@ function searchPart() {
                             for (let i = 0; i < data.length; i++) {
                                 let ele = data[i];
                                 html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ")'>"
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -303,10 +313,10 @@ function downloadWarningPart() {
     };
 
     fetch(action, {
-            method: 'POST',
-            body: JSON.stringify(datasend),
-            headers: {
-                'Content-Type': 'application/json'
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
         },
     }).then(function (resp) {
         return resp.blob();
@@ -358,12 +368,12 @@ function downloadPart() {
     let datasend = {
         keyword: keyword == "" ? "" : keyword
     };
-    
+
     fetch(action, {
-            method: 'POST',
-            body: JSON.stringify(datasend),
-            headers: {
-                'Content-Type': 'application/json'
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
         },
     }).then(function (resp) {
         return resp.blob();
@@ -522,6 +532,10 @@ function uploadImage(event) {
 // Socket
 const socket = io();
 
-socket.on('new message', (data) => {
-     getAllRequest();
+socket.on('add-part-request', (data) => {
+    getAllRequest();
+});
+
+socket.on('update-part-request', (data) => {
+    getAllRequest();
 });

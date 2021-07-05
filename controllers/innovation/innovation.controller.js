@@ -372,7 +372,7 @@ module.exports.updateRequest = async function (req, res, next) {
             var partObj = await innovationService.getPartDetail({ code: objReq[0].code });
             if (partObj.length > 0) {
                 if (partObj[0].quantity > 0) {
-                    // update quantity in mec_part: substract the quantity 
+                    // update quantity in mec_part: substract the quantity
                     isSuccess = await innovationService.updatePartQuantity({ export_qty: req.body.export_qty, code: objReq[0].code });
                     if (isSuccess <= 0)
                         return res.end(JSON.stringify({ rs: false, msg: "Cập nhật số lượng part trong kho không thành công" }));

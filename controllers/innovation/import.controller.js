@@ -152,3 +152,44 @@ module.exports.updateImportRequest = async function (req, res) {
         logHelper.writeLog("innovation.updateImportRequest", error);
     }
 }
+
+module.exports.downloadImportRequest = function (req, res) {
+    try {
+        //parameters
+        let vendor = req.body.vendor;
+        let filterDate = req.body.filterDate;
+
+        // execute
+        db.excuteSP(`CALL USP_Part_Import_Download ('${vendor}', '${filterDate.split(';')[0]}', '${filterDate.split(';')[1]}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let jsonMachine = JSON.parse(JSON.stringify(result.data));
+
+                let workbook = new excel.Workbook(); //creating workbook
+                let worksheet = workbook.addWorksheet('Import'); //creating worksheet
+
+                //  WorkSheet Header
+                worksheet.columns = [
+                    { header: 'Part', key: 'part_code', width: 10 },
+                    { header: 'Qty', key: 'total', width: 30 },
+                    { header: 'Price', key: 'price', width: 30 },
+                    { header: 'Money', key: 'money', width: 30 },
+                ];
+
+                // Add Array Rows
+                worksheet.addRows(jsonMachine);
+
+                // Write to File
+                let filename = "\import_request.xlsx";
+                workbook.xlsx.writeFile(filename).then(function () {
+                    res.download(filename);
+                });
+            }
+        });
+
+    } catch (error) {
+        logHelper.writeLog("innovation.downloadImportRequest", error);
+    }
+}

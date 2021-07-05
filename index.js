@@ -94,10 +94,20 @@ server.listen(8000, '10.113.99.3', function(){
 });
 
 io.on('connection', (socket) => {
-    socket.on('new message', (data) => {
+    // processing request
+    socket.on('add-part-request', (data) => {
         console.log(socket.id + " Connected!");
       
-        io.emit('new message', {
+        io.emit('add-part-request', {
+            username: socket.username,
+            message: data
+        });
+    });
+
+    socket.on('update-part-request', (data) => {
+        console.log(socket.id + " Connected!");
+      
+        io.emit('update-part-request', {
             username: socket.username,
             message: data
         });
