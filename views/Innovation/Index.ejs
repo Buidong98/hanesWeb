@@ -102,7 +102,7 @@
                                                                     <div class="mt-2 d-flex">
                                                                         <div class="w-100">
                                                                             <p class="mb-1"><strong>Zone</strong></p>
-                                                                            <select class="form-control w-100" name="" id="">
+                                                                            <select class="form-control w-100" name="" id="txtFilterZone">
                                                                                 <option>Zone A</option>
                                                                                 <option>Zone B</option>
                                                                                 <option>Zone C</option>
@@ -111,7 +111,7 @@
                                                                     </div>
                                                                     <div class="mt-2 d-flex">
                                                                         <p class="mb-1 mr-5"><strong>Chi phí xuất: </strong></p>
-                                                                        <input type="checkbox" class="mt-2" id="" style="transform: scale(1.5);" name="isExportFee" />
+                                                                        <input type="checkbox" class="mt-2" id="cbIncludeFee" style="transform: scale(1.5);" name="isIncludeFee" />
                                                                     </div>
                                                                     <div class="justify-content-between align-items-center mt-3 text-right">
                                                                         <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
@@ -222,7 +222,7 @@
                                                                     <div class="w-100">
                                                                         <p class="mb-1"><strong>Tiêu chí</strong></p>
                                                                         <select class="form-control w-100" name="" id="txtCriteria">
-                                                                            <option value="">Tất cả</option>
+                                                                            <option value="0">Tất cả</option>
                                                                             <option value="1">Top 10 part dùng nhiều nhất</option>
                                                                             <option value="2">Top 10 part dùng ít nhất</option>
                                                                         </select>
@@ -417,6 +417,7 @@
                             <label for="">Zone</label>
                             <div class="">
                                 <select class="form-control" name="" id="">
+                                    <option value="">Tất cả</option>
                                     <option>Zone A</option>
                                     <option>Zone B</option>
                                     <option>Zone C</option>

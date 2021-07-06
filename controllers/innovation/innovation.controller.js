@@ -124,10 +124,11 @@ module.exports.getAllPart = function (req, res) {
 module.exports.downloadPart = function (req, res) {
     try {
         //parameters
-        let keyword = req.body.keyword;
+        let criteria = req.body.criteria;
+        let filterDate = req.body.filterDate;
 
         // execute
-        db.excuteSP(`CALL USP_Part_Get ('${keyword}')`, function (result) {
+        db.excuteSP(`CALL USP_Part_TopUsage_Download ('${filterDate.split(';')[0]}', '${filterDate.split(';')[1]}', ${criteria})`, function (result) {
             if (!result.rs) {
                 return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -140,10 +141,9 @@ module.exports.downloadPart = function (req, res) {
 
                 //  WorkSheet Header
                 worksheet.columns = [
-                    { header: 'Id', key: 'id', width: 10 },
-                    { header: 'Name', key: 'name', width: 30 },
                     { header: 'Code', key: 'code', width: 30 },
-                    { header: 'Location', key: 'location', width: 30 }
+                    { header: 'Total Qty', key: 'total', width: 30 },
+                    { header: 'Total Export Qty', key: 'total_export', width: 30 }
                 ];
 
                 // Add Array Rows
@@ -390,12 +390,13 @@ module.exports.updateRequest = async function (req, res, next) {
 module.exports.downloadRequest = function (req, res) {
     try {
         //parameters
-        let status = req.body.status;
+        let zone = req.body.zone;
+        let includeFee = req.body.includeFee;
         let fromDate = req.body.fromDate;
         let toDate = req.body.toDate;
 
         // execute
-        db.excuteSP(`CALL USP_Part_Request_Processing_Get ('${status}', '${fromDate}', '${toDate}')`, function (result) {
+        db.excuteSP(`CALL USP_Part_Export_Report_Download ('${fromDate}', '${toDate}', '${zone}', ${includeFee})`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -406,12 +407,24 @@ module.exports.downloadRequest = function (req, res) {
                 let worksheet = workbook.addWorksheet('Machine'); //creating worksheet
 
                 //  WorkSheet Header
-                worksheet.columns = [
-                    { header: 'Id', key: 'id', width: 10 },
-                    { header: 'Name', key: 'name', width: 30 },
-                    { header: 'Code', key: 'code', width: 30 },
-                    { header: 'Qty', key: 'qty', width: 30 }
-                ];
+               
+                if(includeFee == 0){
+                    worksheet.columns = [
+                        { header: 'Id', key: 'id', width: 10 },
+                        { header: 'Name', key: 'name', width: 30 },
+                        { header: 'Code', key: 'code', width: 30 },
+                        { header: 'Qty', key: 'qty', width: 30 }
+                    ];
+                }
+
+                if(includeFee == 1){
+                    worksheet.columns = [
+                        { header: 'Id', key: 'id', width: 10 },
+                        { header: 'Name', key: 'name', width: 30 },
+                        { header: 'Code', key: 'code', width: 30 },
+                        { header: 'Qty', key: 'qty', width: 30 }
+                    ];
+                }
 
                 // Add Array Rows
                 worksheet.addRows(jsonMachine);

@@ -1,5 +1,3 @@
-var formidable = require('formidable');
-var fs = require('fs');
 var Database = require("../../common/db.js")
 const db = new Database();
 const helper = require('../../common/helper.js');

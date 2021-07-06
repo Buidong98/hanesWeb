@@ -175,9 +175,11 @@ function updateRequest() {
 // Tải báo cáo
 function report() {
     LoadingShow();
-    let status = $("#txtStatus").val();
+    let zone = $("#txtZone").val();
+    let includeFee = $("#txtZone").val();
     let fromDate = $("#txtReportFrom").val();
     let toDate = $("#txtReportTo").val();
+
     let action = baseUrl + 'request/download';
     let datasend = {
         status: status,
@@ -363,10 +365,13 @@ function getAllPart() {
 // download warning part
 function downloadPart() {
     LoadingShow();
-    let keyword = $("#txtAllPart").val();
+    let criteria = $("#txtCriteria").val();
+    let filterDate = $("#txtTime").val();
+
     let action = baseUrl + 'part/download';
     let datasend = {
-        keyword: keyword == "" ? "" : keyword
+        criteria: criteria,
+        filterDate: filterDate
     };
 
     fetch(action, {

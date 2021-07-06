@@ -29,6 +29,7 @@ $(document).ready(function () {
     // init datepicker for all input date type
     $('.isDate').datepicker({
         format: "dd/mm/yyyy",
+        clear: true
     });
 
     // initing data
