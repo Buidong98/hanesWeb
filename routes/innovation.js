@@ -4,8 +4,11 @@ const router = new express.Router();
 const partController = require("../controllers/innovation/innovation.controller");
 const machineController = require("../controllers/innovation/machine.controller");
 const importController = require("../controllers/innovation/import.controller");
+const dashboardController = require("../controllers/innovation/dashboard.controller");
 const authController = require("../middleware/auth.controller");
 
+// Dashboard
+router.get("/dashboard", dashboardController.getDashboard)
 
 // Part route
 router.get("/", partController.getIndex)

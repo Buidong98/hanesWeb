@@ -410,19 +410,20 @@ module.exports.downloadRequest = function (req, res) {
                
                 if(includeFee == 0){
                     worksheet.columns = [
-                        { header: 'Id', key: 'id', width: 10 },
-                        { header: 'Name', key: 'name', width: 30 },
                         { header: 'Code', key: 'code', width: 30 },
-                        { header: 'Qty', key: 'qty', width: 30 }
+                        { header: 'Qty', key: 'qty', width: 30 },
+                        { header: 'Export Qty', key: 'export_qty', width: 30 },
+                        { header: 'Request Date', key: 'request_date', width: 30 }
                     ];
                 }
 
                 if(includeFee == 1){
                     worksheet.columns = [
-                        { header: 'Id', key: 'id', width: 10 },
-                        { header: 'Name', key: 'name', width: 30 },
-                        { header: 'Code', key: 'code', width: 30 },
-                        { header: 'Qty', key: 'qty', width: 30 }
+                        { header: 'Code', key: 'code', width: 10 },
+                        { header: 'Price', key: 'price', width: 30 },
+                        { header: 'Total Qty', key: 'total', width: 30 },
+                        { header: 'Total Export', key: 'total_export', width: 30 },
+                        { header: 'Money', key: 'money', width: 30 }
                     ];
                 }
 

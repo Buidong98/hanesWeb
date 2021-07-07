@@ -175,14 +175,15 @@ function updateRequest() {
 // Tải báo cáo
 function report() {
     LoadingShow();
-    let zone = $("#txtZone").val();
-    let includeFee = $("#txtZone").val();
+    let zone = $("#txtFilterZone").val();
+    let includeFee = $("#cbIncludeFee").is(':checked');
     let fromDate = $("#txtReportFrom").val();
     let toDate = $("#txtReportTo").val();
 
     let action = baseUrl + 'request/download';
     let datasend = {
-        status: status,
+        zone: zone,
+        includeFee: includeFee,
         fromDate: fromDate,
         toDate: toDate
     };
