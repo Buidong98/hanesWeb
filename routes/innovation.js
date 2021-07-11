@@ -9,7 +9,7 @@ const authController = require("../middleware/auth.controller");
 
 // Dashboard
 router.get("/dashboard", dashboardController.getDashboard)
-router.post("/dashboard/get-count", dashboardController.getCount)
+router.post("/dashboard/get-count", dashboardController.getStatistic)
 
 // Part route
 router.get("/", partController.getIndex)
