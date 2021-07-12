@@ -7,11 +7,17 @@ const constant = require('../../common/constant');
 const excel = require('exceljs');
 const innovationService = require("../../services/innovation.service");
 
-// Machine
+// UI
 module.exports.getImportIndex = function (req, res) {
     res.render('Innovation/ImportPart/ImportPartIndex');
 }
 
+module.exports.addUI = function (req, res) {
+    res.render("Innovation/ImportPart/AddImportRequest");
+}
+
+
+// LOGIC
 module.exports.getImport = function (req, res) {
     try {
         //parameters
@@ -32,10 +38,6 @@ module.exports.getImport = function (req, res) {
     catch (error) {
         logHelper.writeLog("innovation.getMachine", error);
     }
-}
-
-module.exports.addUI = function (req, res) {
-    res.render("Innovation/ImportPart/AddImportRequest");
 }
 
 module.exports.addImportRequest = async function (req, res) {
@@ -71,10 +73,13 @@ module.exports.addImportRequest = async function (req, res) {
             eleArr.push(idInserted);
             arr.push(eleArr);
         }
-
+        
         let isAddDetailSuccess = await innovationService.addImportRequestDetail(arr);
         if (isAddDetailSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Thêm chi tiết không thành công." }));
+
+        // Kiểm tra tồn tại part chưa? => Cập nhật nếu tồn tại => Thêm nếu chưa
+
         return res.end(JSON.stringify({ rs: true, msg: "Thêm import request thành công." }));
     }
     catch (error) {
@@ -144,6 +149,9 @@ module.exports.updateImportRequest = async function (req, res) {
         let isAddDetailSuccess = await innovationService.addImportRequestDetail(arr);
         if (isAddDetailSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Cập nhật chi tiết không thành công." }));
+        
+        // Kiểm tra tồn tại part chưa? => Cập nhật nếu tồn tại => Thêm nếu chưa
+
         return res.end(JSON.stringify({ rs: true, msg: "Cập nhật import request thành công." }));
     }
     catch (error) {

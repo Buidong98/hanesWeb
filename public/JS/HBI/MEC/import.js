@@ -212,6 +212,7 @@ function addRow(){
                 </tr>`;
 
     $("#list-part-body").append(html);
+    $("#name-" + idx).focus();
 }
 
 

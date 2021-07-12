@@ -107,6 +107,7 @@ function addRow(){
                 </tr>`;
 
     $("#list-part-body").append(html);
+    $("#name-" + idx).focus();
 }
 
 function deleteRow(e, idx){
