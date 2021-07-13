@@ -236,7 +236,7 @@ function searchPart() {
                             $(".search-result-panel").removeClass('d-none');
                             $(".search-result-panel").html('');
                             $(".search-result-panel").html(html);
-                        }
+                        } 
                         else {
                             $(".search-result-panel").addClass('d-none');
                             $(".search-result-panel").html('');
