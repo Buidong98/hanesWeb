@@ -196,7 +196,7 @@ passport.use(new LocalStrategy(
                         return done(null, {status: false, message: "Sai mật khẩu"});
                     }
 
-                    // return done(null, username);
+                    // return done(null, username)
                     var userLogin = new UserModel("tunguyen", "nguyen van  tuyen", 6, [1, 2, 3]);
                     return done(null, userLogin);
                 }
@@ -349,7 +349,7 @@ app.post("/Get_RFID", function (req, res) {
         }
         // sql = "select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position from erpsystem.setup_rfidemplist r inner join erpsystem.setup_emplist e "
         //     + " on r.EmployeeID=e.ID where r.CardNo='" + rfid + "' or e.ID='" + rfid + "';";
-        sql = `select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position from erpsystem.setup_emplist e where e.ID = '${rfid}'`;
+        sql = `select e.ID, e.Name, e.Shift, e.Line, e.Dept, e.Position, e.Section from erpsystem.setup_emplist e where e.ID = '${rfid}'`;
         connection.query(sql, function (err, result, fields) {
             connection.release();
             if (err) throw err;
@@ -1464,7 +1464,12 @@ app.get("/Production/OffStandard", function (req, res) {
             connection.release();
             if (err) throw err;
             group_list = result;
-            res.render("Production/OffStandard", { group_list: group_list });
+            if (req.isAuthenticated()) {
+                res.render("Production/OffStandard", { group_list: group_list });
+            }
+            else{
+                res.render("login", {msg: ""});
+            }
         });
     });
 });
@@ -1535,12 +1540,17 @@ app.post('/Production/GetStyleDetail1', function (req, res) {
 app.post('/Production/GetOffStandardTracking', function (req, res) {
     if (req.isAuthenticated()) {
         date = req.body.date;
-        groupName = req.body.group;
+        wc = req.body.wc;
         con4.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
-            sql = "select * from linebalancing.operation_offstandard_tracking where GroupTo='" + groupName + "' and DateUpdate='" + date + "';";
+            sql = `select * 
+            from linebalancing.operation_offstandard_tracking 
+            where (
+				('${wc}' IS NULL OR '${wc}' = '' )
+				OR WC LIKE CONCAT('%', '${wc}', '%')
+			) and SUBSTRING(DateUpdate, 1, 10)='${date}' ORDER BY ID DESC`;
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -1549,7 +1559,7 @@ app.post('/Production/GetOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login");
+        res.render("login", {msg: ""});
     }
 });
 app.post('/Production/IsExistedOffStandardTracking', function (req, res) {
@@ -1572,37 +1582,45 @@ app.post('/Production/IsExistedOffStandardTracking', function (req, res) {
         res.render("login");
     }
 });
+
+const round = (x, n=2) => {
+    const precision = Math.pow(10, n)
+    return Math.round((x+Number.EPSILON) * precision ) / precision;
+}
 app.post('/Production/InsertOffStandardTracking', function (req, res) {
     if (req.isAuthenticated()) {
-        ID = req.body.ID;
+        workerID = req.body.workerID;
         name = req.body.name;
-        shift = req.body.shift;
         code = req.body.code;
         wc = req.body.wc;
         op1 = req.body.op1;
         op2 = req.body.op2;
-        eff2 = req.body.eff2;
-        groupTo = req.body.groupTo;
-        weekUpdate = req.body.weekUpdate;
         note = req.body.note;
+        finishTime = req.body.finishTime;
         var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
         var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
         var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        userUpdate = req.user;
+        userUpdate = req.user.username;
         startTime = timeUpdate;
         dateUpdate = timeUpdate.split(' ')[0];
         hh = parseInt(timeUpdate.split(' ')[1].split(':')[0]);
         mm = parseInt(timeUpdate.split(' ')[1].split(':')[1]);
-        if (hh == 13 && mm > 45 && mm < 59) startTime = dateUpdate + ' 14:00:00';
+        // if (hh == 13 && mm > 45 && mm < 59) startTime = dateUpdate + ' 14:00:00';
+        startTime = dateUpdate + ' ' + req.body.startTime;
+        finishTime = finishTime == "" ? "" : dateUpdate + " " + finishTime;
         con4.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
-            sql = "Insert into linebalancing.operation_offstandard_tracking "
-                + " (ID, Name, Shift, Code, WC, Operation1, Operation2, Efficiency2, GroupTo, "
-                + " StartTime, UserUpdate, DateUpdate, WeekUpdate, Note, IEApprovedResult) values "
-                + " ('" + ID + "', '" + name + "', '" + shift + "', '" + code + "', '" + wc + "', '" + op1 + "', '" + op2 + "', '" + eff2 + "', '" + groupTo
-                + "', '" + startTime + "', '" + userUpdate + "', '" + dateUpdate + "', '" + weekUpdate + "', '" + note + "', '0');";
+            sql = `Insert into linebalancing.operation_offstandard_tracking (WorkerID, Name, Code, WC, Operation1, Operation2, StartTime, UserUpdate, DateUpdate, Note) 
+                values('${workerID}', '${name}', '${code}', '${wc}', '${op1}', '${op2}', '${startTime}', '${userUpdate}','${timeUpdate}', '${note}')`;
+            
+            if(finishTime != "")
+            {
+                let spanTime = round((Math.abs(new Date(finishTime) - new Date(startTime)) / 1000) / 3600);
+                sql = `Insert into linebalancing.operation_offstandard_tracking (WorkerID, Name, Code, WC, Operation1, Operation2, StartTime, FinishTime, SpanTime, UserUpdate, DateUpdate, Note) 
+                values('${workerID}', '${name}', '${code}', '${wc}', '${op1}', '${op2}', '${startTime}', '${finishTime}', '${spanTime}', '${userUpdate}','${timeUpdate}', '${note}')`;
+            }
             console.log(sql);
             connection.query(sql, function (err, result, fields) {
                 connection.release();
@@ -1612,14 +1630,17 @@ app.post('/Production/InsertOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login");
+        res.render("login", {msg: ""});
     }
 });
 app.post('/Production/CloseOffStandardTracking', function (req, res) {
     if (req.isAuthenticated()) {
-        empID = req.body.empID;
+        id = req.body.id;
+        finishTime = req.body.finishTime;
         startTime = req.body.startTime;
-        // finishTime=req.body.finishTime;
+        tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+        localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+        timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
         con4.getConnection(function (err, connection) {
             if (err) {
                 throw err;
@@ -1632,12 +1653,22 @@ app.post('/Production/CloseOffStandardTracking', function (req, res) {
                 + " IF(StartTime<=CONCAT(CURDATE(),' 22:00:00') AND StartTime>=CONCAT(CURDATE(),' 14:00:00'), IF(now()<=CONCAT(CURDATE(),' 22:00:00'), now(), CONCAT(CURDATE(),' 22:00:00')), NOW())),StartTime))/3600,2)>7.5, 7.5, "
                 + " ROUND(TIME_TO_SEC(TIMEDIFF(IF(StartTime<=CONCAT(CURDATE(),' 14:00:00'), IF(now()<=CONCAT(CURDATE(),' 13:45:00'), now(), CONCAT(CURDATE(),' 13:45:00')), "
                 + " IF(StartTime<=CONCAT(CURDATE(),' 22:00:00') AND StartTime>=CONCAT(CURDATE(),' 14:00:00'), IF(now()<=CONCAT(CURDATE(),' 22:00:00'), now(), CONCAT(CURDATE(),' 22:00:00')), NOW())),StartTime))/3600,2))  "
-                + " where ID='" + empID + "' and StartTime='" + startTime + "';"
+                + ", DateUpdate='" + timeUpdate + "'"
+                + " where ID=" + id + ";"
+           
+            if(finishTime != ''){
+                ftTemp = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().slice(0, -1).substring(0, 10) + " " + finishTime;
+                stTemp = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().slice(0, -1).substring(0, 10) + " " + startTime;
+                let spanTime = round((Math.abs(new Date(ftTemp) - new Date(stTemp)) / 1000) / 3600);
+                sql = `update linebalancing.operation_offstandard_tracking set 
+                FinishTime = '${ftTemp}', SpanTime = '${spanTime}', DateUpdate = '${timeUpdate}'
+                where ID = ${id};`
+            }
             console.log(sql);
             connection.query(sql, function (err, result, fields) {
                 // connection.release();
                 if (err) throw err;
-                sql1 = "select * from linebalancing.operation_offstandard_tracking where ID='" + empID + "' and StartTime='" + startTime + "'";
+                sql1 = "select * from linebalancing.operation_offstandard_tracking where ID=" + id;
                 connection.query(sql1, function (err, result2, fields) {
                     connection.release();
                     if (err) throw err;
@@ -1647,7 +1678,7 @@ app.post('/Production/CloseOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login");
+        res.render("login", {msg: ""});
     }
 });
 app.post('/Production/GetOperationByEmployee7000', function (req, res) {

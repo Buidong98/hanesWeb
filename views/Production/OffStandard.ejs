@@ -10,11 +10,17 @@
     <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css" />
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    
     <title>Off Standard</title>
+    <style>
+        .mdl-data-table td {
+            text-align: left;
+        }
+    </style>
 </header>
 
 <body>
@@ -33,24 +39,22 @@
                     <ul for="cbb_week" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_week_list">
                     </ul>
                 </div>
-                <div id="div_cbb_group" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
-                            style="width: 100px; margin-right: 50px;">
-                        <input type="text" value="" class="mdl-textfield__input" id="cbb_group" readonly>
-                        <input type="hidden" value="" name="cbb_group">
-                        <label for="cbb_group" class="mdl-textfield__label" style="color: white;">Chuyền</label>
-                        <ul for="cbb_group" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_group_list">
-                        </ul>
-                    </div>
-                <div id="div_cbb_shift" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
-                            style="width: 100px;;margin-right: 50px;">
-                        <input type="text" value="" class="mdl-textfield__input" id="cbb_shift" readonly>
-                        <input type="hidden" value="" name="cbb_shift">
-                        <label for="cbb_shift" class="mdl-textfield__label" style="color: white">Ca</label>
-                        <ul for="cbb_shift" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_shift">
-                            <!-- <li class="mdl-menu__item" data-val="RIT">RIT</li>
+                <div id="div_cbb_group" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 100px; margin-right: 50px;">
+                    <input type="text" value="" class="mdl-textfield__input" id="cbb_group" readonly>
+                    <input type="hidden" value="" name="cbb_group">
+                    <label for="cbb_group" class="mdl-textfield__label" style="color: white;">Chuyền</label>
+                    <ul for="cbb_group" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_group_list">
+                    </ul>
+                </div>
+                <div id="div_cbb_shift" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 100px;;margin-right: 50px;">
+                    <input type="text" value="" class="mdl-textfield__input" id="cbb_shift" readonly>
+                    <input type="hidden" value="" name="cbb_shift">
+                    <label for="cbb_shift" class="mdl-textfield__label" style="color: white">Ca</label>
+                    <ul for="cbb_shift" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_shift">
+                        <!-- <li class="mdl-menu__item" data-val="RIT">RIT</li>
                             <li class="mdl-menu__item" data-val="BALI">BALI</li> -->
-                        </ul>
-                    </div>
+                    </ul>
+                </div>
             </div>
         </header>
         <%- include ("partials/navTemplate.ejs"); -%>
@@ -59,11 +63,11 @@
                     <div class="mdl-grid">
                         <div class="mdl-cell mdl-cell--3-col mdl-shadow--6dp" style="background-color: white; height: 87vh;">
                             <div class="mdl-card" style="width: 100%;">
-                                <div class="mdl-card__title" style="background: red;">
-                                    <h2 class="mdl-card__title-text" style="color: white;">Nhập thông tin 
+                                <div class="mdl-card__title" style="background: red; padding: 13px;">
+                                    <h2 class="mdl-card__title-text" style="color: white;">Nhập thông tin
                                     </h2>
                                 </div>
-                                <div class="mdl-card__actions mdl-card--border" style="height: 450px;">
+                                <div class="mdl-card__actions mdl-card--border" style="height: 530px;">
                                     <div class="d-flex">
                                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
                                             <div>
@@ -72,13 +76,33 @@
                                             </div>
                                         </div>
                                         <div class="text-right pt-3">
-                                            <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="background: red; color: white; margin-left: 25px;" id="btn_emp_register_cancel">
-                                                REFRESH<i class="material-icons">delete</i>
+                                            <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" 
+                                            style="background: red; color: white; margin-left: 25px;" onclick="load_off_standard_tracking()">
+                                                SEARCH<i class="material-icons">delete</i>
                                             </button>
                                         </div>
                                     </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder getmdl-select getmdl-select__fix-height" style="margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_wc" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_wc">
+                                        <label for="cbb_wc" class="mdl-textfield__label">Work center</label>
+                                        <ul for="cbb_wc" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_wc" style="height: 200px;">
+                                            <li class="mdl-menu__item" data-val="1">US Panty</li>
+                                            <li class="mdl-menu__item" data-val="2">HAA</li>
+                                            <li class="mdl-menu__item" data-val="3">US Bra</li>
+                                            <li class="mdl-menu__item" data-val="4">Microfiber</li>
+                                            <li class="mdl-menu__item" data-val="5">G10</li>
+                                            <li class="mdl-menu__item" data-val="6">Basic</li>
+                                            <li class="mdl-menu__item" data-val="7">HEI Basic </li>
+                                            <li class="mdl-menu__item" data-val="8">HEI Panty</li>
+                                            <li class="mdl-menu__item" data-val="9">PICO</li>
+                                            <li class="mdl-menu__item" data-val="10">MASK</li>
+                                            <li class="mdl-menu__item" data-val="11">Woven Boxer</li>
+                                            <li class="mdl-menu__item" data-val="12">HEI Bra</li>
+                                        </ul>
+                                    </div>
                                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
-                                        <input class="mdl-textfield__input" type="number" id="txt_rfid" style="color:black">
+                                        <input class="mdl-textfield__input" type="number" value="140390" id="txt_rfid" style="color:black">
                                         <label class="mdl-textfield__label" for="txt_rfid" id="txt_rfid_name">Quẹt thẻ NV</label>
                                         <span class="mdl-textfield__error" id="txt_rfid_check">Không tìm thấy NV!</span>
                                     </div>
@@ -90,11 +114,12 @@
                                         <ul for="cbb_style_detail" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_style_detail">
                                         </ul>
                                     </div> -->
-                                    <div id="div_cbb_code" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="margin-left: 5px;">
+                                    <div id="div_cbb_code" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder getmdl-select getmdl-select__fix-height" style="margin-left: 5px;">
                                         <input type="text" value="" class="mdl-textfield__input" id="cbb_code" readonly style="color: black;">
                                         <input type="hidden" value="" name="cbb_code">
                                         <label for="cbb_code" class="mdl-textfield__label">Chọn code quẹt thẻ</label>
                                         <ul for="cbb_code" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_code" style="height: 200px;">
+                                            <li class="mdl-menu__item" data-val="01">01 (Máy hỏng)</li>
                                             <li class="mdl-menu__item" data-val="02">02 (Cung cập nguyên phụ liệu)</li>
                                             <li class="mdl-menu__item" data-val="03">03 (Hỗ trợ đào tạo chuyển đổi)</li>
                                             <li class="mdl-menu__item" data-val="04">04 (Họp, đào tạo, vào y tế,..)</li>
@@ -127,11 +152,25 @@
                                         <input class="mdl-textfield__input" type="text" id="txtNewOp" style="color: black;">
                                         <label for="txtNewOp" class="mdl-textfield__label">Công đoạn mới</label>
                                     </div>
+                                    <div id="" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder pl-2 d-flex pt-0">
+                                        <div class="w-50">
+                                            <label class="" for="txt_note" style="color: rgb(156,39,176);
+                                            font-size: 12px;
+                                            top: 4px;">Bắt đầu</label>
+                                            <input class="mdl-textfield__input w-75" type="time" id="txtStartTime" name="" >
+                                        </div>
+                                        <div class="w-50">
+                                            <label class="" for="txt_note" style="color: rgb(156,39,176);
+                                            font-size: 12px;
+                                            top: 4px;">Kết thúc</label>
+                                            <input class="mdl-textfield__input w-75" type="time" id="txtFinishTime" name="" >
+                                        </div>
+                                    </div>
                                     <div id="div_txt_note" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
                                         <input class="mdl-textfield__input" type="text" id="txt_note" style="color: black;">
                                         <label class="mdl-textfield__label" for="txt_note">Ghi chú</label>
                                     </div>
-                                    <div id="div_cbb_note" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 400px; margin-left: 5px; display: none;">
+                                    <!-- <div id="div_cbb_note" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 400px; margin-left: 5px; display: none;">
                                         <input type="text" value="" class="mdl-textfield__input" id="cbb_note" readonly style="color: black;">
                                         <input type="hidden" value="" name="cbb_note">
                                         <label for="cbb_note" class="mdl-textfield__label">Lý do</label>
@@ -144,19 +183,20 @@
                                             <li class="mdl-menu__item">Hỗ trợ cắt hàng</li>
                                             <li class="mdl-menu__item">Hỗ trợ kéo máy</li>
                                         </ul>
-                                    </div>
+                                    </div> -->
                                 </div>
-                                <div class="mdl-card__actions mdl-card--border" style="text-align: right;">
-                                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="color: white; background-color: indigo; margin-left: 5px;" id="btn_emp_register">
+                                <div class="mdl-card__actions mt-3" style="text-align: right;">
+                                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" 
+                                    style="color: white; background-color: rgb(156,39,176); margin-left: 5px;" id="btn_emp_register">
                                         ADD
                                         <i class="material-icons">add</i>
-                                    </button>                                 
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-shadow--6dp" style="background-color: white; margin: 10px auto; overflow-x:auto;">
+                        <div class="mdl-cell mdl-cell--9-col mdl-shadow--6dp onscrollbar" style="background-color: white; margin: 7px auto;overflow: auto;height: 87vh;">
                             <table class="mdl-data-table mdl-js-data-table" style="width:100%;">
-                                <thead style="background-color: green;">
+                                <thead style="background-color: rgb(156,39,176);">
                                     <!-- <col width="20px"> -->
                                     <tr style=" border-radius: 10px; height: 60px;">
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">ID</th>
@@ -164,17 +204,18 @@
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">CODE</th>
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">CĐ1</th>
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">CĐ2</th>
-                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">HS2</th>
+                                        <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">HS2</th> -->
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">BẮT ĐẦU</th>
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">KẾT THÚC</th>
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">TỔNG TG</th>
                                         <th class="mdl-data-table__cell--non-numeric" style="color: white;">GHI CHÚ</th>
-                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE DUYỆT</th>
-                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE PHẢN HỒI</th>
+                                        <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE DUYỆT</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE PHẢN HỒI</th> -->
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_employee_body">
-                                   
+
                                 </tbody>
                             </table>
                         </div>
@@ -184,6 +225,11 @@
     </div>
 </body>
 <script>
+
+    $(document).ready(function(){
+        load_off_standard_tracking();
+    })
+
     load_week();
     load_off_standard_code(false, false);
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
@@ -196,6 +242,7 @@
     list_cbb_code = document.getElementById('list_cbb_code');
     list_cbb_old_op = document.getElementById('list_cbb_old_op');
     list_cbb_new_op = document.getElementById('list_cbb_new_op');
+
     function load_week() {
         var xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/GetShiftTime", true);
@@ -233,14 +280,17 @@
         xsend.setRequestHeader("Content-type", "application/json");
         xsend.send();
     }
+
     document.getElementById('cbb_group').addEventListener('change', function () {
         load_style_detail();
         // load_off_standard_tracking();
     });
+
     document.getElementById('cbb_shift').addEventListener('change', function () {
         load_style_detail();
         // load_off_standard_tracking();
     });
+
     function load_style_detail() {
         week = document.getElementById('cbb_week').value;
         group = document.getElementById('cbb_group').value;
@@ -268,6 +318,7 @@
         data = { group: group, week: week };
         xsend.send(JSON.stringify(data));
     }
+
     function load_group() {
         group_list = document.getElementById('cbb_group_list');
         var xsend = new XMLHttpRequest();
@@ -295,6 +346,7 @@
         xsend.setRequestHeader("Content-type", "application/json");
         xsend.send();
     }
+
     //convert 10 digit to 8 digit
     function convert_rfid(digit10) {
         digit10 = parseInt(digit10);
@@ -312,120 +364,47 @@
         emp8digit = pre4digit + last4digit;
         return emp8digit;
     }
+    
     function load_off_standard_tracking() {
-        group = document.getElementById('cbb_group').value;
+        // group = document.getElementById('cbb_group').value;
         date = document.getElementById('date_group_search').value;
-        shift = document.getElementById('cbb_shift').value;
-        var xsend = new XMLHttpRequest();
+        // shift = document.getElementById('cbb_shift').value;
+        wc = document.getElementById('cbb_wc').value;
+        let xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/GetOffStandardTracking", true);
         xsend.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 data = JSON.parse(xsend.responseText);
-                while (table_employee_body.childNodes.length > 0)
-                    table_employee_body.removeChild(table_employee_body.childNodes[0]);
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].Shift.includes(shift)) {
-                        var tr = document.createElement("tr");
-                        //ID
-                        var tdTicket = document.createElement("td");
-                        tdTicket.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].ID != null) node = document.createTextNode(data[i].ID);
-                        tdTicket.appendChild(node);
-                        tr.appendChild(tdTicket);
-                        //Name
-                        var tdOp = document.createElement("td");
-                        tdOp.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode(data[i].Name);
-                        tdOp.appendChild(node);
-                        tr.appendChild(tdOp);
-                        //Code
-                        var tdEmployee = document.createElement("td");
-                        tdEmployee.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].Code != null) node = document.createTextNode(data[i].Code);
-                        tdEmployee.appendChild(node);
-                        tr.appendChild(tdEmployee);
-                        //Operation1
-                        var tdName = document.createElement("td");
-                        tdName.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].Operation1 != null) node = document.createTextNode(data[i].Operation1);
-                        tdName.appendChild(node);
-                        tr.appendChild(tdName);
-                        //Operation2
-                        var tdOpR = document.createElement("td");
-                        tdOpR.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].Operation2 != null) node = document.createTextNode(data[i].Operation2);
-                        tdOpR.appendChild(node);
-                        tr.appendChild(tdOpR);
-                        //Efficiency2
-                        var tdSection = document.createElement("td");
-                        tdSection.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].Efficiency2 != null) node = document.createTextNode(data[i].Efficiency2);
-                        tdSection.appendChild(node);
-                        tr.appendChild(tdSection);
-                        //StartTime
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].StartTime != null) {
-                            var StartTime = (new Date(data[i].StartTime)).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }).split(', ')[1];
-                            node = document.createTextNode(StartTime);
-                        }
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        //FinishTime
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].FinishTime != null) {
-                            // node=document.createTextNode(data[i].FinishTime);
-                            var FinishTime = (new Date(data[i].FinishTime)).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }).split(', ')[1];
-                            node = document.createTextNode(FinishTime);
-                        }
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        //SpanTime
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].SpanTime != null) node = document.createTextNode(data[i].SpanTime);
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        //Note
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].Note != null) node = document.createTextNode(data[i].Note);
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        //IEApprovedUser
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].IEApprovedUser != null) node = document.createTextNode(data[i].IEApprovedUser);
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        //Note
-                        var tdShift = document.createElement("td");
-                        tdShift.setAttribute("class", "mdl-data-table__cell--non-numeric");
-                        var node = document.createTextNode('');
-                        if (data[i].IEApprovedResult != null) node = document.createTextNode(data[i].IEApprovedResult);
-                        tdShift.appendChild(node);
-                        tr.appendChild(tdShift);
-                        componentHandler.upgradeElement(tr);
-                        table_employee_body.appendChild(tr);
-                    }
+                let html = "";
+                for (let i = 0; i < data.length; i++) {
+                    let StartTime = "";
+                    let FinishTime = "";
+                    if (data[i].StartTime != null)
+                        StartTime = (new Date(data[i].StartTime)).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }).split(', ')[1];
+                    if (data[i].FinishTime != null) 
+                        FinishTime = (new Date(data[i].FinishTime)).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }).split(', ')[1];
+                    html += `<tr style="background: ${data[i].SpanTime == null ? "#ceebc6" : ""}">
+                        <td>${data[i].WorkerID}</td>
+                        <td>${data[i].Name}</td>
+                        <td>${data[i].Code}</td>
+                        <td>${data[i].Operation1}</td>
+                        <td>${data[i].Operation2}</td>
+                        <td id="startTime-${data[i].ID}">${StartTime}</td>
+                        <td id="ft-${data[i].ID}">${FinishTime == '' ? `<input id= 'finishTime-${data[i].ID}' class='form-control' style='width: 120px' type='time'>` : FinishTime}</td>
+                        <td>${data[i].SpanTime == null ? "" : data[i].SpanTime}</td>
+                        <td>${data[i].Note}</td>
+                        <td><a href='#' onclick='closeOffStandardTracking(${data[i].ID})'>Confirm</a></td>
+                        </tr>`;
                 }
+                $("#table_employee_body").html('');
+                $("#table_employee_body").html(html);
             }
         }
         xsend.setRequestHeader("Content-type", "application/json");
-        data = { date: date, group: group };
+        data = { date: date, wc: wc };
         xsend.send(JSON.stringify(data));
     }
+
     function get_group_infor() {
         date = document.getElementById('date_group_search').value;
         group = document.getElementById('cbb_group').value;
@@ -440,6 +419,7 @@
         data = { date: date, group: group };
         xsend.send(JSON.stringify(data));
     }
+    
     function load_off_standard_code(code03, code08) {
         var xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/GetOffStandardCode", true);
@@ -463,6 +443,7 @@
         xsend.setRequestHeader("Content-type", "application/json");
         xsend.send();
     }
+
     document.getElementById('txt_rfid').addEventListener('keyup', function () {
         if (event.keyCode === 13) {
             // Cancel the default action, if needed
@@ -482,7 +463,7 @@
                     data = JSON.parse(xsend.responseText);
                     if (data.length > 0) {
                         document.getElementById('txt_rfid').value = data[0].ID;
-                        document.getElementById('txt_rfid_name').innerHTML = data[0].Name + ' - ' + data[0].Line + ' - ' + data[0].Shift;
+                        document.getElementById('txt_rfid_name').innerHTML = data[0].Name + ' - ' + data[0].Line + ' - ' + data[0].Shift + data[0].Section;
                         document.getElementById('txt_rfid').disabled = true;
                         document.getElementById('cbb_week').disabled = true;
                         document.getElementById('cbb_group').disabled = true;
@@ -500,6 +481,7 @@
             xsend.send(JSON.stringify(data));
         }
     });
+
     document.getElementById('cbb_code').addEventListener('change', function () {
         code = document.getElementById('cbb_code').value;
         if (!code.includes('03') && !code.includes('08')) {
@@ -511,9 +493,10 @@
             document.getElementById('div_cbb_old_op').style.display = "grid";
             document.getElementById('div_cbb_new_op').style.display = "grid";
         }
-        if (code.includes('09')) document.getElementById('div_cbb_note').style.display = "grid";
-        else document.getElementById('div_cbb_note').style.display = "none";
+        // if (code.includes('09')) document.getElementById('div_cbb_note').style.display = "grid";
+        // else document.getElementById('div_cbb_note').style.display = "none";
     });
+
     function load_emp_status(emp) {
         ID = emp;//document.getElementById('txt_rfid');
         date = document.getElementById('date_group_search').value;
@@ -529,86 +512,6 @@
                     console.log(result)
                     data = JSON.parse(xsend.responseText);
                     console.log(data)
-                    if (result == '') {//new ticket, need to be open
-                        if (xsend.responseText != '[]') {
-                            document.getElementById('txt_status_register').innerHTML = 'BẠN ĐÃ ĐĂNG KÝ CHƯƠNG TRÌNH!';
-                            document.getElementById('txt_status_register').style.display = "grid";
-                            document.getElementById('txt_status_register').style.fontSize = "15";
-                            document.getElementById('txt_status_register').style.color = "green";
-                            style_detail = document.getElementById('cbb_style_detail').value;
-                            while (list_cbb_new_op.childNodes.length > 0)
-                                list_cbb_new_op.removeChild(list_cbb_new_op.childNodes[0]);
-                            while (list_cbb_old_op.childNodes.length > 0)
-                                list_cbb_old_op.removeChild(list_cbb_old_op.childNodes[0]);
-                            for (i = 0; i < data.length; i++) {
-                                if (data[i].WC.toLowerCase() == style_detail.toLowerCase()) {
-                                    if (data[i].Operation1 != null && data[i].Operation1 != '') {
-                                        sessionStorage.setItem(data[i].ID + data[i].WC.toUpperCase() + data[i].Operation1, data[i].Efficiency1)
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation1);
-                                        li.innerHTML = data[i].Operation1 + ' - ' + data[i].Efficiency1;
-                                        list_cbb_old_op.appendChild(li);
-                                        // list_cbb_new_op.appendChild(li);
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation1);
-                                        li.innerHTML = data[i].Operation1 + ' - ' + data[i].Efficiency1;
-                                        // list_cbb_old_op.appendChild(li);
-                                        list_cbb_new_op.appendChild(li);
-                                    }
-                                    if (data[i].Operation2 != null && data[i].Operation2 != '') {
-                                        sessionStorage.setItem(data[i].ID + data[i].WC.toUpperCase() + data[i].Operation2, data[i].Efficiency2)
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation2);
-                                        li.innerHTML = data[i].Operation2 + ' - ' + data[i].Efficiency2;
-                                        list_cbb_old_op.appendChild(li);
-                                        // list_cbb_new_op.appendChild(li);
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation2);
-                                        li.innerHTML = data[i].Operation2 + ' - ' + data[i].Efficiency2;
-                                        // list_cbb_old_op.appendChild(li);
-                                        list_cbb_new_op.appendChild(li);
-                                    }
-                                    if (data[i].Operation3 != null && data[i].Operation3 != '') {
-                                        sessionStorage.setItem(data[i].ID + data[i].WC.toUpperCase() + data[i].Operation3, data[i].Efficiency3)
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation3);
-                                        li.innerHTML = data[i].Operation3 + ' - ' + data[i].Efficiency3;
-                                        list_cbb_old_op.appendChild(li);
-                                        // list_cbb_new_op.appendChild(li);
-                                        var li = document.createElement('li');
-                                        li.setAttribute('class', 'mdl-menu__item');
-                                        li.setAttribute('data-val', data[i].Operation3);
-                                        li.innerHTML = data[i].Operation3 + ' - ' + data[i].Efficiency3;
-                                        // list_cbb_old_op.appendChild(li);
-                                        list_cbb_new_op.appendChild(li);
-                                    }
-                                }
-                            }
-                            getmdlSelect.init('#div_cbb_old_op');
-                            getmdlSelect.init('#div_cbb_new_op');
-                            for (var i = 0; i < data.length; i++) {
-                                if (data[i].Code == 3 && data[i].WC.toLowerCase() == style_detail.toLowerCase()) {
-                                    code03 = true;
-                                }
-                                if (data[i].Code == 8 && data[i].WC.toLowerCase() == style_detail.toLowerCase()) {
-                                    code08 = true;
-                                }
-                            }
-                        } else {
-                            document.getElementById('txt_status_register').innerHTML = 'BẠN CHƯA ĐĂNG KÝ CHƯƠNG TRÌNH!';
-                            document.getElementById('txt_status_register').style.display = "grid";
-                            document.getElementById('txt_status_register').style.fontSize = "15";
-                            document.getElementById('txt_status_register').style.color = "red";
-                        }
-                        load_off_standard_code(code03, code08);
-                    } else {//old ticket, need to be closed
-                        closeOffStandardTracking(result);
-                    }
                 });
 
             }
@@ -617,9 +520,7 @@
         data = { ID: ID, date: date, week: week };
         xsend.send(JSON.stringify(data));
     }
-    document.getElementById('btn_emp_register_cancel').addEventListener('click', function () {
-        location.reload();
-    });
+
     document.getElementById('btn_emp_register').addEventListener('click', function () {
         ID = document.getElementById('txt_rfid').value;
         if (ID == '') {
@@ -632,44 +533,76 @@
             return;
         }
         name = emp_infor[0];
-        shift = emp_infor[2];
-        groupTo = document.getElementById('cbb_group').value;
-        if (groupTo == '') {
-            alert('Bạn chưa chọn group đến!');
-            return;
-        }
+        wc = emp_infor[2];
+        // groupTo = document.getElementById('cbb_group').value;
+        // if (groupTo == '') {
+        //     alert('Bạn chưa chọn group đến!');
+        //     return;
+        // }
         code = document.getElementById('cbb_code').value;
         if (code == '') {
             alert('Bạn chưa chọn mã code!');
             return;
         }
-        wc = document.getElementById('cbb_style_detail').value.toUpperCase();
-        op1 = document.getElementById('cbb_old_op').value.split(' - ')[0];
+        // wc = document.getElementById('cbb_style_detail').value.toUpperCase();
+        // op1 = document.getElementById('cbb_old_op').value.split(' - ')[0];
+        // if (op1 == '' && (code.includes('03') || code.includes('08'))) {
+        //     alert('Chọn CĐ đang may!');
+        //     return;
+        // }
+        // if (!code.includes('03') && !code.includes('08')) op1 = '';
+        // op2 = document.getElementById('cbb_new_op').value.split(' - ')[0];
+        // if (op2 == '' && (code.includes('03') || code.includes('08'))) {
+        //     alert('Chọn CĐ muốn chuyển đổi!');
+        //     return;
+        // }
+        // eff2 = sessionStorage.getItem(ID + wc.toUpperCase() + op1);
+        // if (!code.includes('03') && !code.includes('08')) {
+        //     eff2 = '0'
+        //     op2 = '';
+        // }
+
+        op1 = document.getElementById('txtOldOp').value;
         if (op1 == '' && (code.includes('03') || code.includes('08'))) {
-            alert('Chọn CĐ đang may!');
+            alert('Nhập công đoạn đang may!');
             return;
         }
         if (!code.includes('03') && !code.includes('08')) op1 = '';
-        op2 = document.getElementById('cbb_new_op').value.split(' - ')[0];
+        op2 = document.getElementById('txtNewOp').value;
         if (op2 == '' && (code.includes('03') || code.includes('08'))) {
-            alert('Chọn CĐ muốn chuyển đổi!');
+            alert('Nhập công đoạn muốn chuyển đổi!');
             return;
         }
-        eff2 = sessionStorage.getItem(ID + wc.toUpperCase() + op1);
-        if (!code.includes('03') && !code.includes('08')) {
-            eff2 = '0'
-            op2 = '';
+
+        // wc = document.getElementById('cbb_wc').value;
+        // if (wc == '') {
+        //     alert('Bạn chưa chọn wc!');
+        //     return;
+        // }
+        // weekUpdate = document.getElementById('cbb_week').value;
+        // if (weekUpdate == '') {
+        //     alert('Chọn tuần!');
+        //     return;
+        // }
+
+        startTime = document.getElementById('txtStartTime').value;
+        if (startTime == '') {
+            alert('Bạn chưa nhập thời gian bắt đầu!');
+            return false;
         }
-        weekUpdate = document.getElementById('cbb_week').value;
-        if (weekUpdate == '') {
-            alert('Chọn tuần!');
-            return;
+        finishTime = $("#txtFinishTime").val();
+        if(finishTime != ""){
+            let currenDate = $("#date_group_search").val();
+            if(new Date(currenDate + " " + finishTime) < new Date(currenDate + " " + startTime)){
+                alert("Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu.");
+                return false;
+            }
         }
-        note = document.getElementById('txt_note').value + ' (' + document.getElementById('txt_status_register').innerHTML + ')';
-        if (code.includes('09')) note = document.getElementById('cbb_note').value;
-        if (note == '') {
+
+        note = document.getElementById('txt_note').value;
+        if (code.includes('09') && note == '') {
             alert('Bạn chưa nhập lý do!');
-            return;
+            return false;
         }
         var xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/InsertOffStandardTracking", true);
@@ -678,17 +611,26 @@
                 data = xsend.responseText;
                 if (code.includes('03') || code.includes('08'))
                     alert('Bạn đã mở ticket mã ' + code + ' THÀNH CÔNG!\nHiệu suất bạn cần đạt là: ' + document.getElementById('cbb_new_op').value.split(' - ')[1] + '%');
-                else alert('Bạn đã mở ticket mã ' + code + ' THÀNH CÔNG!');
-                location.reload();
+                else
+                    alert('Bạn đã mở ticket mã ' + code + ' THÀNH CÔNG!');
             }
+            location.reload();
         }
         xsend.setRequestHeader("Content-type", "application/json");
         data = {
-            ID: ID, name: name, shift: shift, groupTo: groupTo, code: code,
-            wc: wc, op1: op1, op2: op2, eff2: eff2, weekUpdate: weekUpdate, note: note
+            workerID: ID,
+            name: name,
+            code: code,
+            wc: wc,
+            op1: op1,
+            op2: op2,
+            startTime: startTime,
+            finishTime: finishTime,
+            note: note
         };
         xsend.send(JSON.stringify(data));
     });
+
     function checkTracking(empID, date, callback) {
         var xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/IsExistedOffStandardTracking", true);
@@ -704,10 +646,21 @@
         data = { empID: empID, date: date };
         xsend.send(JSON.stringify(data));
     }
-    function closeOffStandardTracking(data) {
-        empID = data[0].ID;
-        start = (new Date((new Date(data[0].StartTime)) - tzoffset)).toISOString().slice(0, -1);
-        startTime = start.split('T')[0] + ' ' + start.split('T')[1].split('.')[0];
+
+    function closeOffStandardTracking(id) {
+        if($("#ft-" + id).text() != "")
+        {
+            alert("Request này đã được xử lý.");
+            return false;
+        }
+
+        let finishTime = $("#finishTime-" + id).val();
+        let startTime = $("#startTime-" + id).text();
+        let currenDate = $("#date_group_search").val();
+            if(new Date(currenDate + " " + finishTime) < new Date(currenDate + " " + startTime)){
+                alert("Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu.");
+                return false;
+            }
         var xsend = new XMLHttpRequest();
         xsend.open("POST", "/Production/CloseOffStandardTracking", true);
         xsend.onreadystatechange = function () {
@@ -720,7 +673,7 @@
             }
         }
         xsend.setRequestHeader("Content-type", "application/json");
-        data = { empID: empID, startTime: startTime };
+        data = { id: id, startTime: startTime, finishTime: finishTime };
         xsend.send(JSON.stringify(data));
     }
     // document.getElementById('btn_7000_show_dialog').addEventListener('click', function () {
@@ -729,6 +682,7 @@
     //     if (empID != '')
     //         document.getElementById('dialog_7000').showModal();
     // });
+
     function load_7000_table() {
         empID = document.getElementById('txt_rfid').value.substring(1, 6);
         var xsend = new XMLHttpRequest();
@@ -794,6 +748,7 @@
         data = { empID: empID };
         xsend.send(JSON.stringify(data));
     }
+
     function function_7000_reg(x) {
         // console.log(x.parentNode.parentNode.parentNode.childNodes[0])
         empID = document.getElementById('txt_rfid').value.substring(1, 6);
