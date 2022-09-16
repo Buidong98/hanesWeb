@@ -19,7 +19,7 @@
     .full-overlay {
             /*display: none;*/
             position: fixed;
-            background: rgba(0, 0, 0, 1);
+            /* background: rgba(0, 0, 0, 1); */
             opacity: 0;
             top: 0;
             left: 0;
@@ -47,7 +47,7 @@
 
 </style>
 <div class="mdl-layout__drawer" style="border: none;">
-    <div style="max-width: 100%; min-height: 80px; background-image: url('../Image/2.jpg'); background-size: 400px auto;">
+    <div class="sidebar-header">
         <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">INNOVATION</span>
         <div class="mdl-layout-spacer"></div>
     </div>
@@ -55,7 +55,7 @@
     <nav class="mdl-navigation">
         <div style="margin-left: 40px;"><b>Vận Hành</b></div>
         <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/dashboard">
-            <i class="material-icons" style="margin-right: 20px;">dashboard</i>
+            <i class="material-icons" style="margin-right: 20px;">bar_chart</i>
             Dashboard
         </a>
         <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation">
@@ -66,13 +66,26 @@
             <i class="material-icons" style="margin-right: 20px;">settings</i>
             Quản lý machine, model
         </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/realtime">
+            <i class="material-icons" style="margin-right: 20px;">precision_manufacturing</i>
+            Tình trạng máy realtime
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/machine-position">
+            <i class="material-icons" style="margin-right: 20px;">dashboard_customize</i>
+            Vị trí máy
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/realtime/workcenter">
+            <i class="material-icons" style="margin-right: 20px;">precision_manufacturing</i>
+            Sewing needle realtime
+        </a>
+        <hr>
         <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/import">
             <i class="material-icons" style="margin-right: 20px;">inventory</i>
             Nhập hàng từ vendor
         </a>
-        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="#">
-            <i class="material-icons" style="margin-right: 20px;">precision_manufacturing</i>
-            Tình trạng máy realtime
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/innovation/user">
+            <i class="material-icons" style="margin-right: 20px;">group</i>
+            Quản lý nhân sự
         </a>
         <hr>
         <div style="margin-left: 40px;"><b>Trở Về</b></div>
@@ -80,8 +93,9 @@
             <i class="material-icons" style="margin-right: 20px;">keyboard_backspace</i>
             Trang Chủ
         </a>
+        <div class="text-right developer">Contact dev: <a href="mailto:Tuyen.Nguyen@hanes.com">Tuyen.Nguyen@hanes.com</a></div>
     </nav>
 </div>
 <!-- Loading -->
 <div class="full-overlay"></div>
-<img id="mainLoadingSVG" src="/Image/oval.svg" />
+<img id="mainLoadingSVG" src="/Images/oval.svg" />

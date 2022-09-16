@@ -1,11 +1,11 @@
-var Database = require("../../common/db.js")
+var Database = require("../../database/db.js")
 const db = new Database();
 const helper = require('../../common/helper.js');
 const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
-const innovationService = require("../../services/innovation.service");
+const innovationService = require("../../services/Innovation/innovation.service");
 
 // Machine
 module.exports.getDashboard = function (req, res) {
@@ -32,7 +32,7 @@ module.exports.getStatistic = async function (req, res){
     query = `CALL USP_Part_Export_Report_Download ('${firstDayStr}', '${lastDayStr}', '', 1)`;
     let exportFee = await db.excuteQueryAsync(query);
     // widget 4: import fee
-    query = `CALL USP_Part_Import_Download ('', '${firstDayStr}', '${lastDayStr}')`;
+    query = `CALL USP_Part_Import_Dashboard ('', '${firstDayStr}', '${lastDayStr}')`;
     let importFee = await db.excuteQueryAsync(query);
 
     let barChartData = {
@@ -67,7 +67,7 @@ module.exports.getStatistic = async function (req, res){
         else 
             barChartData.data1.push(0);
         
-        query = `CALL USP_Part_Import_Download ('', '${fromDate}', '${toDate}')`;
+        query = `CALL USP_Part_Import_Dashboard ('', '${fromDate}', '${toDate}')`;
         let importFee = await db.excuteQueryAsync(query);
         if (importFee)
             barChartData.data2.push(importFee[0].reduce((accumulator, {money}) => accumulator + money, 0))
@@ -78,11 +78,44 @@ module.exports.getStatistic = async function (req, res){
     let returnData = {
         part: countPart[0]["COUNT(1)"],
         request: countRequest[0]["COUNT(1)"],
-        exportFee: exportFee[0].reduce((accumulator, {money}) => accumulator + money, 0),
-        importFee: importFee[0].reduce((accumulator, {money}) => accumulator + money, 0),
+        exportFee: exportFee ? exportFee[0].reduce((accumulator, {money}) => accumulator + money, 0) : 0,
+        importFee: importFee ? importFee[0].reduce((accumulator, {money}) => accumulator + money, 0) : 0,
         barChartData: { data1: barChartData.data1, data2: barChartData.data2 },
         // pieChartData: { data1: [], data2: [] },
     }
 
     return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: returnData }));
+}
+
+module.exports.getPieChartData = async function (req, res){
+    try {
+        //parameters
+        let ctiteria = 1; // top 10 usage part 
+        let importDate = req.body.importDate;
+
+        // execute
+        db.excuteSP(`CALL USP_Part_TopUsage_Download ('${importDate.split(';')[0]}', '${importDate.split(';')[1]}', ${ctiteria})`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let partArr = JSON.parse(JSON.stringify(result.data));
+                let data1 = [];
+                let data2 = [];
+                partArr.forEach(ele => {
+                    data1.push(ele.name);
+                    data2.push(ele.total);
+                });
+                let returnData = {
+                    labels: data1, 
+                    data: data2,
+                }
+            
+                return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: returnData }));
+            }
+        });
+
+    } catch (error) {
+        logHelper.writeLog("innovation.getPieChartData", error);
+    }
 }

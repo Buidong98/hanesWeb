@@ -1,48 +1,74 @@
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
+const logHelper = require('./common/log.js');
 
+var host = "localhost";
+var user = "root";
+var password = "123456";
 var con1 = mysql.createPool({
     connectionLimit: 30,
-    host: 'hyspayqsqlv',//anh dien giup e voi
-    user: 'root',
-    password: 'Hy$2020',
+    host: host,
+    user: user,
+    password: password,
     database: 'linebalancing'
 });
 var con2 = mysql.createPool({
     connectionLimit: 60,
-    host: 'hyspayqsqlv',
-    user: 'root',
-    password: 'Hy$2020',
+	host: host,
+    user: user,
+    password: password,
     database: 'erpsystem'
 });
 var con3 = mysql.createPool({
     connectionLimit: 60,
-    host: 'hyspayqsqlv',
-    user: 'root',
-    password: 'Hy$2020',
+    host: host,
+    user: user,
+    password: password,
     database: 'erphtml'
 });
 var con4 = mysql.createPool({
     connectionLimit: 100,
-    host: 'hyspayqsqlv',
-    user: 'root',
-    password: 'Hy$2020',
+    host: host,
+    user: user,
+    password: password,
     database: 'pr2k'
 });
 var con5 = mysql.createPool({
     connectionLimit: 60,
-    host: 'hyspayqsqlv',
-    user: 'root',
-    password: 'Hy$2020',
+    host: host,
+    user: user,
+    password: password,
     database: 'cutting_system'
 });
 
 //cau hinh doc ejs
 var express = require("express");
+var compression = require('compression');
 var app = express();
+app.use(compression({
+    threshold : 0, // or whatever you want the lower threshold to be
+    filter    : function(req, res) {
+        var ct = res.get('content-type');
+        // return `true` for content types that you want to compress,
+        // `false` otherwise
+        return true;
+    }
+}));
 //cau hinh dang nhap voi user va password
 var passport = require('passport');
 var session = require('express-session');
+
+var MySQLStore = require('express-mysql-session')(session);
+var options = {
+    port: 3306,
+	host: host,
+	user: user,
+	password: password,
+	database: 'erpsystem'
+};
+
+var sessionStore = new MySQLStore(options);
+
 var flash = require('connect-flash');
 var LocalStrategy = require('passport-local').Strategy;
 //cau hinh python read - write
@@ -50,29 +76,41 @@ const { PythonShell } = require('python-shell');
 var formidable = require('formidable');
 var UserModel = require(__dirname + '/models/user.model.js');
 
-var staticResource = '//10.113.98.238/Realtime/Pilot';
-var staticResource2 = '//10.113.98.238/Realtime'
-var staticResource3 = '//pbv-h0m2wv2/BK_Bundle1/Cutting/'
-var staticResource4 = '//pbv-h0m2wv2/BK_Bundle1/'
-var staticResource5 = '//pbv-h0m2wv2/BK_Bundle1/Backup/'
-var staticResource6 = '//pbv-h0m2wv2/BK_Bundle2/Others/'
-var staticResource7 = '//pbv-h0m2wv2/BK_Bundle2/Backup/'
-var staticResource8 = '//pbv-h0m2wv2/BK_Bundle3/Backup/'
-var staticResource9 = '//10.113.98.238/Realtime/Scan lai/'
-var staticResource10 = '//10.113.98.238/Realtime/not scan/'
+// Realtime scan stamp Production
+var base_url = "//localhost/";
+var staticResource = base_url + 'Realtime/Pilot';
+var staticResource2 = base_url + 'Realtime'
+var staticResource3 = base_url + 'Realtime/Scan lai/'
+var staticResource4 = base_url + 'Realtime/not scan/'
 var staticReport = '//pbvfps1/PBShare2/Scan/Report/ReportWebserver/'
+
+app.use('/images', express.static('public/Image'));
 app.use('/image', express.static(staticResource));
 app.use('/image2', express.static(staticResource2));
-app.use('/image3', express.static(staticResource9));
-app.use('/image4', express.static(staticResource10));
+app.use('/image3', express.static(staticResource3));
+app.use('/image4', express.static(staticResource4));
 app.use('/report', express.static(staticReport));
+
+// Realtime scan stamp Cutting
+var staticCuttingResource = base_url + 'Cutting/Pilot';
+var staticCuttingResource2 = base_url + 'Cutting/'
+var staticCuttingResource3 = base_url + 'Cutting/Scan lai/'
+var staticCuttingResource4 = base_url + 'Cutting/not scan/'
+app.use('/cutting/image', express.static(staticCuttingResource));
+app.use('/cutting/image2', express.static(staticCuttingResource2));
+app.use('/cutting/image3', express.static(staticCuttingResource3));
+app.use('/cutting/image4', express.static(staticCuttingResource4));
+
 app.use(express.static("public"));
- 
+
 app.use(session({
+	store: sessionStore,
     secret: "secret",
-    saveUninitialized: false,
+    saveUninitialized: true,
     resave: true,
-    cookie: { maxAge: 86400000 }
+    cookie : {
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    }
 }));
 
 app.use(passport.initialize());
@@ -82,14 +120,19 @@ app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 app.use(
     express.urlencoded({
-        extended: true
+        limit: '50mb',
+        extended: true,
+        parameterLimit:50000
     })
 )
 app.use(express.json())
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-server.listen(8000, '10.113.99.3', function(){
+app.set("socketio", io);    // <== this line
+global.testIo = io;
+
+server.listen(8000, 'localhost', function () {
     console.log('Server Start Running');
 });
 
@@ -97,7 +140,7 @@ io.on('connection', (socket) => {
     // processing request
     socket.on('add-part-request', (data) => {
         console.log(socket.id + " Connected!");
-      
+
         io.emit('add-part-request', {
             username: socket.username,
             message: data
@@ -106,7 +149,7 @@ io.on('connection', (socket) => {
 
     socket.on('update-part-request', (data) => {
         console.log(socket.id + " Connected!");
-      
+
         io.emit('update-part-request', {
             username: socket.username,
             message: data
@@ -114,90 +157,137 @@ io.on('connection', (socket) => {
     });
 });
 
+const constant = require('./common/constant');
 var authController = require('./middleware/auth.controller');
-app.get("/", authController.authenticate, function (request, respone) {
-    respone.render("home", { ID: request.user });
+app.get("/", authController.authenticate, function (request, response) {
+    response.render("home", { ID: request.user });
 });
 
-app.get("/home", authController.authenticate, function (request, respone) {
-    respone.render("home", { ID: request.user });
+app.get("/home", authController.authenticate, function (request, response) {
+    response.render("home", { ID: request.user });
 });
+
+app.get("/error", function (request, response) {
+    response.render("error");
+});
+
 
 // Innovation route
-var userRoutes = require('./routes/innovation');
+var innovationRoutes = require('./routes/innovation.routes', );
+app.use("/innovation", authController.authenticate, authController.authorizeDepartment([constant.Department.MEC]), innovationRoutes);
 
-app.use("/innovation", authController.authenticate, userRoutes);
-//app.use("/innovation", userRoutes);
+// System user route
+var systemUserRoutes = require('./routes/user.routes');
+app.use("/system-user", authController.authenticate, systemUserRoutes);
 
+// Production route
+var productionRoutes = require('./routes/production.routes');
+app.use("/production", authController.authenticate, productionRoutes);
+
+// Cutting route
+var cuttingRoutes = require('./routes/cutting.routes');
+app.use("/cutting", authController.authenticate, cuttingRoutes);
 //======================================LOGIN==============================================
 
 app.get("/login", function (request, response) {
     request.logout();
-    response.render("login", {msg: ""});
+    response.render("login", { msg: "" });
 });
 
-// app.post("/login", passport.authenticate('local', {failureRedirect: '/login', successRedirect:'/Production/PayrollCheck'}));
-app.post("/login", passport.authenticate('local', {successRedirect:'/home', failureRedirect: '/'}), function (req, res) {
-    get_dept(req.user, function (result) {
-        console.log(result);
-        // if (req.user=='dule4') res.render("/Production/PayrollCheck");
-        user = result[0].User;
-        dept = result[0].Department;
-        position = result[0].Position;
-        switch (dept) {
-            case 'FI':
-                res.render("Finance/Finance_page");
-                break;
-            case 'QC':
-            case 'QA':
-                res.render("QC/QC");
-                break;
-            case 'PR':
-            case 'AMTPR':
-                if (position == 'Supervisor') {
-                    get_sup_group(req.user, function (result) {
-                        if (result.length > 0) res.render("Production/PayrollCheck", { group: result[0].NAMEGROUP, shift: result[0].SHIFT });
-                        else res.render("Production/PayrollCheck");
-                    });
+app.post("/user", function (request, response) {
+    if (request.user) {
+        response.json(request.user);
+    }
+});
+
+app.post('/login', function (req, res, next) {
+    passport.authenticate('local', function (err, user, info) {
+        if (err)
+            return next(err);
+
+        if (!user.username)
+            return res.render('login', { msg: user.message });
+
+        req.logIn(user, function (err) {
+            if (err)
+                return next(err);
+            get_dept(req.user.username, function (result) {
+                console.log(result);
+                user = result[0].User;
+                dept = result[0].Department;
+                position = result[0].Position;
+                switch (dept) {
+                    case 'QC':
+                    case 'QA':
+                        res.redirect("/QC/QC");
+                        break;
+                    case 'PR':
+                        if (position == 'Supervisor') {
+                            get_sup_group(req.user.username, function (result) {
+                                if (result.length > 0) 
+                                    res.redirect("/Production/PayrollCheck");
+                                else 
+                                    res.redirect("/Production/Production");
+                            });
+                        }
+                        else 
+                            res.redirect("/Production/Production");
+                        break;
+                    case 'AMTPR':
+                    case 'IE':
+                        if (position == 'Supervisor') {
+                            get_sup_group(req.user.username, function (result) {
+                                if (result.length > 0) 
+                                    res.redirect("/Production/PayrollCheck", { group: result[0].NAMEGROUP, shift: result[0].SHIFT });
+                                else 
+                                    res.redirect("/Production/PayrollCheck");
+                            });
+                        }
+                        else 
+                            res.redirect("/Production/Production");
+                        break;
+                    case 'MEC':
+                        res.redirect("/Innovation");
+                        break;
+					case 'Cutting':
+                        res.redirect("/Cutting");
+                        break;
+                    default:
+                        // res.redirect("/home", { ID: req.user.username });
+                        res.redirect("/home");
                 }
-                else res.render("Production/Production");
-                break;
-            case 'IE':
-                // if (req.user=='dule4') {
-                //     res.render("home", {ID:req.user});
-                // }
-                // else 
-                if (user == 'dule4') res.render("home", { ID: req.user });
-                else res.render("IE/IE_page");
-                break;
-            default:
-                res.render("home", { ID: req.user });
-        }
-    })
+            })
+        });
+    })(req, res, next);
 });
 
 passport.use(new LocalStrategy(
     (username, password, done) => {
         con2.getConnection(function (err, connection) {
             if (err) {
-                 return done(err); 
+                return done(err);
             }
-            connection.query("SELECT Password, Position FROM setup_user where User='" + username + "';", function (err, result, fields) {
+            connection.query("SELECT User, Password, Position, Name, Roles, Department, Email FROM setup_user where User='" + username + "';", function (err, result, fields) {
                 connection.release();
                 if (err) {
-                    return done(err); 
-                }    
+                    return done(err);
+                }
                 if (result.length <= 0) {
-                    return done(null, {status: false, message: "Không tồn tại user"});
+                    return done(null, { status: false, message: "Không tồn tại user" });
                 }
 
-                if (result.length > 0){
-                    if (password != result[0].Password) {
-                        return done(null, {status: false, message: "Sai mật khẩu"});
+                if (result.length > 0) {
+                    user = result[0];
+                    if (password != user.Password) {
+                        return done(null, { status: false, message: "Sai mật khẩu" });
                     }
 
                     // return done(null, username)
-                    var userLogin = new UserModel("tunguyen", "nguyen van  tuyen", 6, [1, 2, 3]);
+                    user.Roles = user.Roles ? user.Roles : "";
+                    let roles = user.Roles.split(",").map(function(val){
+                        return parseInt(val);
+                    })
+                    var userLogin = new UserModel(user.User, user.Name, user.Department, user.Position, roles, user.Email, null, user.Password);
                     return done(null, userLogin);
                 }
             });
@@ -225,6 +315,7 @@ function get_dept(user, callback) {
             }
         });
     });
+    console.log(dept);
     return dept;
 }
 function get_date_infor(date, callback) {
@@ -288,6 +379,7 @@ io.sockets.on('connection', function (socket) {
             if (barcode.length == 6)
                 sql = "SELECT SHIFT, WORKLOT, OUTPUT, MOONROCKNUMBER, TOTALMOONROCK, TIMESCAN, PRINTCODE FROM data_scancutpartcutting where Worklot='" + barcode + "';";
             connection.query(sql, function (err, result, fields) {
+                // connection.release();
                 if (err) throw err;
                 if (result.length > 0) {
                     con2.getConnection(function (err, connection) {
@@ -316,7 +408,7 @@ io.sockets.on('connection', function (socket) {
     });
 });
 app.post("/login_user", function (req, res) {
-    res.send(req.user);
+    res.send(req.user.username);
     res.end();
 });
 app.post("/Get_Week", function (req, res) {
@@ -363,7 +455,7 @@ app.post("/Get_User_Infor", function (req, res) {
         if (err) {
             throw err;
         }
-        connection.query("SELECT User, Department, Position FROM setup_user where User='" + req.user + "';", function (err, result, fields) {
+        connection.query("SELECT User, Department, Position FROM setup_user where User='" + req.user.username + "';", function (err, result, fields) {
             connection.release();
             if (err) throw err;
             res.send(result);
@@ -420,7 +512,7 @@ app.post('/Finance/Export_Reports/Incentive_Report_Production', function (req, r
     });
 });
 
-//=====================================PLANNING=============================================
+// // //=====================================PLANNING=============================================
 
 //=====================================PRODUCTION==========================================
 app.get("/Production/Production", function (req, res) {
@@ -428,16 +520,18 @@ app.get("/Production/Production", function (req, res) {
 });
 app.post("/Production/Production/GroupSummary", function (req, res) {
     var date = req.body.date;
+    var line = req.body.line.map(x => '"' +  x + '"');
     console.log(date);
     con4.getConnection(function (err, connection) {
         if (err) {
             connection.release();
             throw err;
         }
-        connection.query("SELECT COUNT(DISTINCT employee_scanticket.BUNDLE)*3 as OUTPUT, worklot_active.LOCATION "
-            + "FROM employee_scanticket left JOIN worklot_active ON employee_scanticket.WORK_LOT=worklot_active.WORK_LOT "
-            + "WHERE employee_scanticket.DATE='" + date + "' AND employee_scanticket.WORK_LOT IS NOT NULL AND QC!='000000'"
-            + "GROUP BY worklot_active.LOCATION;", function (err, result, fields) {
+        var query = "select round(sum(p.QUANTITY)/12,1) as `OUTPUT`,p.LINE as LOCATION "
+        + "from pr2k.prodoutput p "
+        + "where date_format(p.TS_1,'%Y%m%d') ='" + date + "' AND LINE IN (" + line + ")"
+        + " group by p.LINE;";
+        connection.query(query, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
                 if (result.length > 0) {
@@ -559,13 +653,18 @@ app.post("/Production/Payroll_Search/GroupReport", function (req, res) {
 });
 app.get("/Production/PayrollCheck", function (req, res) {
     if (req.isAuthenticated()) {
-        get_sup_group(req.user, function (result) {
+        // get_sup_group(req.user.username, function (result) {
+        //     if (result.length > 0) res.render("Production/PayrollCheck", { group: result[0].NAMEGROUP, shift: result[0].SHIFT });
+        //     else res.render("Production/PayrollCheck");
+        // });
+
+        get_sup_group(req.user.username, function (result) {
             if (result.length > 0) res.render("Production/PayrollCheck", { group: result[0].NAMEGROUP, shift: result[0].SHIFT });
             else res.render("Production/PayrollCheck");
         });
     }
     else {
-        res.render("login");
+        res.render("login", { msg: "" });
     }
 });
 app.get("/Production/PayrollCheck1", function (req, res) {
@@ -663,192 +762,216 @@ app.post('/Production/Payroll_Search/Group', function (req, res) {
     }
 });
 app.post('/Production/Payroll_Search/GroupNew', function (req, res) {
-    if (req.isAuthenticated()) {
-        var groupName = req.body.group;
+    try {
+        if (req.isAuthenticated()) {
+            var groupName = req.body.group;
+            var date = req.body.date;
+            console.log(groupName)
+            // var bundle=req.body.bundle;
+            var year = date.substring(0, 4);
+            var month = date.substring(4, 6);
+            var day = date.substring(6, 8);
+            var dateFull = day + '-' + month + '-' + year;
+            var image_list;
+            con4.getConnection(function (err, connection) {
+                if (err) throw err;
+                sql = "";
+                if (date >= '20200712') {
+                    sql = "SELECT Temp4.ISSUE_FILE, LEFT(Temp4.TICKET, 6) AS BUNDLE, max(QC) as QC, COUNT(Temp4.TICKET) AS ISSUE, COUNT(EMPLOYEE) AS SCAN, COUNT(deactive.TICKET) AS IASCAN, COUNT(Temp4.TICKET)-COUNT(EMPLOYEE)-COUNT(deactive.TICKET) AS IS_FULL, MAX(Temp4.FILE) as FILE, Temp4.TimeUpdate, TimeModified FROM "
+                        + " (SELECT Temp3.FILE AS ISSUE_FILE, Temp3.TICKET, scan.QC, scan.EMPLOYEE, scan.FILE, scan.TimeUpdate, scan.TimeModified FROM employee_scanticket scan RIGHT JOIN "
+                        + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
+                        + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE LIKE '" + groupName + "_" + dateFull + "%') AS Temp1 "
+                        + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE WHERE active2.FILE!='0') AS Temp3 ON Temp3.TICKET=scan.TICKET) AS Temp4  LEFT JOIN bundleticket_deactive deactive ON Temp4.TICKET=deactive.TICKET "
+                        + " GROUP BY Temp4.ISSUE_FILE;"
+                } else {
+                    sql = "SELECT COUNT(BUNDLE) as COUNT_BUNDLE, QC, SUM(IS_FULL) AS IS_FULL, FILE, TimeUpdate, TimeModified, BUNDLE "
+                        + "FROM employee_scanticket "
+                        + "WHERE FILE LIKE '" + groupName + "_" + dateFull + "%'"// AND DATE='" + date + "' "
+                        + "GROUP BY FILE ORDER BY FILE DESC;"
+                }
+                console.log(sql)
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        // console.log(result);
+                        image_list = result;
+                        var error_list;
+                        con4.getConnection(function (err, connection) {
+                            if (err) {
+                                throw err;
+                            }
+                            // connection.query("SELECT FILE from bundleticket_error where DATE='"+date+"' and FILE like '"+group+"%';", function (err, result, fields) {
+                            connection.query("SELECT FILE from bundleticket_error where FILE like '" + groupName + "_" + dateFull + "%' and MODIFIED IS NULL;", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                    error_list = result;
+                                    res.send({ image_list: image_list, error_list: error_list });
+                                    res.end();
+                                } else {
+                                    error_list = 'empty';
+                                    res.send({ image_list: image_list, error_list: error_list });
+                                    res.end();
+                                }
+                            });
+                        });
+                    } else {
+                        res.send({ image_list: 'empty' });
+                        res.end();
+                    }
+                });
+            });
+        }
+        else {
+            res.render("login");
+        }
+    }
+    catch (error) {
+        logHelper.writeLog("Production/Payroll_Search/GroupNew", error);
+    }
+});
+app.post("/Production/Payroll_Search/GroupMultipleOperations", function (req, res) {
+    try {
+        var groupName = req.body.groupName;
         var date = req.body.date;
-        console.log(groupName)
-        // var bundle=req.body.bundle;
-        var year = date.substring(0, 4);
-        var month = date.substring(4, 6);
-        var day = date.substring(6, 8);
-        var dateFull = day + '-' + month + '-' + year;
-        var image_list;
+        // console.log(group, date);
         con4.getConnection(function (err, connection) {
-            if (err) throw err;
-            sql = "";
-            if (date >= '20200712') {
-                sql = "SELECT Temp4.ISSUE_FILE, LEFT(Temp4.TICKET, 6) AS BUNDLE, max(QC) as QC, COUNT(Temp4.TICKET) AS ISSUE, COUNT(EMPLOYEE) AS SCAN, COUNT(deactive.TICKET) AS IASCAN, COUNT(Temp4.TICKET)-COUNT(EMPLOYEE)-COUNT(deactive.TICKET) AS IS_FULL, MAX(Temp4.FILE) as FILE, Temp4.TimeUpdate, TimeModified FROM "
-                    + " (SELECT Temp3.FILE AS ISSUE_FILE, Temp3.TICKET, scan.QC, scan.EMPLOYEE, scan.FILE, scan.TimeUpdate, scan.TimeModified FROM employee_scanticket scan RIGHT JOIN "
-                    + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
-                    + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE LIKE '" + groupName + "_" + dateFull + "%') AS Temp1 "
-                    + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE WHERE active2.FILE!='0') AS Temp3 ON Temp3.TICKET=scan.TICKET) AS Temp4  LEFT JOIN bundleticket_deactive deactive ON Temp4.TICKET=deactive.TICKET "
-                    + " GROUP BY Temp4.ISSUE_FILE;"
-            } else {
-                sql = "SELECT COUNT(BUNDLE) as COUNT_BUNDLE, QC, SUM(IS_FULL) AS IS_FULL, FILE, TimeUpdate, TimeModified, BUNDLE "
-                    + "FROM employee_scanticket "
-                    + "WHERE FILE LIKE '" + groupName + "_" + dateFull + "%'"// AND DATE='" + date + "' "
-                    + "GROUP BY FILE ORDER BY FILE DESC;"
+            if (err) {
+                connection.release();
+                throw err;
             }
-            console.log(sql)
+            var sql = ("SELECT * FROM "
+                + "(SELECT EMPLOYEE, COUNT(DISTINCT OPERATION_CODE) AS OP_CODE, COUNT(TICKET) AS TICKET, FILE, QC, SUM(IS_FULL) as SUM_FULL FROM employee_scanticket "
+                + " WHERE DATE='" + date + "' AND FILE LIKE '" + groupName + "%'"
+                + " GROUP BY EMPLOYEE, FILE ) AS TEMP "
+                + " WHERE TEMP.OP_CODE>1 and SUM_FULL<200;");
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
                 if (result.length > 0) {
                     // console.log(result);
-                    image_list = result;
-                    var error_list;
-                    con4.getConnection(function (err, connection) {
-                        if (err) {
-                            throw err;
-                        }
-                        // connection.query("SELECT FILE from bundleticket_error where DATE='"+date+"' and FILE like '"+group+"%';", function (err, result, fields) {
-                        connection.query("SELECT FILE from bundleticket_error where FILE like '" + groupName + "_" + dateFull + "%' and MODIFIED IS NULL;", function (err, result, fields) {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length > 0) {
-                                error_list = result;
-                                res.send({ image_list: image_list, error_list: error_list });
-                                res.end();
-                            } else {
-                                error_list = 'empty';
-                                res.send({ image_list: image_list, error_list: error_list });
-                                res.end();
-                            }
-                        });
-                    });
+                    res.send(result);
+                    res.end();
                 } else {
-                    res.send({ image_list: 'empty' });
+                    res.send({ result: 'empty' });
                     res.end();
                 }
             });
         });
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/GroupMultipleOperations", error);
     }
-    else {
-        res.render("login");
-    }
-});
-app.post("/Production/Payroll_Search/GroupMultipleOperations", function (req, res) {
-    var groupName = req.body.groupName;
-    var date = req.body.date;
-    // console.log(group, date);
-    con4.getConnection(function (err, connection) {
-        if (err) {
-            connection.release();
-            throw err;
-        }
-        var sql = ("SELECT * FROM "
-            + "(SELECT EMPLOYEE, COUNT(DISTINCT OPERATION_CODE) AS OP_CODE, COUNT(TICKET) AS TICKET, FILE, QC, SUM(IS_FULL) as SUM_FULL FROM employee_scanticket "
-            + " WHERE DATE='" + date + "' AND FILE LIKE '" + groupName + "%'"
-            + " GROUP BY EMPLOYEE, FILE ) AS TEMP "
-            + " WHERE TEMP.OP_CODE>1 and SUM_FULL<200;");
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            if (err) throw err;
-            if (result.length > 0) {
-                // console.log(result);
-                res.send(result);
-                res.end();
-            } else {
-                res.send({ result: 'empty' });
-                res.end();
-            }
-        });
-    });
 });
 app.post('/Production/Payroll_Search/GroupOld', function (req, res) {
-    if (req.isAuthenticated()) {
-        var groupName = req.body.groupName;
-        var date = req.body.date;
-        var image_list;
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            var sql = ("SELECT COUNT_BUNDLE, QC, IS_FULL, FILE, TimeUpdate, BUNDLE "
-                + " FROM (SELECT COUNT(BUNDLE) as COUNT_BUNDLE, QC, SUM(IS_FULL) AS IS_FULL, FILE, TimeUpdate, BUNDLE "
-                + " FROM employee_scanticket "
-                + " WHERE FILE like '" + groupName + "%' AND DATE='" + date + "' "
-                + " GROUP BY FILE ORDER BY TimeUpdate) AS TempTable where IS_FULL=0;")
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    image_list = result;
-                    var error_list;
-                    con4.getConnection(function (err, connection) {
-                        if (err) {
-                            connection.release();
-                            throw err;
-                        }
-                        connection.query("SELECT FILE from bundleticket_error where DATE='" + date + "' and FILE like '" + groupName + "%' and Modified is null;", function (err, result, fields) {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length > 0) {
-                                error_list = result;
-                                res.send({ image_list: image_list, error_list: error_list });
-                                res.end();
-                            } else {
-                                error_list = 'empty';
-                                res.send({ image_list: image_list, error_list: 'empty' });
-                                res.end();
-                            }
-                        });
-                    });
-                } else {
-                    con4.getConnection(function (err, connection) {
-                        if (err) {
-                            connection.release();
-                            throw err;
-                        }
-                        // res.send({image_list:'empty'});
-                        connection.query("SELECT FILE from bundleticket_error where DATE='" + date + "' and FILE like '" + groupName + "%' and MODIFIED is nULL;", function (err, result, fields) {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length > 0) {
-                                error_list = result;
-                                res.send({ image_list: 'empty', error_list: error_list });
-                                res.end();
-                            } else {
-                                error_list = 'empty';
-                                res.send({ image_list: 'empty', error_list: 'empty' });
-                                res.end();
-                            }
-                        });
-
-                        // res.end();
-                    });
+    try {
+        if (req.isAuthenticated()) {
+            var groupName = req.body.groupName;
+            var date = req.body.date;
+            var image_list;
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                var sql = ("SELECT COUNT_BUNDLE, QC, IS_FULL, FILE, TimeUpdate, BUNDLE "
+                    + " FROM (SELECT COUNT(BUNDLE) as COUNT_BUNDLE, QC, SUM(IS_FULL) AS IS_FULL, FILE, TimeUpdate, BUNDLE "
+                    + " FROM employee_scanticket "
+                    + " WHERE FILE like '" + groupName + "%' AND DATE='" + date + "' "
+                    + " GROUP BY FILE ORDER BY TimeUpdate) AS TempTable where IS_FULL=0;")
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        image_list = result;
+                        var error_list;
+                        con4.getConnection(function (err, connection) {
+                            if (err) {
+                                connection.release();
+                                throw err;
+                            }
+                            connection.query("SELECT FILE from bundleticket_error where DATE='" + date + "' and FILE like '" + groupName + "%' and Modified is null;", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                    error_list = result;
+                                    res.send({ image_list: image_list, error_list: error_list });
+                                    res.end();
+                                } else {
+                                    error_list = 'empty';
+                                    res.send({ image_list: image_list, error_list: 'empty' });
+                                    res.end();
+                                }
+                            });
+                        });
+                    } else {
+                        con4.getConnection(function (err, connection) {
+                            if (err) {
+                                connection.release();
+                                throw err;
+                            }
+                            // res.send({image_list:'empty'});
+                            connection.query("SELECT FILE from bundleticket_error where DATE='" + date + "' and FILE like '" + groupName + "%' and MODIFIED is nULL;", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                    error_list = result;
+                                    res.send({ image_list: 'empty', error_list: error_list });
+                                    res.end();
+                                } else {
+                                    error_list = 'empty';
+                                    res.send({ image_list: 'empty', error_list: 'empty' });
+                                    res.end();
+                                }
+                            });
+    
+                            // res.end();
+                        });
+                    }
+                });
             });
-        });
-    } else {
-        res.render("login");
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/GroupOld", error);
     }
 });
 app.post('/Production/Payroll_Search/Submit', function (req, res) {
-    if (req.isAuthenticated()) {
-        var bundle = req.body.bundle;
-        var ID = req.body.ID;
-        var QC = req.body.QC;
-        var file = req.body.file;
-        var date = req.body.date;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user, file);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                connection.release();
-                throw err;
-            }
-            connection.query("select EMPLOYEE from employee_scanticket where TICKET='" + bundle + "';", function (err, result, fields) {
-                if (err) throw err;
-                // console.log(result);
-                // res.setHeader("Content-Type", "application/json");
-                if (result.length == 0) {
-                    console.log('insert ', ID);
-                    connection.query("replace into employee_scanticket"
-                        + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
-                        + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user + "', '" + timeUpdate + "')", function (err, result, fields) {
+    try {
+        if (req.isAuthenticated()) {
+            var bundle = req.body.bundle;
+            var ID = req.body.ID;
+            var QC = req.body.QC;
+            var file = req.body.file;
+            var date = req.body.date;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user.username, file);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    connection.release();
+                    throw err;
+                }
+                connection.query("select EMPLOYEE from employee_scanticket where TICKET='" + bundle + "';", function (err, result, fields) {
+                    if (err) throw err;
+                    // console.log(result);
+                    // res.setHeader("Content-Type", "application/json");
+                    if (result.length == 0) {
+                        console.log('insert ', ID);
+                        connection.query("replace into employee_scanticket"
+                            + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
+                            + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user.username + "', '" + timeUpdate + "')", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                res.setHeader("Content-Type", "application/json");
+                                res.send({ result: 'done' });
+                                // next();
+                                res.end();
+                            });
+                    } else {
+                        console.log('update ', ID);
+                        connection.query("update employee_scanticket set EMPLOYEE='" + ID + "', QC='" + QC + "', IS_FULL='100', MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "', FILE='" + file + "' where TICKET='" + bundle + "';", function (err, result, fields) {
                             connection.release();
                             if (err) throw err;
                             res.setHeader("Content-Type", "application/json");
@@ -856,487 +979,471 @@ app.post('/Production/Payroll_Search/Submit', function (req, res) {
                             // next();
                             res.end();
                         });
-                } else {
-                    console.log('update ', ID);
-                    connection.query("update employee_scanticket set EMPLOYEE='" + ID + "', QC='" + QC + "', IS_FULL='100', MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "', FILE='" + file + "' where TICKET='" + bundle + "';", function (err, result, fields) {
-                        connection.release();
-                        if (err) throw err;
-                        res.setHeader("Content-Type", "application/json");
-                        res.send({ result: 'done' });
-                        // next();
-                        res.end();
-                    });
-                }
-
-                // res.send({result:'done'});
-                // res.end();
+                    }
+    
+                    // res.send({result:'done'});
+                    // res.end();
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Submit", error);
     }
 });
 app.post('/Production/Payroll_Search/Submit1', function (req, res) {
-    if (req.isAuthenticated()) {
-        var bundle = req.body.bundle;
-        var ID = req.body.ID;
-        var QC = req.body.QC;
-        var file = req.body.file;
-        var date = req.body.date;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user, file);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("replace into employee_scanticket"
-                + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
-                + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user + "', '" + timeUpdate + "')", function (err, result, fields) {
-                    connection.release();
-                    if (err) throw err;
-                    res.send({ result: 'done' });
-                    res.end();
-                });
-        });
-    }
-    else {
-        res.render("login");
+    try {
+        if (req.isAuthenticated()) {
+            var bundle = req.body.bundle;
+            var ID = req.body.ID;
+            var QC = req.body.QC;
+            var file = req.body.file;
+            var date = req.body.date;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user.username, file);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                connection.query("replace into employee_scanticket"
+                    + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
+                    + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user.username + "', '" + timeUpdate + "')", function (err, result, fields) {
+                        connection.release();
+                        if (err) throw err;
+                        res.send({ result: 'done' });
+                        res.end();
+                    });
+            });
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Submit1", error);
     }
 });
 app.post('/Production/Payroll_Search/GetName', function (req, res) {
-    if (req.isAuthenticated()) {
-        var ID = req.body.ID;
-        con2.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("Select Name, ID, Line, Shift from setup_emplist where ID like '%" + ID + "' and Type='DR';", function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var ID = req.body.ID;
+            con2.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
-
+                connection.query("Select Name, ID, Line, Shift from setup_emplist where ID like '%" + ID + "' and Type='DR';", function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+    
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/GetName", error);
     }
 });
 app.post('/Production/Payroll_Search/GetTimeSheet', function (req, res) {
-    if (req.isAuthenticated()) {
-        var ID = req.body.ID;
-        var date = req.body.date;
-        var datefrom = req.body.datefrom;
-        console.log(date, datefrom);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "Select ROUND(SUM(WORK_HRS),2) AS WORK_HRS, ROUND(SUM(REG_HRS),2) AS REG_HRS, ROUND(SUM(OT15+OT20+OT30),2) as OT, ROUND(SUM(CD03),2) AS CD03, ROUND(SUM(CD08),2) AS CD08, ROUND(SUM(CD09),2) AS CD09 "
-                + " from employee_timesheet where ID like '" + ID + "%' AND DATE<='" + date + "' AND DATE>='" + datefrom + "';"
-            console.log(sql);
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                console.log(result);
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var ID = req.body.ID;
+            var date = req.body.date;
+            var datefrom = req.body.datefrom;
+            console.log(date, datefrom);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
-
+                sql = "Select ROUND(SUM(WORK_HRS),2) AS WORK_HRS, ROUND(SUM(REG_HRS),2) AS REG_HRS, ROUND(SUM(OT15+OT20+OT30),2) as OT, ROUND(SUM(CD03),2) AS CD03, ROUND(SUM(CD08),2) AS CD08, ROUND(SUM(CD09),2) AS CD09 "
+                    + " from employee_timesheet where ID like '" + ID + "%' AND DATE<='" + date + "' AND DATE>='" + datefrom + "';"
+                console.log(sql);
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    console.log(result);
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+    
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/GetTimeSheet", error);
     }
 });
 app.post('/Production/Payroll_Search/GetWip', function (req, res) {
-    if (req.isAuthenticated()) {
-        var groupName = req.body.group;
-        var date = req.body.date;
-        var shift = req.body.shift.substring(0, 1);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "select OPERATION, SUM(WIP) as WIP, WIP_TARGET as TARGET, SUM(WIP)-WIP_TARGET as VAR, SUM(SUM_WIP) as SUM_WIP, SUM(SUM_HC) as SUM_HC "
-                + " from operation_wip where DATE='" + date + "' and LINE='" + groupName + "' and SHIFT='" + shift + "' group by OPERATION order by ROW;"
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var groupName = req.body.group;
+            var date = req.body.date;
+            var shift = req.body.shift.substring(0, 1);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
-
+                sql = "select OPERATION, SUM(WIP) as WIP, WIP_TARGET as TARGET, SUM(WIP)-WIP_TARGET as VAR, SUM(SUM_WIP) as SUM_WIP, SUM(SUM_HC) as SUM_HC "
+                    + " from operation_wip where DATE='" + date + "' and LINE='" + groupName + "' and SHIFT='" + shift + "' group by OPERATION order by ROW;"
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+    
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/GetWip", error);
     }
 });
 app.post('/Production/Payroll_Search/Skip', function (req, res) {
-    if (req.isAuthenticated()) {
-        var file = req.body.file;
-        var date = req.body.date;
-        var QC = req.body.QC;
-        if (QC == '') {
-            QC = '999999';
-        }
-        console.log('skip update btn');
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
+    try {
+        if (req.isAuthenticated()) {
+            var file = req.body.file;
+            var date = req.body.date;
+            var QC = req.body.QC;
+            if (QC == '') {
+                QC = '999999';
             }
-            connection.query("Update employee_scanticket set IS_FULL='100', QC='" + QC + "', MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
-                function (err, result, fields) {
-                    connection.release();
-                    if (err) throw err;
-                    console.log('update_done');
-                    res.send({ result: 'done' });
-                    res.end();
-                });
-        });
-    }
-    else {
-        res.render("login");
+            console.log('skip update btn');
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                connection.query("Update employee_scanticket set IS_FULL='100', QC='" + QC + "', MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
+                    function (err, result, fields) {
+                        connection.release();
+                        if (err) throw err;
+                        console.log('update_done');
+                        res.send({ result: 'done' });
+                        res.end();
+                    });
+            });
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Skip", error);
     }
 });
 app.post('/Production/Payroll_Search/Dismiss_error', function (req, res) {
-    if (req.isAuthenticated()) {
-        var file = req.body.fileName;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("Update bundleticket_error set MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
-                function (err, result, fields) {
-                    connection.release();
-                    if (err) throw err;
-                    res.send({ result: 'done' });
-                    res.end();
-                });
-        });
-    }
-    else {
-        res.render("login");
+    try {
+        if (req.isAuthenticated()) {
+            var file = req.body.fileName;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                connection.query("Update bundleticket_error set MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
+                    function (err, result, fields) {
+                        connection.release();
+                        if (err) throw err;
+                        res.send({ result: 'done' });
+                        res.end();
+                    });
+            });
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Dismiss_error", error);
     }
 });
 app.post('/Production/Payroll_Search/Bundle', function (req, res) {
-    if (req.isAuthenticated()) {
-        var file = req.body.file;
-        var date = req.body.date;
-        var bundle = req.body.bundle;
-        console.log(file, date);
-        var bundle_read;
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("SELECT TICKET, QC, EMPLOYEE FROM employee_scanticket where FILE='" + file + "' or TICKET like '" + bundle + "%';", function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    bundle_read = result;
-                    console.log(bundle_read[0].TICKET.substring(0, 6));
-                    var bundle1 = bundle_read[0].TICKET.substring(0, 6);
-                    var bundle = bundle1;
-                    if (bundle_read.length > 2) {
-                        var bundle2 = bundle_read[1].TICKET.substring(0, 6);
-                        var bundle3 = bundle_read[2].TICKET.substring(0, 6);
-                        if (bundle1 == bundle2 || bundle1 == bundle3)
-                            bundle = bundle1;
-                        if (bundle1 != bundle2 && bundle2 == bundle3)
-                            bundle = bundle2;
-                    }
-                    console.log(bundle);
-                    var QC = bundle_read[0].QC;
-                    con4.getConnection(function (err, connection) {
-                        if (err) {
-                            connection.release();
-                            throw err;
-                        }
-                        var sql = "";
-                        if (date < "20200601")
-                            sql = "SELECT bundleticket_active.TICKET "
-                                + " from bundleticket_active left join employee_scanticket "
-                                + " on bundleticket_active.TICKET=employee_scanticket.TICKET "
-                                + " where bundleticket_active.TICKET like '" + bundle + "%' and employee_scanticket.TICKET is null;";
-                        else
-                            sql = "SELECT TICKET from bundleticket_active where TICKET like '" + bundle + "%';"
-                        connection.query(sql, function (err, result, fields) {
-                            // connection.query(sql, function (err, result, fields) {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length > 0) {
-                                res.send({ bundle_read: bundle_read, bundle_full: result, QC: QC });
-                                res.end();
-                            } else {
-                                res.send({ bundle_read: bundle_read, bundle_full: 'empty', QC: QC })
-                                res.end();
-                            }
-                        });
-                    });
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var file = req.body.file;
+            var date = req.body.date;
+            var bundle = req.body.bundle;
+            console.log(file, date);
+            var bundle_read;
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                connection.query("SELECT TICKET, QC, EMPLOYEE FROM employee_scanticket where FILE='" + file + "' or TICKET like '" + bundle + "%';", function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        bundle_read = result;
+                        console.log(bundle_read[0].TICKET.substring(0, 6));
+                        var bundle1 = bundle_read[0].TICKET.substring(0, 6);
+                        var bundle = bundle1;
+                        if (bundle_read.length > 2) {
+                            var bundle2 = bundle_read[1].TICKET.substring(0, 6);
+                            var bundle3 = bundle_read[2].TICKET.substring(0, 6);
+                            if (bundle1 == bundle2 || bundle1 == bundle3)
+                                bundle = bundle1;
+                            if (bundle1 != bundle2 && bundle2 == bundle3)
+                                bundle = bundle2;
+                        }
+                        console.log(bundle);
+                        var QC = bundle_read[0].QC;
+                        con4.getConnection(function (err, connection) {
+                            if (err) {
+                                connection.release();
+                                throw err;
+                            }
+                            var sql = "";
+                            if (date < "20200601")
+                                sql = "SELECT bundleticket_active.TICKET "
+                                    + " from bundleticket_active left join employee_scanticket "
+                                    + " on bundleticket_active.TICKET=employee_scanticket.TICKET "
+                                    + " where bundleticket_active.TICKET like '" + bundle + "%' and employee_scanticket.TICKET is null;";
+                            else
+                                sql = "SELECT TICKET from bundleticket_active where TICKET like '" + bundle + "%';"
+                            connection.query(sql, function (err, result, fields) {
+                                // connection.query(sql, function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                    res.send({ bundle_read: bundle_read, bundle_full: result, QC: QC });
+                                    res.end();
+                                } else {
+                                    res.send({ bundle_read: bundle_read, bundle_full: 'empty', QC: QC })
+                                    res.end();
+                                }
+                            });
+                        });
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Bundle", error); 
     }
 });
 app.post('/Production/Payroll_Search/BundleNew', function (req, res) {
-    if (req.isAuthenticated()) {
-        var file = req.body.file;
-        var date = req.body.date;
-        var bundle = req.body.bundle;
-        console.log(file, date);
-        var bundle_read;
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "SELECT Temp3.TICKET, scan.QC, scan.EMPLOYEE FROM employee_scanticket scan RIGHT JOIN "
-                + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
-                + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE = '" + file + "') AS Temp1 "
-                + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE) AS Temp3 ON Temp3.TICKET=scan.TICKET;"
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0 && result.length < 20) {
-                    res.send(result);
-                    res.end();
-                    // bundle_read=result;
-                    // console.log(bundle_read[0].TICKET.substring(0,6));
-                    // var bundle1=bundle_read[0].TICKET.substring(0,6);
-                    // ticket=bundle_read[0].TICKET;
-                    // var bundle=bundle1;
-                    // if (bundle_read.length>2){
-                    //     var bundle2=bundle_read[1].TICKET.substring(0,6);
-                    //     var bundle3=bundle_read[2].TICKET.substring(0,6);
-                    //     if (bundle1==bundle2||bundle1==bundle3){
-                    //         bundle=bundle1;
-                    //         ticket=bundle_read[1].TICKET;
-                    //     }
-                    //     if (bundle1!=bundle2&&bundle2==bundle3){
-                    //         bundle=bundle2;
-                    //         ticket=bundle_read[2].TICKET;
-                    //     }
-                    // }
-                    // console.log(bundle);
-                    // var QC=bundle_read[0].QC;
-                    // con4.getConnection(function(err, connection){
-                    //     if (err) {
-                    //         connection.release();
-                    //         throw err;
-                    //     }
-                    //     // var sql="";
-                    //     // if (date<"20200601")
-                    //     sql="SELECT TICKET FROM (SELECT Temp2.TICKET, scan.FILE FROM employee_scanticket scan RIGHT JOIN "
-                    //         +" (SELECT TICKET FROM  bundleticket_active active INNER JOIN "
-                    //         +" (SELECT FILE FROM bundleticket_active WHERE TICKET='"+ticket+"') AS Temp1 ON active.`FILE`=Temp1.FILE) AS Temp2 "
-                    //         +" ON scan.TICKET=Temp2.TICKET) AS Temp3 WHERE FILE IS NULL;";
-                    //     // else
-                    //     // sql="SELECT TICKET from bundleticket_active where TICKET like '"+bundle+"%';"
-                    //     connection.query(sql, function (err, result, fields) {
-                    //     // connection.query(sql, function (err, result, fields) {
-                    //         connection.release();
-                    //         if (err) throw err;
-                    //         if (result.length>0) {
-                    //             res.send({bundle_read:bundle_read, bundle_full:result, QC:QC});
-                    //             res.end();
-                    //         } else {
-                    //             res.send({bundle_read:bundle_read, bundle_full:'empty', QC:QC})
-                    //             res.end();
-                    //         }
-                    //     });
-                    // });
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var file = req.body.file;
+            var date = req.body.date;
+            var bundle = req.body.bundle;
+            console.log(file, date);
+            var bundle_read;
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                sql = "SELECT Temp3.TICKET, scan.QC, scan.EMPLOYEE FROM employee_scanticket scan RIGHT JOIN "
+                    + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
+                    + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE = '" + file + "') AS Temp1 "
+                    + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE) AS Temp3 ON Temp3.TICKET=scan.TICKET;"
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0 && result.length < 20) {
+                        res.send(result);
+                        res.end();
+                        // bundle_read=result;
+                        // console.log(bundle_read[0].TICKET.substring(0,6));
+                        // var bundle1=bundle_read[0].TICKET.substring(0,6);
+                        // ticket=bundle_read[0].TICKET;
+                        // var bundle=bundle1;
+                        // if (bundle_read.length>2){
+                        //     var bundle2=bundle_read[1].TICKET.substring(0,6);
+                        //     var bundle3=bundle_read[2].TICKET.substring(0,6);
+                        //     if (bundle1==bundle2||bundle1==bundle3){
+                        //         bundle=bundle1;
+                        //         ticket=bundle_read[1].TICKET;
+                        //     }
+                        //     if (bundle1!=bundle2&&bundle2==bundle3){
+                        //         bundle=bundle2;
+                        //         ticket=bundle_read[2].TICKET;
+                        //     }
+                        // }
+                        // console.log(bundle);
+                        // var QC=bundle_read[0].QC;
+                        // con4.getConnection(function(err, connection){
+                        //     if (err) {
+                        //         connection.release();
+                        //         throw err;
+                        //     }
+                        //     // var sql="";
+                        //     // if (date<"20200601")
+                        //     sql="SELECT TICKET FROM (SELECT Temp2.TICKET, scan.FILE FROM employee_scanticket scan RIGHT JOIN "
+                        //         +" (SELECT TICKET FROM  bundleticket_active active INNER JOIN "
+                        //         +" (SELECT FILE FROM bundleticket_active WHERE TICKET='"+ticket+"') AS Temp1 ON active.`FILE`=Temp1.FILE) AS Temp2 "
+                        //         +" ON scan.TICKET=Temp2.TICKET) AS Temp3 WHERE FILE IS NULL;";
+                        //     // else
+                        //     // sql="SELECT TICKET from bundleticket_active where TICKET like '"+bundle+"%';"
+                        //     connection.query(sql, function (err, result, fields) {
+                        //     // connection.query(sql, function (err, result, fields) {
+                        //         connection.release();
+                        //         if (err) throw err;
+                        //         if (result.length>0) {
+                        //             res.send({bundle_read:bundle_read, bundle_full:result, QC:QC});
+                        //             res.end();
+                        //         } else {
+                        //             res.send({bundle_read:bundle_read, bundle_full:'empty', QC:QC})
+                        //             res.end();
+                        //         }
+                        //     });
+                        // });
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/BundleNew", error); 
     }
 });
 app.post('/Production/Payroll_Search/BundleSearch', function (req, res) {
-    if (req.isAuthenticated()) {
-        var bundle = req.body.bundle;
-        console.log(bundle);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("SELECT TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, EARNED_HOURS, WORK_LOT, FILE, MODIFIED, QC FROM employee_scanticket where TICKET like '" + bundle + "%';", function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    // console.log(result);
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var bundle = req.body.bundle;
+            console.log(bundle);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                connection.query("SELECT TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, EARNED_HOURS, WORK_LOT, FILE, MODIFIED, QC FROM employee_scanticket where TICKET like '" + bundle + "%';", function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        // console.log(result);
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/BundleSearch", error); 
     }
 });
 app.post('/Production/Payroll_Search/ID', function (req, res) {
-    if (req.isAuthenticated()) {
-        var id = req.body.id;
-        var date = req.body.date;
-        var datefrom = req.body.datefrom;
-        console.log(date, datefrom);
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "SELECT BUNDLE, OPERATION_CODE, EARNED_HOURS, UNITS, WORK_LOT, FILE FROM"
-                + " employee_scanticket where EMPLOYEE='" + id + "' and DATE<='" + date + "' and DATE>='" + datefrom + "'"
-                + " union "
-                + " select TOTAL_DZ as BUNDLE, MOVER as OPERATION_CODE, EARNED_HOURS*TOTAL_DZ*60 as EARNED_HOURS, TOTAL_DZ as UNITS, TOTAL_DZ as WORK_LOT, TOTAL_DZ as FILE"
-                + " from employee_mover where EMPLOYEE like '%" + id + "' and DATE<='" + date + "' and DATE>='" + datefrom + "'"
-                + " union "
-                + " select SUM(DzCase) as BUNDEL, CONCAT('MOVER',ZoneMover) as OPERATION_CODE, SUM(DzCase)*SAH*60 as EARNED_HOURS, SUM(DzCase) as UNITS, SUM(DzCase) as WORK_LOT, SUM(DzCase) as FILE"
-                + " from erpsystem.data_finishedgoodssewing inner join erpsystem.setup_sahmover"
-                + " on erpsystem.data_finishedgoodssewing.ZoneMover=erpsystem.setup_sahmover.Area "
-                + " where IDEmployees like '%" + id + "' and DATE<=DATE_FORMAT('" + date + "','%Y-%m-%d') and DATE>=DATE_FORMAT('" + datefrom + "','%Y-%m-%d') group by ZoneMover;"
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var id = req.body.id;
+            var date = req.body.date;
+            var datefrom = req.body.datefrom;
+            console.log(date, datefrom);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                sql = "SELECT BUNDLE, OPERATION_CODE, EARNED_HOURS, UNITS, WORK_LOT, FILE FROM"
+                    + " employee_scanticket where EMPLOYEE='" + id + "' and DATE<='" + date + "' and DATE>='" + datefrom + "'"
+                    + " union "
+                    + " select TOTAL_DZ as BUNDLE, MOVER as OPERATION_CODE, EARNED_HOURS*TOTAL_DZ*60 as EARNED_HOURS, TOTAL_DZ as UNITS, TOTAL_DZ as WORK_LOT, TOTAL_DZ as FILE"
+                    + " from employee_mover where EMPLOYEE like '%" + id + "' and DATE<='" + date + "' and DATE>='" + datefrom + "'"
+                    + " union "
+                    + " select SUM(DzCase) as BUNDEL, CONCAT('MOVER',ZoneMover) as OPERATION_CODE, SUM(DzCase)*SAH*60 as EARNED_HOURS, SUM(DzCase) as UNITS, SUM(DzCase) as WORK_LOT, SUM(DzCase) as FILE"
+                    + " from erpsystem.data_finishedgoodssewing inner join erpsystem.setup_sahmover"
+                    + " on erpsystem.data_finishedgoodssewing.ZoneMover=erpsystem.setup_sahmover.Area "
+                    + " where IDEmployees like '%" + id + "' and DATE<=DATE_FORMAT('" + date + "','%Y-%m-%d') and DATE>=DATE_FORMAT('" + datefrom + "','%Y-%m-%d') group by ZoneMover;"
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    } else {
-        res.render("login");
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/ID", error); 
     }
 });
 app.post('/Production/Payroll_Search/Ticket', function (req, res) {
-    var ticket = req.body.ticket;
-    con4.getConnection(function (err, connection) {
-        if (err) {
-            throw err;
-        }
-        connection.query("SELECT EMPLOYEE, DATE, FILE FROM"
-            + " employee_scanticket where TICKET='" + ticket + "';", function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
-                }
-            });
-    });
-});
-app.post('/Production/Payroll_Search/Worklot', function (req, res) {
-    var worklot = req.body.worklot;
-    con4.getConnection(function (err, connection) {
-        if (err) {
-            connection.release();
-            throw err;
-        }
-        sql = "SELECT bundleticket_active.TICKET, bundleticket_active.CREATE_DATE, bundleticket_active.OPERATION_CODE, "
-            + " bundleticket_active.EARNED_HOURS, bundleticket_active.UNITS, bundleticket_active.FILE, employee_scanticket.DATE, employee_scanticket.EMPLOYEE "
-            + " FROM bundleticket_active left join employee_scanticket on bundleticket_active.TICKET=employee_scanticket.TICKET "
-            + " where bundleticket_active.WORK_LOT='" + worklot + "' and bundleticket_active.TICKET not like '%0109' and bundleticket_active.TICKET not like '%0110' and bundleticket_active.TICKET not like '%0112';";
-        // connection.query("SELECT BUNDLE, CREATE_DATE, OPERATION_CODE, EARNED_HOURS, UNITS, FILE FROM bundleticket_active"
-        // +" where WORK_LOT='"+worklot+"';", function (err, result, fields) {
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            if (err) throw err;
-            if (result.length > 0) {
-                res.send(result);
-                res.end();
-            } else {
-                var data = { result: 'empty' };
-                res.send(data);
-                res.end();
-            }
-        });
-    });
-});
-app.post('/Production/Payroll_Search/WorklotSummary', function (req, res) {
-    var worklot = req.body.worklot;
-    con4.getConnection(function (err, connection) {
-        if (err) {
-            throw err;
-        }
-        sql = "select LEFT(Temp1.TICKET, 6) as BUNDLE, FILE, COUNT(Temp1.TICKET) as ISSUE, COUNT(Temp2.TICKET) as EARN, COUNT(Temp3.TICKET) as IA, COUNT(Temp1.TICKET)-COUNT(Temp2.TICKET)-COUNT(Temp3.TICKET) as NOT_EARN from "
-            + " (select TICKET, FILE from bundleticket_active where work_lot='" + worklot + "' and FILE!='0') as Temp1 "
-            + " left join "
-            + " (select TICKET from employee_scanticket where work_lot='" + worklot + "') as Temp2 on Temp1.TICKET=Temp2.TICKET "
-            + " left join "
-            + " (select TICKET from bundleticket_deactive where work_lot='" + worklot + "') as Temp3 on Temp1.TICKET=Temp3.TICKET "
-            + " group by Temp1.FILE;";
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            if (err) throw err;
-            if (result.length > 0) {
-                res.send(result);
-                res.end();
-            } else {
-                var data = { result: 'empty' };
-                res.send(data);
-                res.end();
-            }
-        });
-    });
-});
-app.post('/Production/Payroll_Search/Alert', function (req, res) {
-    if (req.isAuthenticated()) {
-        var date = req.body.date;
-        var datefrom = req.body.datefrom;
-        var groupName = req.body.group;
-        groupF = groupName.substring(0, 3);
-        groupT = groupName.substring(4, 7);
+    try {
+        var ticket = req.body.ticket;
         con4.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
-            sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE NEW_FILE like '" + groupName + "%' and OLD_TimeUpdate>='" + datefrom + " 00:00:00' and OLD_TimeUpdate<='" + date + " 23:59:59' "
-                + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and OLD_FILE != NEW_FILE and OLD_TimeUpdate != New_TIMEUPDATE and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
+            connection.query("SELECT EMPLOYEE, DATE, FILE FROM"
+                + " employee_scanticket where TICKET='" + ticket + "';", function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
+        });
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Ticket", error);
+    }
+});
+app.post('/Production/Payroll_Search/Worklot', function (req, res) {
+    try {
+        var worklot = req.body.worklot;
+        con4.getConnection(function (err, connection) {
+            if (err) {
+                connection.release();
+                throw err;
+            }
+            sql = "SELECT bundleticket_active.TICKET, bundleticket_active.CREATE_DATE, bundleticket_active.OPERATION_CODE, "
+                + " bundleticket_active.EARNED_HOURS, bundleticket_active.UNITS, bundleticket_active.FILE, employee_scanticket.DATE, employee_scanticket.EMPLOYEE "
+                + " FROM bundleticket_active left join employee_scanticket on bundleticket_active.TICKET=employee_scanticket.TICKET "
+                + " where bundleticket_active.WORK_LOT='" + worklot + "' and bundleticket_active.TICKET not like '%0109' and bundleticket_active.TICKET not like '%0110' and bundleticket_active.TICKET not like '%0112';";
+            // connection.query("SELECT BUNDLE, CREATE_DATE, OPERATION_CODE, EARNED_HOURS, UNITS, FILE FROM bundleticket_active"
+            // +" where WORK_LOT='"+worklot+"';", function (err, result, fields) {
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -1344,111 +1451,192 @@ app.post('/Production/Payroll_Search/Alert', function (req, res) {
                     res.send(result);
                     res.end();
                 } else {
-                    res.send({ result: 'empty' });
+                    var data = { result: 'empty' };
+                    res.send(data);
                     res.end();
                 }
             });
         });
-    } else {
-        res.render("login");
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Worklot", error);
+    }
+});
+app.post('/Production/Payroll_Search/WorklotSummary', function (req, res) {
+    try {
+        var worklot = req.body.worklot;
+        con4.getConnection(function (err, connection) {
+            if (err) {
+                throw err;
+            }
+            sql = "select LEFT(Temp1.TICKET, 6) as BUNDLE, FILE, COUNT(Temp1.TICKET) as ISSUE, COUNT(Temp2.TICKET) as EARN, COUNT(Temp3.TICKET) as IA, COUNT(Temp1.TICKET)-COUNT(Temp2.TICKET)-COUNT(Temp3.TICKET) as NOT_EARN from "
+                + " (select TICKET, FILE from bundleticket_active where work_lot='" + worklot + "' and FILE!='0') as Temp1 "
+                + " left join "
+                + " (select TICKET from employee_scanticket where work_lot='" + worklot + "') as Temp2 on Temp1.TICKET=Temp2.TICKET "
+                + " left join "
+                + " (select TICKET from bundleticket_deactive where work_lot='" + worklot + "') as Temp3 on Temp1.TICKET=Temp3.TICKET "
+                + " group by Temp1.FILE;";
+            connection.query(sql, function (err, result, fields) {
+                connection.release();
+                if (err) throw err;
+                if (result.length > 0) {
+                    res.send(result);
+                    res.end();
+                } else {
+                    var data = { result: 'empty' };
+                    res.send(data);
+                    res.end();
+                }
+            });
+        });
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/WorklotSummary", error);
+    }
+});
+app.post('/Production/Payroll_Search/Alert', function (req, res) {
+    try {
+        if (req.isAuthenticated()) {
+            var date = req.body.date;
+            var datefrom = req.body.datefrom;
+            var groupName = req.body.group;
+            groupF = groupName.substring(0, 3);
+            groupT = groupName.substring(4, 7);
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE NEW_FILE like '" + groupName + "%' and New_TimeUpdate>='" + datefrom + " 00:00:00' and New_TimeUpdate<='" + date + " 23:59:59' "
+                    + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and OLD_FILE != NEW_FILE and OLD_TimeUpdate != New_TIMEUPDATE and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
+            });
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Alert", error);
     }
 });
 app.post('/Production/Payroll_Search/Alert_Update_Status', function (req, res) {
-    if (req.isAuthenticated()) {
-        var ticket = req.body.ticket;
-        var status = req.body.status;
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "update bundleticket_alert set STATUS='" + status + "' WHERE Ticket='" + ticket + "';"
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                res.send({ result: 'done' });
-                res.end()
+    try {
+        if (req.isAuthenticated()) {
+            var ticket = req.body.ticket;
+            var status = req.body.status;
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                sql = "update bundleticket_alert set STATUS='" + status + "' WHERE Ticket='" + ticket + "';"
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    res.send({ result: 'done' });
+                    res.end()
+                });
             });
-        });
-    } else {
-        res.render("login");
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Alert_Update_Status", error);
     }
 });
 app.post('/Production/Payroll_Search/Update_Date_Scan1', function (req, res) {
-    if (req.isAuthenticated()) {
-        var date = req.body.date;
-        // console.log(date, req.body.file_x);
-        var file_name_list = req.body.file_x.split(';');
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            for (var i = 0; i < file_name_list.length; i++) {
-                file = file_name_list[i];
-                console.log(date, file)
-                sql = "update employee_scanticket set DATE='" + date + "' WHERE FILE='" + file + "';"
-                connection.query(sql, function (err, result, fields) {
-                    if (err) throw err;
-                });
-            }
-            connection.release();
-            res.send({ result: 'done' });
-            res.end();
-        });
-    } else {
-        res.render("login");
+    try {
+        if (req.isAuthenticated()) {
+            var date = req.body.date;
+            // console.log(date, req.body.file_x);
+            var file_name_list = req.body.file_x.split(';');
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                for (var i = 0; i < file_name_list.length; i++) {
+                    file = file_name_list[i];
+                    console.log(date, file)
+                    sql = "update employee_scanticket set DATE='" + date + "' WHERE FILE='" + file + "';"
+                    connection.query(sql, function (err, result, fields) {
+                        if (err) throw err;
+                    });
+                }
+                connection.release();
+                res.send({ result: 'done' });
+                res.end();
+            });
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Update_Date_Scan1", error);
     }
 });
 app.post('/Production/Payroll_Search/Sup_Release', function (req, res) {
-    if (req.isAuthenticated()) {
-        var asslot = req.body.asslot;
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "select * from supervisor_release_bundle where work_lot='" + asslot + "';";
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var asslot = req.body.asslot;
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                sql = "select * from supervisor_release_bundle where work_lot='" + asslot + "';";
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    } else {
-        res.render("login");
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Sup_Release", error);
     }
 });
 app.post('/Production/Payroll_Search/Sup_Release_Submit', function (req, res) {
-    if (req.isAuthenticated()) {
-        var worklot = req.body.worklot;
-        var quantity = req.body.quantity;
-        var note = req.body.note;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        con4.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            sql = "insert into supervisor_release_bundle (WORK_LOT, TIME_RELEASE, QTY_ISSUE, USER, NOTE) values ('" + worklot + "', '" + timeUpdate + "', '" + quantity + "', '" + req.user + "', '" + note + "');";
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var worklot = req.body.worklot;
+            var quantity = req.body.quantity;
+            var note = req.body.note;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            con4.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
+                sql = "insert into supervisor_release_bundle (WORK_LOT, TIME_RELEASE, QTY_ISSUE, USER, NOTE) values ('" + worklot + "', '" + timeUpdate + "', '" + quantity + "', '" + req.user.username + "', '" + note + "');";
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    } else {
-        res.render("login");
+        } else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Production/Payroll_Search/Sup_Release_Submit", error);
     }
 });
 app.get("/Production/LineBalancing", function (req, res) {
@@ -1467,8 +1655,8 @@ app.get("/Production/OffStandard", function (req, res) {
             if (req.isAuthenticated()) {
                 res.render("Production/OffStandard", { group_list: group_list });
             }
-            else{
-                res.render("login", {msg: ""});
+            else {
+                res.render("login", { msg: "" });
             }
         });
     });
@@ -1559,7 +1747,7 @@ app.post('/Production/GetOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login", {msg: ""});
+        res.render("login", { msg: "" });
     }
 });
 app.post('/Production/IsExistedOffStandardTracking', function (req, res) {
@@ -1583,9 +1771,9 @@ app.post('/Production/IsExistedOffStandardTracking', function (req, res) {
     }
 });
 
-const round = (x, n=2) => {
+const round = (x, n = 2) => {
     const precision = Math.pow(10, n)
-    return Math.round((x+Number.EPSILON) * precision ) / precision;
+    return Math.round((x + Number.EPSILON) * precision) / precision;
 }
 app.post('/Production/InsertOffStandardTracking', function (req, res) {
     if (req.isAuthenticated()) {
@@ -1597,6 +1785,8 @@ app.post('/Production/InsertOffStandardTracking', function (req, res) {
         op2 = req.body.op2;
         note = req.body.note;
         finishTime = req.body.finishTime;
+        currentDate = req.body.currenDate;
+
         var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
         var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
         var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
@@ -1606,17 +1796,16 @@ app.post('/Production/InsertOffStandardTracking', function (req, res) {
         hh = parseInt(timeUpdate.split(' ')[1].split(':')[0]);
         mm = parseInt(timeUpdate.split(' ')[1].split(':')[1]);
         // if (hh == 13 && mm > 45 && mm < 59) startTime = dateUpdate + ' 14:00:00';
-        startTime = dateUpdate + ' ' + req.body.startTime;
-        finishTime = finishTime == "" ? "" : dateUpdate + " " + finishTime;
+        startTime = currentDate + ' ' + req.body.startTime;
+        finishTime = finishTime == "" ? "" : currentDate + " " + finishTime;
         con4.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
             sql = `Insert into linebalancing.operation_offstandard_tracking (WorkerID, Name, Code, WC, Operation1, Operation2, StartTime, UserUpdate, DateUpdate, Note) 
                 values('${workerID}', '${name}', '${code}', '${wc}', '${op1}', '${op2}', '${startTime}', '${userUpdate}','${timeUpdate}', '${note}')`;
-            
-            if(finishTime != "")
-            {
+
+            if (finishTime != "") {
                 let spanTime = round((Math.abs(new Date(finishTime) - new Date(startTime)) / 1000) / 3600);
                 sql = `Insert into linebalancing.operation_offstandard_tracking (WorkerID, Name, Code, WC, Operation1, Operation2, StartTime, FinishTime, SpanTime, UserUpdate, DateUpdate, Note) 
                 values('${workerID}', '${name}', '${code}', '${wc}', '${op1}', '${op2}', '${startTime}', '${finishTime}', '${spanTime}', '${userUpdate}','${timeUpdate}', '${note}')`;
@@ -1630,7 +1819,7 @@ app.post('/Production/InsertOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login", {msg: ""});
+        res.render("login", { msg: "" });
     }
 });
 app.post('/Production/CloseOffStandardTracking', function (req, res) {
@@ -1655,8 +1844,8 @@ app.post('/Production/CloseOffStandardTracking', function (req, res) {
                 + " IF(StartTime<=CONCAT(CURDATE(),' 22:00:00') AND StartTime>=CONCAT(CURDATE(),' 14:00:00'), IF(now()<=CONCAT(CURDATE(),' 22:00:00'), now(), CONCAT(CURDATE(),' 22:00:00')), NOW())),StartTime))/3600,2))  "
                 + ", DateUpdate='" + timeUpdate + "'"
                 + " where ID=" + id + ";"
-           
-            if(finishTime != ''){
+
+            if (finishTime != '') {
                 ftTemp = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().slice(0, -1).substring(0, 10) + " " + finishTime;
                 stTemp = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().slice(0, -1).substring(0, 10) + " " + startTime;
                 let spanTime = round((Math.abs(new Date(ftTemp) - new Date(stTemp)) / 1000) / 3600);
@@ -1666,6 +1855,7 @@ app.post('/Production/CloseOffStandardTracking', function (req, res) {
             }
             console.log(sql);
             connection.query(sql, function (err, result, fields) {
+                // connection.release();
                 // connection.release();
                 if (err) throw err;
                 sql1 = "select * from linebalancing.operation_offstandard_tracking where ID=" + id;
@@ -1678,7 +1868,7 @@ app.post('/Production/CloseOffStandardTracking', function (req, res) {
             });
         });
     } else {
-        res.render("login", {msg: ""});
+        res.render("login", { msg: "" });
     }
 });
 app.post('/Production/GetOperationByEmployee7000', function (req, res) {
@@ -1716,7 +1906,7 @@ app.post('/Production/AddOperationByEmployee7000', function (req, res) {
                 throw err;
             }
             sql = "replace into linebalancing.data_operation_7000_register (ID, EMPLOYEE, OPERATION, ACTUAL, TARGET, TimeUpdate, User) "
-                + " values (CONCAT('" + empID + operation + "',MONTH(NOW()), YEAR(NOW())), '" + empID + "', '" + operation + "', '" + actual + "', '" + target + "', NOW(),'" + req.user + "');";
+                + " values (CONCAT('" + empID + operation + "',MONTH(NOW()), YEAR(NOW())), '" + empID + "', '" + operation + "', '" + actual + "', '" + target + "', NOW(),'" + req.user.username + "');";
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -1873,7 +2063,7 @@ app.post("/Production/AutoKanban/SubmitAsslotHistory", function (req, res) {
                 if (output == '') output = '0';
                 Key_ID = asslot + spantime + ID + color + date + shift;
                 sql1 = "replace into asslot_control (ID, ASS_LOT, WORK_LOT, SPAN_TIME, SHIFT, EMPLOYEE, WORK_HRS, COLOR, OUTPUT, TimeUpdate, UserUpdate) "
-                    + " values('" + Key_ID + "', '" + asslot + "', '" + worklot + "', '" + spantime + "', '" + shift + "', '" + ID + "', '" + work_hrs + "', '" + color + "', '" + output + "', '" + timeUpdate + "', '" + req.user + "');";
+                    + " values('" + Key_ID + "', '" + asslot + "', '" + worklot + "', '" + spantime + "', '" + shift + "', '" + ID + "', '" + work_hrs + "', '" + color + "', '" + output + "', '" + timeUpdate + "', '" + req.user.username + "');";
                 connection.query(sql1, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2132,7 +2322,7 @@ app.post("/Production/AutoKanban/NotifyAsslots", function (req, res) {
                     }
                 });
                 sql = "replace into operation_kanban (ASS_LOT, NAMEGROUP, ASS_STATUS, ASS_NOTIFY, TimeUpdate, User) "
-                    + " values ('" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user + "');";
+                    + " values ('" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user.username + "');";
                 console.log(sql)
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
@@ -2174,7 +2364,7 @@ app.post("/Production/AutoKanban/NotifyAsslots6", function (req, res) {
                 });
                 asslot = '98' + next_asslot + '01';
                 sql = "replace into operation_kanban (ASS_LOT, HQAS, NAMEGROUP, ASS_STATUS, ASS_NOTIFY, TimeUpdate, User) "
-                    + " values ('" + asslot + "', '" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user + "');";
+                    + " values ('" + asslot + "', '" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user.username + "');";
                 console.log(sql)
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
@@ -2226,13 +2416,14 @@ app.post("/Production/AutoKanban/NotifyAsslot", function (req, res) {
             }
             sql = "select * from operation_kanban where ASS_LOT='" + next_asslot + "' and TimeUpdate>(CURDATE()-INTERVAl 30 DAY);";
             connection.query(sql, function (err, result, fields) {
+                connection.release();
                 if (err) throw err;
                 if (result.length > 0) {
                     res.send('existed');
                     res.end();
                 } else {
                     sql = "replace into operation_kanban (ASS_LOT, NAMEGROUP, ASS_STATUS, ASS_NOTIFY, TimeUpdate, User) "
-                        + " values ('" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user + "');";
+                        + " values ('" + next_asslot + "','" + curr_group + "','NOTIFY','" + timeUpdate + "','" + timeUpdate + "', '" + req.user.username + "');";
                     console.log(sql)
                     connection.query(sql, function (err, result, fields) {
                         if (err) throw err;
@@ -2259,10 +2450,10 @@ app.post("/Production/AutoKanban/CallAsslots", function (req, res) {
                 throw err;
             }
             // sql="insert ignore into operation_kanban (ASS_LOT, NAMEGROUP, ASS_STATUS, ASS_CALL, TimeUpdate, User) "
-            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user+"');";
+            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user.username+"');";
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i]
-                sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2287,10 +2478,10 @@ app.post("/Production/AutoKanban/CallAsslots6", function (req, res) {
                 throw err;
             }
             // sql="insert ignore into operation_kanban (ASS_LOT, NAMEGROUP, ASS_STATUS, ASS_CALL, TimeUpdate, User) "
-            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user+"');";
+            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user.username+"');";
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i]
-                sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2315,8 +2506,8 @@ app.post("/Production/AutoKanban/CallAsslot", function (req, res) {
                 throw err;
             }
             // sql="insert ignore into operation_kanban (ASS_LOT, NAMEGROUP, ASS_STATUS, ASS_CALL, TimeUpdate, User) "
-            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user+"');";
-            sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+            //     +" values ('"+next_asslot+"','"+curr_group+"','CALL','"+timeUpdate+"','"+timeUpdate+"', '"+req.user.username+"');";
+            sql = "update operation_kanban set ASS_STATUS='CALL', ASS_CALL='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -2342,7 +2533,7 @@ app.post("/Production/AutoKanban/SendAsslots", function (req, res) {
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
                 console.log('send_asslolt' + asslot);
-                sql = "update operation_kanban set ASS_STATUS='SEND', ASS_SEND='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='SEND', ASS_SEND='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 console.log(sql)
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
@@ -2369,7 +2560,7 @@ app.post("/Production/AutoKanban/SendAsslots6", function (req, res) {
             }
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
-                sql = "update operation_kanban set ASS_STATUS='SEND', ASS_SEND='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='SEND', ASS_SEND='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2395,7 +2586,7 @@ app.post("/Production/AutoKanban/ReceiveAsslots", function (req, res) {
             }
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
-                sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2421,7 +2612,7 @@ app.post("/Production/AutoKanban/ReceiveAsslots6", function (req, res) {
             }
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
-                sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2445,7 +2636,7 @@ app.post("/Production/AutoKanban/ReceiveAsslot", function (req, res) {
             if (err) {
                 throw err;
             }
-            sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+            sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -2468,7 +2659,7 @@ app.post("/Production/AutoKanban/ReceiveAsslot6", function (req, res) {
             if (err) {
                 throw err;
             }
-            sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+            sql = "update operation_kanban set ASS_STATUS='RECEIVE', ASS_RECEIVE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -2494,7 +2685,7 @@ app.post("/Production/AutoKanban/SuppliesAsslots", function (req, res) {
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
                 console.log('supply_asslolt' + asslot);
-                sql = "update operation_kanban set ASS_STATUS='SUPPLIES', ASS_SUPPLIES='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='SUPPLIES', ASS_SUPPLIES='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2521,7 +2712,7 @@ app.post("/Production/AutoKanban/SuppliesAsslots6", function (req, res) {
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
                 console.log('supply_asslolt' + asslot);
-                sql = "update operation_kanban set ASS_STATUS='SUPPLIES', ASS_SUPPLIES='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='SUPPLIES', ASS_SUPPLIES='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2548,7 +2739,7 @@ app.post("/Production/AutoKanban/PendingAsslots", function (req, res) {
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
                 console.log('pending_asslolt' + asslot);
-                sql = "update operation_kanban set ASS_STATUS='PENDING', ASS_PENDING='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='PENDING', ASS_PENDING='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2575,7 +2766,7 @@ app.post("/Production/AutoKanban/PendingAsslots6", function (req, res) {
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i];
                 console.log('pending_asslolt' + asslot);
-                sql = "update operation_kanban set ASS_STATUS='PENDING', ASS_PENDING='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='PENDING', ASS_PENDING='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2601,7 +2792,7 @@ app.post("/Production/AutoKanban/DoneAsslots", function (req, res) {
             }
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i]
-                sql = "update operation_kanban set ASS_STATUS='DONE', ASS_SUPPLIES='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where ASS_LOT='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='DONE', ASS_SUPPLIES='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where ASS_LOT='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2627,7 +2818,7 @@ app.post("/Production/AutoKanban/DoneAsslots6", function (req, res) {
             }
             for (var i = 0; i < asslot_list.length; i++) {
                 asslot = asslot_list[i]
-                sql = "update operation_kanban set ASS_STATUS='DONE', ASS_SUPPLIES='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user + "' where HQAS='" + asslot + "';"
+                sql = "update operation_kanban set ASS_STATUS='DONE', ASS_SUPPLIES='" + timeUpdate + "', ASS_DONE='" + timeUpdate + "', TimeUpdate='" + timeUpdate + "', User='" + req.user.username + "' where HQAS='" + asslot + "';"
                 connection.query(sql, function (err, result, fields) {
                     if (err) throw err;
                 });
@@ -2708,115 +2899,134 @@ app.get("/Cutting/OffStandard", function (req, res) {
     }
 });
 app.post('/Cutting/Payroll_Search/GroupNew', function (req, res) {
-    if (req.isAuthenticated()) {
-        var groupName = req.body.group;
-        var date = req.body.date;
-        // var bundle=req.body.bundle;
-        var year = date.substring(0, 4);
-        var month = date.substring(4, 6);
-        var day = date.substring(6, 8);
-        var dateFull = day + '-' + month + '-' + year;
-        console.log(dateFull);
-        var image_list;
-        con5.getConnection(function (err, connection) {
-            if (err) throw err;
-            sql = "SELECT Temp4.ISSUE_FILE, LEFT(Temp4.TICKET, 6) AS BUNDLE, max(QC) as QC, COUNT(Temp4.TICKET) AS ISSUE, COUNT(EMPLOYEE) AS SCAN, COUNT(deactive.TICKET) AS IASCAN, COUNT(Temp4.TICKET)-COUNT(EMPLOYEE)-COUNT(deactive.TICKET) AS IS_FULL, MAX(Temp4.FILE) as FILE, Temp4.TimeUpdate, TimeModified FROM "
-                + " (SELECT Temp3.FILE AS ISSUE_FILE, Temp3.TICKET, scan.QC, scan.EMPLOYEE, scan.FILE, scan.TimeUpdate, scan.TimeModified FROM employee_scanticket scan RIGHT JOIN "
-                + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
-                + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE LIKE '" + groupName + "_" + dateFull + "%') AS Temp1 "
-                + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE WHERE active2.FILE!='0') AS Temp3 ON Temp3.TICKET=scan.TICKET) AS Temp4  LEFT JOIN bundleticket_deactive deactive ON Temp4.TICKET=deactive.TICKET "
-                + " GROUP BY Temp4.ISSUE_FILE;"
-            console.log(sql);
-            connection.query(sql, function (err, result, fields) {
-                connection.release();
+    try {
+        if (req.isAuthenticated()) {
+            var groupName = req.body.group;
+            var date = req.body.date;
+            // var bundle=req.body.bundle;
+            var year = date.substring(0, 4);
+            var month = date.substring(4, 6);
+            var day = date.substring(6, 8);
+            var dateFull = day + '-' + month + '-' + year;
+            console.log(dateFull);
+            var image_list;
+            con5.getConnection(function (err, connection) {
                 if (err) throw err;
-                if (result.length > 0) {
-                    // console.log(result);
-                    image_list = result;
-                    var error_list;
-                    con5.getConnection(function (err, connection) {
-                        if (err) {
-                            throw err;
-                        }
-                        // connection.query("SELECT FILE from bundleticket_error where DATE='"+date+"' and FILE like '"+group+"%';", function (err, result, fields) {
-                        connection.query("SELECT FILE from bundleticket_error where FILE like '" + groupName + "_" + dateFull + "%' and MODIFIED IS NULL;", function (err, result, fields) {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length > 0) {
-                                error_list = result;
-                                res.send({ image_list: image_list, error_list: error_list });
-                                res.end();
-                            } else {
-                                error_list = 'empty';
-                                res.send({ image_list: image_list, error_list: error_list });
-                                res.end();
+                sql = "SELECT Temp4.ISSUE_FILE, LEFT(Temp4.TICKET, 6) AS BUNDLE, max(QC) as QC, COUNT(Temp4.TICKET) AS ISSUE, COUNT(EMPLOYEE) AS SCAN, COUNT(deactive.TICKET) AS IASCAN, COUNT(Temp4.TICKET)-COUNT(EMPLOYEE)-COUNT(deactive.TICKET) AS IS_FULL, MAX(Temp4.FILE) as FILE, Temp4.TimeUpdate, TimeModified FROM "
+                    + " (SELECT Temp3.FILE AS ISSUE_FILE, Temp3.TICKET, scan.QC, scan.EMPLOYEE, scan.FILE, scan.TimeUpdate, scan.TimeModified FROM employee_scanticket scan RIGHT JOIN "
+                    + " (SELECT TICKET, active2.FILE FROM bundleticket_active active2 INNER JOIN (SELECT distinct active.FILE FROM bundleticket_active active "
+                    + " INNER JOIN (SELECT TICKET FROM employee_scanticket where FILE LIKE '" + groupName + "_" + dateFull + "%') AS Temp1 "
+                    + " ON active.TICKET=Temp1.TICKET) AS Temp2 ON active2.`FILE`=Temp2.FILE WHERE active2.FILE!='0') AS Temp3 ON Temp3.TICKET=scan.TICKET) AS Temp4  LEFT JOIN bundleticket_deactive deactive ON Temp4.TICKET=deactive.TICKET "
+                    + " GROUP BY Temp4.ISSUE_FILE;"
+                console.log(sql);
+                connection.query(sql, function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        // console.log(result);
+                        image_list = result;
+                        var error_list;
+                        con5.getConnection(function (err, connection) {
+                            if (err) {
+                                throw err;
                             }
+                            // connection.query("SELECT FILE from bundleticket_error where DATE='"+date+"' and FILE like '"+group+"%';", function (err, result, fields) {
+                            connection.query("SELECT FILE from bundleticket_error where FILE like '" + groupName + "_" + dateFull + "%' and MODIFIED IS NULL;", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                    error_list = result;
+                                    res.send({ image_list: image_list, error_list: error_list });
+                                    res.end();
+                                } else {
+                                    error_list = 'empty';
+                                    res.send({ image_list: image_list, error_list: error_list });
+                                    res.end();
+                                }
+                            });
                         });
-                    });
-                } else {
-                    res.send({ image_list: 'empty' });
-                    res.end();
-                }
+                    } else {
+                        res.send({ image_list: 'empty' });
+                        res.end();
+                    }
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Cutting/Payroll_Search/GroupNew", error);
     }
 });
 app.post("/Cutting/Payroll_Search/GroupMultipleOperations", function (req, res) {
-    var groupName = req.body.group;
-    var date = req.body.date;
-    // console.log(group, date);
-    con5.getConnection(function (err, connection) {
-        if (err) {
-            connection.release();
-            throw err;
-        }
-        var sql = ("SELECT * FROM "
-            + "(SELECT EMPLOYEE, COUNT(DISTINCT OPERATION_CODE) AS OP_CODE, COUNT(TICKET) AS TICKET, FILE, QC, SUM(IS_FULL) as SUM_FULL FROM employee_scanticket "
-            + " WHERE DATE='" + date + "' AND FILE LIKE '" + groupName + "%'"
-            + " GROUP BY EMPLOYEE, FILE ) AS TEMP "
-            + " WHERE TEMP.OP_CODE>1 and SUM_FULL<200;");
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            if (err) throw err;
-            if (result.length > 0) {
-                // console.log(result);
-                res.send(result);
-                res.end();
-            } else {
-                res.send({ result: 'empty' });
-                res.end();
-            }
-        });
-    });
-});
-app.post('/Cutting/Payroll_Search/Submit', function (req, res) {
-    if (req.isAuthenticated()) {
-        var bundle = req.body.bundle;
-        var ID = req.body.ID;
-        var QC = req.body.QC;
-        var file = req.body.file;
+    try {
+        var groupName = req.body.group;
         var date = req.body.date;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user, file);
+        // console.log(group, date);
         con5.getConnection(function (err, connection) {
             if (err) {
                 connection.release();
                 throw err;
             }
-            connection.query("select EMPLOYEE from employee_scanticket where TICKET='" + bundle + "';", function (err, result, fields) {
+            var sql = ("SELECT * FROM "
+                + "(SELECT EMPLOYEE, COUNT(DISTINCT OPERATION_CODE) AS OP_CODE, COUNT(TICKET) AS TICKET, FILE, QC, SUM(IS_FULL) as SUM_FULL FROM employee_scanticket "
+                + " WHERE DATE='" + date + "' AND FILE LIKE '" + groupName + "%'"
+                + " GROUP BY EMPLOYEE, FILE ) AS TEMP "
+                + " WHERE TEMP.OP_CODE>1 and SUM_FULL<200;");
+            connection.query(sql, function (err, result, fields) {
+                connection.release();
                 if (err) throw err;
-                // console.log(result);
-                // res.setHeader("Content-Type", "application/json");
-                if (result.length == 0) {
-                    console.log('insert ', ID);
-                    connection.query("replace into employee_scanticket"
-                        + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
-                        + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user + "', '" + timeUpdate + "')", function (err, result, fields) {
+                if (result.length > 0) {
+                    // console.log(result);
+                    res.send(result);
+                    res.end();
+                } else {
+                    res.send({ result: 'empty' });
+                    res.end();
+                }
+            });
+        });
+    } catch (error) {
+        logHelper.writeLog("/Cutting/Payroll_Search/GroupMultipleOperations", error);
+    }
+});
+app.post('/Cutting/Payroll_Search/Submit', function (req, res) {
+    try {
+        if (req.isAuthenticated()) {
+            var bundle = req.body.bundle;
+            var ID = req.body.ID;
+            var QC = req.body.QC;
+            var file = req.body.file;
+            var date = req.body.date;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(7, 10), QC, timeUpdate, req.user.username, file);
+            con5.getConnection(function (err, connection) {
+                if (err) {
+                    connection.release();
+                    throw err;
+                }
+                connection.query("select EMPLOYEE from employee_scanticket where TICKET='" + bundle + "';", function (err, result, fields) {
+                    if (err) throw err;
+                    // console.log(result);
+                    // res.setHeader("Content-Type", "application/json");
+                    if (result.length == 0) {
+                        console.log('insert ', ID);
+                        connection.query("replace into employee_scanticket"
+                            + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
+                            + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(7, 10) + "','000','" + QC + "','" + file + "','100','" + req.user.username + "', '" + timeUpdate + "')", function (err, result, fields) {
+                                connection.release();
+                                if (err) throw err;
+                                res.setHeader("Content-Type", "application/json");
+                                res.send({ result: 'done' });
+                                // next();
+                                res.end();
+                            });
+                    } else {
+                        console.log('update ', ID);
+                        connection.query("update employee_scanticket set EMPLOYEE='" + ID + "', QC='" + QC + "', IS_FULL='100', MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "', FILE='" + file + "' where TICKET='" + bundle + "';", function (err, result, fields) {
                             connection.release();
                             if (err) throw err;
                             res.setHeader("Content-Type", "application/json");
@@ -2824,79 +3034,80 @@ app.post('/Cutting/Payroll_Search/Submit', function (req, res) {
                             // next();
                             res.end();
                         });
-                } else {
-                    console.log('update ', ID);
-                    connection.query("update employee_scanticket set EMPLOYEE='" + ID + "', QC='" + QC + "', IS_FULL='100', MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "', FILE='" + file + "' where TICKET='" + bundle + "';", function (err, result, fields) {
-                        connection.release();
-                        if (err) throw err;
-                        res.setHeader("Content-Type", "application/json");
-                        res.send({ result: 'done' });
-                        // next();
-                        res.end();
-                    });
-                }
-
-                // res.send({result:'done'});
-                // res.end();
+                    }
+    
+                    // res.send({result:'done'});
+                    // res.end();
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Cutting/Payroll_Search/Submit", error);
     }
 });
 app.post('/Cutting/Payroll_Search/Submit1', function (req, res) {
-    if (req.isAuthenticated()) {
-        var bundle = req.body.bundle;
-        var ID = req.body.ID;
-        var QC = req.body.QC;
-        var file = req.body.file;
-        var date = req.body.date;
-        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
-        console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(6, 10), QC, timeUpdate, req.user, file);
-        con5.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("replace into employee_scanticket"
-                + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
-                + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(6, 10) + "','000','" + QC + "','" + file + "','100','" + req.user + "', '" + timeUpdate + "')", function (err, result, fields) {
-                    connection.release();
-                    if (err) throw err;
-                    res.send({ result: 'done' });
-                    res.end();
-                });
-        });
-    }
-    else {
-        res.render("login");
+    try {
+        if (req.isAuthenticated()) {
+            var bundle = req.body.bundle;
+            var ID = req.body.ID;
+            var QC = req.body.QC;
+            var file = req.body.file;
+            var date = req.body.date;
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate = localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            console.log(ID, bundle, date, bundle.substring(0, 6), bundle.substring(7, 10), QC, timeUpdate, req.user.username, file);
+            con5.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
+                }
+                connection.query("replace into employee_scanticket"
+                    + " (TICKET, EMPLOYEE, DATE, BUNDLE, OPERATION_CODE, IRR, QC, FILE, IS_FULL, MODIFIED, TimeUpdate)"
+                    + " values ('" + bundle + "', '" + ID + "', '" + date + "','" + bundle.substring(0, 6) + "', '" + bundle.substring(7, 10) + "','000','" + QC + "','" + file + "','100','" + req.user.username + "', '" + timeUpdate + "')", function (err, result, fields) {
+                        connection.release();
+                        if (err) throw err;
+                        res.send({ result: 'done' });
+                        res.end();
+                    });
+            });
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Cutting/Payroll_Search/Submit1", error);
     }
 });
 app.post('/Cutting/Payroll_Search/GetName', function (req, res) {
-    if (req.isAuthenticated()) {
-        var ID = req.body.ID;
-        con2.getConnection(function (err, connection) {
-            if (err) {
-                throw err;
-            }
-            connection.query("Select Name, ID, Line, Shift from setup_emplist where ID like '%" + ID + "' and Type='DR';", function (err, result, fields) {
-                connection.release();
-                if (err) throw err;
-                if (result.length > 0) {
-                    res.send(result);
-                    res.end();
-                } else {
-                    res.send({ result: 'empty' });
-                    res.end();
+    try {
+        if (req.isAuthenticated()) {
+            var ID = req.body.ID;
+            con2.getConnection(function (err, connection) {
+                if (err) {
+                    throw err;
                 }
-
+                connection.query("Select Name, ID, Line, Shift from setup_emplist where ID like '%" + ID + "' and Type='DR';", function (err, result, fields) {
+                    connection.release();
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        res.send(result);
+                        res.end();
+                    } else {
+                        res.send({ result: 'empty' });
+                        res.end();
+                    }
+    
+                });
             });
-        });
-    }
-    else {
-        res.render("login");
+        }
+        else {
+            res.render("login");
+        }
+    } catch (error) {
+        logHelper.writeLog("/Cutting/Payroll_Search/GetName", error);
     }
 });
 app.post('/Cutting/Payroll_Search/GetTimeSheet', function (req, res) {
@@ -2947,7 +3158,7 @@ app.post('/Cutting/Payroll_Search/Skip', function (req, res) {
             if (err) {
                 throw err;
             }
-            connection.query("Update employee_scanticket set IS_FULL='100', QC='" + QC + "', MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
+            connection.query("Update employee_scanticket set IS_FULL='100', QC='" + QC + "', MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
                 function (err, result, fields) {
                     connection.release();
                     if (err) throw err;
@@ -2971,7 +3182,7 @@ app.post('/Cutting/Payroll_Search/Dismiss_error', function (req, res) {
             if (err) {
                 throw err;
             }
-            connection.query("Update bundleticket_error set MODIFIED='" + req.user + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
+            connection.query("Update bundleticket_error set MODIFIED='" + req.user.username + "', TimeModified='" + timeUpdate + "' where FILE='" + file + "';",
                 function (err, result, fields) {
                     connection.release();
                     if (err) throw err;
@@ -3094,8 +3305,7 @@ app.post('/Cutting/Payroll_Search/BundleSearch', function (req, res) {
                 connection.release();
                 if (err) throw err;
                 if (result.length > 0) {
-                    // console.log(result);
-                    res.send(result);
+                    res.send({ result: result });
                     res.end();
                 } else {
                     res.send({ result: 'empty' });
@@ -3120,7 +3330,7 @@ app.post('/Cutting/Payroll_Search/ID', function (req, res) {
             }
             sql = "SELECT e.TICKET, a.OPERATION_CODE, a.EARNED_HOURS, a.UNITS, a.WORK_LOT, a.SAH_ADJ, e.FILE "
                 + " FROM employee_scanticket e inner join bundleticket_active a on e.TICKET=a.TICKET "
-                + " where EMPLOYEE='" + id + "' and e.TimeUpdate<='" + date + " 06:00:00' and e.TimeUpdate>='" + datefrom + " 06:00:00'"
+                + " where EMPLOYEE='" + id + "' and DATE<=DATE_FORMAT('" + date + "','%Y%m%d') and DATE>=DATE_FORMAT('" + datefrom + "','%Y%m%d')"
             // sql="SELECT BUNDLE, OPERATION_CODE, EARNED_HOURS, UNITS, WORK_LOT, FILE FROM"
             //     + " employee_scanticket where EMPLOYEE='"+id+"' and DATE<='"+date+"' and DATE>='"+datefrom+"'";
             connection.query(sql, function (err, result, fields) {
@@ -3166,10 +3376,15 @@ app.post('/Cutting/Payroll_Search/Worklot', function (req, res) {
             connection.release();
             throw err;
         }
-        sql = "SELECT t1.*, r.NAME, r.OP_REG, r.NAMEGROUP FROM "
-            + " (SELECT a.TICKET, a.OPERATION_CODE, s.EMPLOYEE, a.EARNED_HOURS, a.SAH_ADJ, a.UNITS FROM bundleticket_active a LEFT JOIN employee_scanticket s ON a.TICKET=s.TICKET "
-            + " WHERE a.WORK_LOT='" + worklot + "' AND a.`FILE`!='0') t1 LEFT JOIN "
-            + " (SELECT RIGHT(ID, 5) ID, NAME, OP_REG, NAMEGROUP from offstandard_employee_registed WHERE WEEK_REG='41') r ON t1.EMPLOYEE=r.ID ;";
+        // sql = "SELECT t1.*, r.NAME, r.OP_REG, r.NAMEGROUP FROM "
+        //     + " (SELECT a.TICKET, a.OPERATION_CODE, s.EMPLOYEE, a.EARNED_HOURS, a.SAH_ADJ, a.UNITS FROM bundleticket_active a LEFT JOIN employee_scanticket s ON a.TICKET=s.TICKET "
+        //     + " WHERE a.WORK_LOT='" + worklot + "' AND a.`FILE`!='0') t1 LEFT JOIN "
+        //     + " (SELECT RIGHT(ID, 5) ID, NAME, OP_REG, NAMEGROUP from offstandard_employee_registed WHERE WEEK_REG='41') r ON t1.EMPLOYEE=r.ID ;";
+
+        sql = "SELECT bundleticket_active.TICKET, bundleticket_active.CREATE_DATE, bundleticket_active.OPERATION_CODE, "
+            + " bundleticket_active.EARNED_HOURS, bundleticket_active.UNITS, bundleticket_active.FILE, employee_scanticket.DATE, employee_scanticket.EMPLOYEE "
+            + " FROM bundleticket_active left join employee_scanticket on bundleticket_active.TICKET=employee_scanticket.TICKET "
+            + " where bundleticket_active.WORK_LOT='" + worklot + "' and bundleticket_active.TICKET not like '%0109' and bundleticket_active.TICKET not like '%0110' and bundleticket_active.TICKET not like '%0112';";
         // connection.query("SELECT BUNDLE, CREATE_DATE, OPERATION_CODE, EARNED_HOURS, UNITS, FILE FROM bundleticket_active"
         // +" where WORK_LOT='"+worklot+"';", function (err, result, fields) {
         connection.query(sql, function (err, result, fields) {
@@ -3209,6 +3424,7 @@ app.post('/Cutting/Payroll_Search/AQL_detail', function (req, res) {
 });
 app.post('/Cutting/Payroll_Search/WorklotSummary', function (req, res) {
     var worklot = req.body.worklot;
+	worklot = worklot.substring(2);
     con5.getConnection(function (err, connection) {
         if (err) {
             throw err;
@@ -3224,7 +3440,7 @@ app.post('/Cutting/Payroll_Search/WorklotSummary', function (req, res) {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-                res.send(result);
+                res.send({ result: result });
                 res.end();
             } else {
                 var data = { result: 'empty' };
@@ -3238,12 +3454,15 @@ app.post('/Cutting/Payroll_Search/Alert', function (req, res) {
     if (req.isAuthenticated()) {
         var date = req.body.date;
         var datefrom = req.body.datefrom;
+        var groupName = req.body.group;
+        groupF = groupName.substring(0, 3);
+        groupT = groupName.substring(4, 7);
         con5.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
-            sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE OLD_TimeUpdate>='" + datefrom + " 00:00:00' and OLD_TimeUpdate<='" + date + " 23:59:59' "
-                + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and MID(OLD_FILE, 7, 1)!=MID(NEW_FILE, 7, 1) AND HOUR(OLD_TimeUpdate)!=HOUR(New_TIMEUPDATE) and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
+            sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE NEW_FILE like '" + groupName + "%' and OLD_TimeUpdate>='" + datefrom + " 00:00:00' and OLD_TimeUpdate<='" + date + " 23:59:59' "
+                    + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and OLD_FILE != NEW_FILE and OLD_TimeUpdate != New_TIMEUPDATE and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;
@@ -3372,7 +3591,7 @@ app.get("/QC/Endline", function (req, res) {
 });
 app.get("/QC/Report", function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
+        get_dept(req.user.username, function (result) {
             if (result[0].Department == 'QA' || result[0].Department == 'IE') {
                 res.render("QC/Report");
             } else {
@@ -3386,7 +3605,7 @@ app.get("/QC/Report", function (req, res) {
 });
 app.post('/QC/Report/Endline', function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
+        get_dept(req.user.username, function (result) {
             if (result[0].Department == 'QA' || result[0].Department == 'IE') {
                 var datefrom = req.body.datefrom;
                 var shift = req.body.shift;
@@ -3500,8 +3719,8 @@ app.get("/Warehouse/Warehouse", function (req, res) {
 });
 app.get("/Warehouse/Phubai1", function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
-            if (req.user != 'dule4' && result[0].Department != 'LP') {
+        get_dept(req.user.username, function (result) {
+            if (req.user.username != 'dule4' && result[0].Department != 'LP') {
                 res.send('You dont have permission to access this page!');
                 res.end();
             }
@@ -3513,8 +3732,8 @@ app.get("/Warehouse/Phubai1", function (req, res) {
 });
 app.get("/Warehouse/Phubai2", function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
-            if (req.user != 'dule4' && result[0].Department != 'LP') {
+        get_dept(req.user.username, function (result) {
+            if (req.user.username != 'dule4' && result[0].Department != 'LP') {
                 res.send('You dont have permission to access this page!');
                 res.end();
             }
@@ -3526,8 +3745,8 @@ app.get("/Warehouse/Phubai2", function (req, res) {
 });
 app.get("/Warehouse/PhubaiIE", function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
-            if (req.user != 'dule4' && result[0].Department != 'LP') {
+        get_dept(req.user.username, function (result) {
+            if (req.user.username != 'dule4' && result[0].Department != 'LP') {
                 res.send('You dont have permission to access this page!');
                 res.end();
             }
@@ -3542,8 +3761,8 @@ app.get("/Warehouse/Cutting", function (req, res) {
 });
 app.get("/Warehouse/Cutpart", function (req, res) {
     if (req.isAuthenticated()) {
-        get_dept(req.user, function (result) {
-            if (req.user != 'dule4' && result[0].Department != 'LP') {
+        get_dept(req.user.username, function (result) {
+            if (req.user.username != 'dule4' && result[0].Department != 'LP') {
                 res.send('You dont have permission to access this page!');
                 res.end();
             }
@@ -3708,34 +3927,80 @@ cronUpdateTicket.schedule('0 */5 * * * *', function () {
     });
 });
 
-cronUpdateDeactive.schedule('0 */5 * * * *', function () {
-    console.log('start Update Deactive');
-    sql = "UPDATE pr2k.bundleticket_deactive bundleticket_deactive, pr2k.bundleticket_active bundleticket_active "
-        + " SET bundleticket_deactive.WORK_LOT=bundleticket_active.WORK_LOT "
-        + " WHERE bundleticket_deactive.TICKET=bundleticket_active.TICKET AND bundleticket_deactive.WORK_LOT='';"
-    con4.getConnection(function (err, connection) {
-        if (err) {
-            connection.release();
-            throw err;
-        }
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            console.log('update Ticket Deactive');
-            if (err) throw err;
-        });
-    });
-});
+// cronUpdateDeactive.schedule('0 */5 * * * *', function () {
+//     console.log('start Update Deactive');
+//     sql = "UPDATE pr2k.bundleticket_deactive bundleticket_deactive, pr2k.bundleticket_active bundleticket_active "
+//         + " SET bundleticket_deactive.WORK_LOT=bundleticket_active.WORK_LOT "
+//         + " WHERE bundleticket_deactive.TICKET=bundleticket_active.TICKET AND bundleticket_deactive.WORK_LOT='';"
+//     con4.getConnection(function (err, connection) {
+//         if (err) {
+//             connection.release();
+//             throw err;
+//         }
+//         connection.query(sql, function (err, result, fields) {
+//             connection.release();
+//             console.log('update Ticket Deactive');
+//             if (err) throw err;
+//         });
+//     });
+// });
 
-cronUpdateTicketCutting.schedule('0 */7 * * * *', function () {
+// cronUpdateTicketCutting.schedule('0 */7 * * * *', function () {
+//     var yesterdate = new Date();
+//     yesterdate.setDate(yesterdate.getDate() - 7);
+//     var localISOTime_yesterday = yesterdate.toISOString().slice(0, -1).substr(0, 10);
+//     // year=localISOTime_yesterday.substring(0,4);
+//     // month=localISOTime_yesterday.substring(5,7);
+//     // day=localISOTime_yesterday.substring(8,10);
+//     date = localISOTime_yesterday;// year+month+day;
+//     console.log('start Update Ticket information ', date);
+//     sql = "UPDATE cutting_system.employee_scanticket employee_scanticket, cutting_system.bundleticket_active bundleticket_active"
+//         + " SET employee_scanticket.PLANT=bundleticket_active.PLANT, employee_scanticket.EARNED_HOURS=bundleticket_active.EARNED_HOURS,"
+//         + " employee_scanticket.STYLE=bundleticket_active.STYLE,  employee_scanticket.COLOR=bundleticket_active.COLOR,"
+//         + " employee_scanticket.SIZE=bundleticket_active.SIZE, employee_scanticket.UNITS=bundleticket_active.UNITS,"
+//         + " employee_scanticket.OPERATION=bundleticket_active.OPERATION, employee_scanticket.WORK_LOT=bundleticket_active.WORK_LOT"
+//         + " WHERE employee_scanticket.TICKET=bundleticket_active.TICKET AND employee_scanticket.UNITS IS NULL and employee_scanticket.TimeUpdate>='" + date + " 00:00:00' ;"
+//     con5.getConnection(function (err, connection) {
+//         if (err) {
+//             throw err;
+//         }
+//         connection.query(sql, function (err, result, fields) {
+//             connection.release();
+//             console.log('update Ticket Cutting Done');
+//             if (err) throw err;
+//         });
+//     });
+// });
+
+// cronUpdateDeactiveCutting.schedule('0 */7 * * * *', function () {
+//     console.log('start Update Deactive');
+//     sql = "UPDATE cutting_system.bundleticket_deactive bundleticket_deactive, cutting_system.bundleticket_active bundleticket_active "
+//         + " SET bundleticket_deactive.WORK_LOT=bundleticket_active.WORK_LOT "
+//         + " WHERE bundleticket_deactive.TICKET=bundleticket_active.TICKET AND bundleticket_deactive.WORK_LOT='';"
+//     con5.getConnection(function (err, connection) {
+//         if (err) {
+//             connection.release();
+//             throw err;
+//         }
+//         connection.query(sql, function (err, result, fields) {
+//             connection.release();
+//             console.log('update Ticket Cutting Deactive');
+//             if (err) throw err;
+//         });
+//     });
+// });
+
+// Crontab Cutting Realtime
+cronUpdateTicket.schedule('0 */5 * * * *', function () {
     var yesterdate = new Date();
-    yesterdate.setDate(yesterdate.getDate() - 7);
+    yesterdate.setDate(yesterdate.getDate() - 1);
     var localISOTime_yesterday = yesterdate.toISOString().slice(0, -1).substr(0, 10);
     // year=localISOTime_yesterday.substring(0,4);
     // month=localISOTime_yesterday.substring(5,7);
     // day=localISOTime_yesterday.substring(8,10);
     date = localISOTime_yesterday;// year+month+day;
     console.log('start Update Ticket information ', date);
-    sql = "UPDATE cutting_system.employee_scanticket employee_scanticket, cutting_system.bundleticket_active bundleticket_active"
+    sql = "UPDATE employee_scanticket employee_scanticket, bundleticket_active bundleticket_active"
         + " SET employee_scanticket.PLANT=bundleticket_active.PLANT, employee_scanticket.EARNED_HOURS=bundleticket_active.EARNED_HOURS,"
         + " employee_scanticket.STYLE=bundleticket_active.STYLE,  employee_scanticket.COLOR=bundleticket_active.COLOR,"
         + " employee_scanticket.SIZE=bundleticket_active.SIZE, employee_scanticket.UNITS=bundleticket_active.UNITS,"
@@ -3747,25 +4012,7 @@ cronUpdateTicketCutting.schedule('0 */7 * * * *', function () {
         }
         connection.query(sql, function (err, result, fields) {
             connection.release();
-            console.log('update Ticket Cutting Done');
-            if (err) throw err;
-        });
-    });
-});
-
-cronUpdateDeactiveCutting.schedule('0 */7 * * * *', function () {
-    console.log('start Update Deactive');
-    sql = "UPDATE cutting_system.bundleticket_deactive bundleticket_deactive, cutting_system.bundleticket_active bundleticket_active "
-        + " SET bundleticket_deactive.WORK_LOT=bundleticket_active.WORK_LOT "
-        + " WHERE bundleticket_deactive.TICKET=bundleticket_active.TICKET AND bundleticket_deactive.WORK_LOT='';"
-    con5.getConnection(function (err, connection) {
-        if (err) {
-            connection.release();
-            throw err;
-        }
-        connection.query(sql, function (err, result, fields) {
-            connection.release();
-            console.log('update Ticket Cutting Deactive');
+            console.log('update Ticket Done');
             if (err) throw err;
         });
     });

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Receive Scan Barcode</title>
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script src="/Contents/libs/swal.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .fabric-inventory-table {
+            height: 500px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
+
+        .pagination-area a {
+            border: none;
+            background-color: transparent;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .paging-textbox {
+            width: 90px;
+            height: 30px;
+            display: inline-block;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+<%
+    var wh_disabled = user.position == "Admin" || user.dept == "Warehouse" ? "" : "display-none";
+%>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Cutting Fabric Receive</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <%- include ("partialMenuBar.ejs"); -%>
+                        </div>
+                    </div>
+                    <div class="bg-white fabric-receive mt-3">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="d-flex pr-4 mt-1">
+                                <div class="p-0">
+                                    <div class="input-group mr-2">
+                                        <button class="btn btn-success btn-sm <%= wh_disabled %>" onclick="getDataFromTTS()"><i class="fa fa-download"></i> &nbsp; Lấy dữ liệu tồn kho từ TTS</button>
+                                        <button type="button" class="btn btn-success dropdown-toggle btn-sm <%= wh_disabled %>" data-toggle="dropdown">
+                                            <span class="fa fa-angle-down"></span>
+                                        </button>
+                                        <div class="dropdown-menu p-3" style="left: 183px">
+                                            <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-0 mb-3 mr-2">
+                                    <div class="btn-group btn-filter">
+                                        <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
+                                            <span class="fa fa-search"></span> Filter
+                                        </button>
+                                        <div class="dropdown-menu p-3" style="width: 300px;">
+                                            <form class="form-inline" id="formTRReport">
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Unipack</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtUnipack">
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Item color</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtItemColor">
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <label for="" class="col-form-label">Plant</label>
+                                                        <div class="input-group w-100">
+                                                            <select class="form-control w-100" name="" id="txtFilterPlant">
+                                                                <option value=""> All </option>
+                                                                <option value="92"> 92 </option>
+                                                                <option value="95"> 95 </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <label for="" class="col-form-label">Status</label>
+                                                        <div class="input-group w-100">
+                                                            <select class="form-control w-100" name="" id="txtFilterStatus">
+                                                                <option value=""> All </option>
+                                                                <option value="0"> Not Used </option>
+                                                                <option value="1"> Used </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <label for="" class="col-form-label">Note</label>
+                                                        <input type="text" class="form-control w-100" id="txtFilterNote">
+                                                    </div>
+                                                </div>
+                                                <div class="justify-content-between align-items-center mt-3 text-right">
+                                                    <!-- <button type="button" class="btn btn-light btn-sm" onclick="downloadInventoryData()">Download</button> -->
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="getInventoryData(1)">Search</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <span class="w-50">
+                                    <strong>Danh sách vải tồn kho</strong> 
+                                </span>
+                                <span class="w-50 text-right">
+                                    <strong>User update:</strong> 
+                                    <span id="lbUserUpdate"></span>
+                                    &nbsp;
+                                    <strong>Lastest update:</strong> 
+                                    <span id="lbLastestUpdate"></span>
+                                </span>
+                            </div>
+                            <div class="col-sm-12 col-md-12 pl-0 pr-0 fabric-inventory-table">
+                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                    <thead class="sticky-thead">
+                                        <th>Status</th>
+                                        <th>Note</th>
+										<th>Plant</th>
+                                        <th>Unipack</th>
+                                        <th>Item Color</th>
+                                        <th>Lbs</th>
+                                        <th>Yard</th>
+                                        <th>Bin</th>
+                                        <th>Grade</th>
+                                        <th>Shade</th>
+                                        <th>QC Comment</th>
+                                        <th>With Actual</th>
+                                        <th>Vendor</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody id="fabric-table-body">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <table class="w-100">
+                                <tr>
+                                    <td class="text-left border-0 " colspan="4">
+                                        <div class="pagination-area">
+                                            <span class="pagination-current"></span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right float-right border-0 mt-2" colspan="10">
+                                        <div class="pagination-area d-flex">
+                                            <a href="javascript:void(0)" onclick="currentPage = 1; getInventoryData(currentPage)">Đầu</a>
+                                            <a href="javascript:void(0)" onclick="currentPage = currentPage - 1; getInventoryData(currentPage)">Trước</a>
+                                            <input class="form-control form-control-sm paging-textbox" type="number" onchange="getInventoryData(this.value)" min="1" max="" />
+                                            <span class="mt-2">
+                                                &nbsp; / <span id="txtTotalPage">5</span>
+                                            </span>
+                                            <a href="javascript:void(0)" on onclick="currentPage = parseInt(currentPage) + 1; getInventoryData(currentPage)">Sau</a>
+                                            <a href="javascript:void(0)" onclick="currentPage = totalPage; getInventoryData(currentPage)">Cuối</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </main>
+    </div>
+
+    <div class="modal fade" id="modalUploadInventoryData" aria-labelledby="exampleModalLabel" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Upload dữ liệu vải tồn kho</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
+                <div class="modal-body">
+                    <table class="w-100">
+                        <tbody>
+                            <tr>
+                                <label class="drop-file-box">
+                                    <span class="fa fa-cloud-upload" aria-hidden="true"></span>
+                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX, XLSB</span>
+                                    <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls, .xlsb" style="display: none">
+                                </label>    
+                            </tr>
+                            <tr>
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <td>Name</td>
+                                            <td>Sheets</td>
+                                            <td>Header row</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="file-table-body">
+
+                                    </tbody>
+                                </table>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="saveUploadData()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalUpdateRoll" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật thông tin cuộn vải</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
+                <div class="modal-body">
+                    <input type="hidden" class="form-control" id="txtURollId">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="">Unipack</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtURollUnipack" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="">Yard</label>
+                            <div class="">
+                                <input type="number" class="form-control" id="txtURollYard" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="updateRoll()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Cutting/fabricInventoryData.js"></script>
+</body>
+
+</html>

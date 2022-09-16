@@ -18,7 +18,11 @@
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        
+        .import-table{
+            height: 600px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
     </style>
 
 </head>
@@ -28,7 +32,7 @@
         <header class="mdl-layout__header">
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">INNOVATION</span>
-                <%- include ("../partials/headerTemplate.ejs"); -%>
+                <%- include ("../../headerTemplate.ejs"); -%>
             </div>
         </header>
         <%- include ("../partials/navTemplate.ejs"); -%>
@@ -45,70 +49,115 @@
                         <div class="bg-white">
                             <div class="d-sm-block">
                                 <div class="mdl-tabs__panel is-active">
-                                    <div class="d-flex pl-4 pr-4 mt-3">
+                                    <div class="d-flex pl-4 pr-4">
                                         <div class="p-0">
                                             <div class="input-group">
-                                                <a href="/innovation/import/add" class="btn btn-success"><i class="fa fa-plus"></i></a>
+                                                <a href="/innovation/import/add" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Add</a>
                                             </div>
                                         </div>
-                                        <div class="p-0 pl-2 mb-3">
-                                            <div class="btn-group btn-filter">
-                                                <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
-                                                    <span class="fa fa-filter"></span>
-                                                </button>
-                                                <div class="dropdown-menu p-3" style="width: 220px; left: -30px;">
-                                                    <form class="form-inline" id="">
-                                                        <div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Ngày nhập</p>
-                                                                <input type="text" class="form-control isDate" id="txtImportDate" placeholder="">
+                                        <div class="btn-group btn-filter pl-2">
+                                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                                                <span class="fa fa-search"></span> Filter
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                <form class="form-inline">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Nhà cung cấp</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtFilterVendor" placeholder="">
+                                                    </div>
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Thời gian</strong></p>
+                                                        <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
+                                                            
+                                                        </select>
+                                                    </div>
+                                                    <div id="importFilterPickTime" style="display: none">
+                                                        <div class="d-flex">
+                                                            <div class="">
+                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterFromDate" />
                                                             </div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Nhà cung cấp</p>
-                                                                <input type="text" class="form-control" id="txtVendor" placeholder="">
+                                                            <div class="ml-2">
+                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterToDate" />
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1"><strong>Chi phí nhập</strong></p>
-                                                                <select class="form-control w-100" name="" id="txtTime">
-                                                                    
-                                                                </select>
+                                                    </div>
+                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="getAllRequest()">Search</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="btn-group btn-filter pl-2">
+                                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                                                <span class="fa fa-download"></span> Report
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                <form class="form-inline" id="">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Nhà cung cấp</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtReportVendor" placeholder="">
+                                                    </div>
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Thời gian</strong></p>
+                                                        <select class="form-control w-100" name="" id="txtReportTime" onchange="changeDateReport()">
+                                                            
+                                                        </select>
+                                                    </div>
+                                                    <div id="importFilterPickTime" style="display: none">
+                                                        <div class="d-flex">
+                                                            <div class="">
+                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtReportFromDate" />
+                                                            </div>
+                                                            <div class="ml-2">
+                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtReportToDate" />
                                                             </div>
                                                         </div>
-                                                        <div class="justify-content-between align-items-center mt-3 text-right">
-                                                            <button type="button" class="btn btn-success btn-sm" onclick="downloadReport()" >Tải xuống</button>
-                                                            <button type="button" class="btn btn-success btn-sm" onclick="getAllRequest()" >Lọc</button>
+                                                    </div>
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <p class="mb-1"><strong>Loại file</strong></p>
+                                                            <select class="form-control w-100" name="" id="txtDownloadType">
+                                                                <option value="0">Tất cả</option>
+                                                                <option value="1">Chi phí nhập theo part</option>
+                                                                <option value="2">Xuất bên kho</option>
+                                                            </select>
                                                         </div>
-                                                    </form>
-                                                </div>
-                                            </div>                                                  
+                                                    </div>
+                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                         <div class="justify-content-end pl-2">
                                             <div class="input-group">
-                                                <input type="text" class="form-control" id="txtPO" placeholder="Số PO">
+                                                <input type="text" class="form-control form-control-sm" id="txtPO" placeholder="Số PO">
                                                 <span class="input-group-btn">
-                                                    <button class="btn btn-success" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
+                                                    <button class="btn btn-success btn-sm" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="">
-                                        <table class="table table-hover table-bordered table-scrollable mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th width='10%'>#</th>
-                                                    <th width='20%'>PO</th>
-                                                    <th width='30%'>Date</th>
-                                                    <th width='30%'>Vendor</th>
-                                                    <th width='10%'></th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                        <div class="onscrollbar onscrollbar-import" style="overflow: auto;">
-                                            <table class="table table-hover table-bordered m-0">
+                                    <div class="mt-2">
+                                        <div class="import-table">
+                                            <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                <thead class="sticky-thead">
+                                                    <tr>
+                                                        <th width='10%'>#</th>
+                                                        <th width='15%'>PO</th>
+                                                        <th width='15%'>Date</th>
+                                                        <th width='20%'>Vendor</th>
+                                                        <th width='20%'>Nội dung</th>
+                                                        <th width='10%'>Thành tiền</th>
+                                                        <th width='10%'></th>
+                                                    </tr>
+                                                </thead>
                                                 <tbody id="import-table-body">
-                                                                                                     
+                                                                                                         
                                                 </tbody>
                                             </table>
                                         </div>
@@ -177,15 +226,15 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="panel-footer pl-4">
+                        <!-- <div class="panel-footer pl-4">
                             <button onclick="addRow()"><i class="fa fa-plus"></i></button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="modal-footer pr-0 mt-0">
                     <div class="col-sm-12 col-md-12">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="updateRequest()">Update</button>
+                        <!-- <button type="button" class="btn btn-success" onclick="updateRequest()">Update</button> -->
                     </div>
                 </div>
             </div>

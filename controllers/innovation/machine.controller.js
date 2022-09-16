@@ -1,18 +1,211 @@
-var formidable = require('formidable');
-var fs = require('fs');
-var Database = require("../../common/db.js")
+var Database = require("../../database/db.js")
 const db = new Database();
 const helper = require('../../common/helper.js');
 const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
+const innovationService = require("../../services/Innovation/innovation.service");
 
-// Machine
 module.exports.getMachineIndex = function (req, res) {
     res.render('Innovation/Machine/MachineIndex');
 }
 
+// Sewing Machine
+module.exports.getSewingMachine = function (req, res) {
+    try {
+        //parameters
+        let zone = req.body.zone;
+        let line = req.body.line;
+        let status = req.body.status;
+        let tag = req.body.tag;
+        // execute
+        db.excuteSP(`CALL USP_Sewing_Machine_Get ('${zone}', '${line}', '${status}', '${tag}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.getSewingMachine", error);
+    }
+}
+
+module.exports.addSewingMachine = async function (req, res) {
+    try {
+        //parameters
+        let sewingMachine = req.body.sewingMachine;
+
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNow();
+
+        // execute
+        let idInserted = await innovationService.addSewingMachine({
+            serialNo: sewingMachine.serialNo,
+            tag: sewingMachine.tag,
+            machineModel: sewingMachine.machineModel,
+            mecLocation: sewingMachine.mecLocation,
+            line: sewingMachine.line,
+            position: sewingMachine.position,
+            description: sewingMachine.description,
+            status: sewingMachine.status,
+            lastUpdate: datetime,
+            userUpdate: user
+        });
+        if (idInserted <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Thêm thông tin máy may không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Thêm thông tin máy may thành công." }));
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.addSewingMachine", error);
+    }
+}
+
+module.exports.updateSewingMachine = async function (req, res) {
+    try {
+        //parameters
+        let sewingMachine = req.body.sewingMachine;
+
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNow();
+
+        // execute
+        let affectedRows = await innovationService.updateSewingMachine({
+            id: sewingMachine.id,
+            serialNo: sewingMachine.serialNo,
+            tag: sewingMachine.tag,
+            machineModel: sewingMachine.machineModel,
+            mecLocation: sewingMachine.mecLocation,
+            line: sewingMachine.line,
+            position: sewingMachine.position,
+            description: sewingMachine.description,
+            status: sewingMachine.status,
+            lastUpdate: datetime,
+            userUpdate: user
+        });
+        if (affectedRows <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin máy may không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Cập nhật thông tin máy may thành công." }));
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.updateSewingMachine", error);
+    }
+}
+
+module.exports.updatePositionSewingMachine = async function (req, res) {
+    try {
+        //parameters
+        let sewingMachine = req.body.sewingMachine;
+
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNow();
+
+        // execute
+        let affectedRows = await innovationService.updatePositionSewingMachine({
+            id: sewingMachine.id,
+            line: sewingMachine.newLine,
+            position: sewingMachine.newPosition,
+            preLine: sewingMachine.oldLine,
+            prePosition: sewingMachine.oldPosition,
+            lastUpdate: datetime,
+            userUpdate: user
+        });
+        if (affectedRows <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật vị trí máy may không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Cập nhật vị trí máy may thành công." }));
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.updateSewingMachine", error);
+    }
+}
+
+module.exports.getSewingMachineDetail = async function (req, res) {
+    try {
+        //parameters
+        let id = req.params.id;
+
+        // execute
+        let result = await innovationService.getSewingMachineDetail({
+            id: id,
+        });
+        if (result[0].length <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Lấy thông tin máy may không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result[0] }));
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.getMachineDetail", error);
+    }
+}
+
+module.exports.getPositionHistory = async function (req, res) {
+    try {
+        //parameters
+        let sewingMachine = req.body.sewingMachine;
+        let time = sewingMachine.filterDate.split(";");
+        // execute
+         db.excuteSP(`CALL USP_Sewing_Machine_Position_History_Get ('${sewingMachine.tag}', '${time[0]}', '${time[1]}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.getPositionHistory", error);
+    }
+}
+
+module.exports.downloadPositionHistory = async function (req, res) {
+    try {
+        //parameters
+        let sewingMachine = req.body.sewingMachine;
+        let time = sewingMachine.filterDate.split(";");
+        // execute
+         db.excuteSP(`CALL USP_Sewing_Machine_Position_History_Get ('${sewingMachine.tag}', '${time[0]}', '${time[1]}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let jsonHistory = JSON.parse(JSON.stringify(result.data));
+
+                let workbook = new excel.Workbook(); //creating workbook
+                let worksheet = workbook.addWorksheet('History'); //creating worksheet
+
+                //  WorkSheet Header
+                worksheet.columns = [
+                    { header: 'Tag', key: 'tag', width: 10 },
+                    { header: 'Model', key: 'machine_model', width: 30 },
+                    { header: 'Pre Line', key: 'pre_line', width: 30 },
+                    { header: 'Pre Position', key: 'pre_position', width: 30 },
+                    { header: 'Line', key: 'line', width: 30 },
+                    { header: 'Position', key: 'position', width: 30 },
+                    { header: 'Status', key: 'status', width: 30 },
+                    { header: 'Time Update', key: 'time_update', width: 30 },
+                    { header: 'User Update', key: 'user_update', width: 30 },
+                ];
+
+                // Add Array Rows
+                worksheet.addRows(jsonHistory);
+
+                // Write to File
+                let filename = "templates/sewing_machine_moving_position_history.xlsx";
+                workbook.xlsx.writeFile(filename).then(function () {
+                    res.download(filename);
+                });
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.getPositionHistory", error);
+    }
+}
+
+// Machine
 module.exports.getMachine = function (req, res) {
     try {
         //parameters
@@ -139,7 +332,7 @@ module.exports.downloadMachine = function (req, res) {
                 worksheet.addRows(jsonMachine);
 
                 // Write to File
-                let filename = "\machine.xlsx";
+                let filename = "templates/machine.xlsx";
                 workbook.xlsx.writeFile(filename).then(function () {
                     res.download(filename);
                 });
@@ -283,7 +476,7 @@ module.exports.downloadModel = function (req, res) {
                 worksheet.addRows(jsonModel);
 
                 // Write to File
-                let filename = "\model.xlsx";
+                let filename = "templates/model.xlsx";
                 workbook.xlsx.writeFile(filename).then(function () {
                     res.download(filename);
                 });

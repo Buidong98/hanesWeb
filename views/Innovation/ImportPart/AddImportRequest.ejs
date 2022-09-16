@@ -9,12 +9,14 @@
 
     <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
     <link rel="stylesheet" href="/Contents/css/main.css">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
@@ -28,7 +30,7 @@
         <header class="mdl-layout__header">
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">INNOVATION</span>
-                <%- include ("../partials/headerTemplate.ejs"); -%>
+                <%- include ("../../headerTemplate.ejs"); -%>
             </div>
         </header>
         <%- include ("../partials/navTemplate.ejs"); -%>
@@ -51,11 +53,11 @@
                                     <div class="panel-body">
                                         <div class="form-row">
                                             <div class="col-md-2 pl-0 pr-2">
-                                                <label for="txtWO">PO</label>
+                                                <label for="txtWO">PO <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="txtPO" placeholder="" autofocus="">
                                             </div>
                                             <div class="col-md-2 pl-0 pr-2">
-                                                <label for="txtSellingStyle">Ngày nhập</label>
+                                                <label for="txtSellingStyle">Ngày nhập <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control isDate" id="txtImportDate" placeholder="">
                                             </div>
                                             <div class="col-md-2 pl-0 pr-2">
@@ -67,7 +69,7 @@
                                                 <input type="text" class="form-control" id="txtDeliverer" placeholder="">
                                             </div>
                                             <div class="col-md-2 pl-0 pr-2">
-                                                <label for="txtMnfColor">Người nhận</label>
+                                                <label for="txtMnfColor">Người nhận <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="txtReceiver" placeholder="">
                                             </div>
                                             <button class="btn btn-success btn-position" onclick="addRequest()">Thêm</button>
@@ -76,28 +78,29 @@
                                 </div>
 
                                 <div class="panel panel-default">
-                                    <div class="panel-heading"><b>Danh sách vật tư</b></div>
+                                    <div class="panel-heading">
+                                        <b>Danh sách vật tư</b>
+                                        <span class="text-danger"><i> (Những vật tư chưa có trong hệ thống sẽ được tự động thêm vào hệ thống. Vui lòng nhập vị trí của vật tư đó. 
+                                            Các thông tin còn thiếu vui lòng cập nhật trong mục quản lý danh mục vật tư)</i>
+                                        </span>
+                                    </div>
                                     <div class="panel-body p-0">
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr class="text-center">
-                                                    <th>Tên part</th>
-                                                    <th>Part code</th>
+                                                    <th>Tên vật tư</th>
+                                                    <th>Code</th>
+                                                    <th>ID</th>
+                                                    <th>Model</th>
                                                     <th>Đơn vị</th>
+                                                    <th>Vị trí</th>
                                                     <th>SL PO</th>
-                                                    <th>SL nhập</th>
+                                                    <th>SL nhập <span class="text-danger">*</span></th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-part-body">
-                                                <!-- <tr>
-                                                    <td><input type="text" class="form-control partCode"></td>
-                                                    <td><input type="text" class="form-control partName"></td>
-                                                    <td><input type="text" class="form-control unit"></td>
-                                                    <td><input type="text" class="form-control qtyPO"></td>
-                                                    <td><input type="text" class="form-control qtyImport"></td>
-                                                    <td><button class="btn btn-outline-success" onclick="deleteRow(event, 1)"><i class="fa fa-close"></i></button></td>
-                                                </tr> -->
+                                               
                                             </tbody>
                                         </table>
                                     </div>

@@ -19,12 +19,18 @@ $(document).on('click', '.day', function (e) {
 $(document).ready(function () {
 
     // init time picker
-    let html = "";
+    let date = new Date().toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    });
+    let html = `<option value='${date};${date}' selected>Hôm nay</option>`;
     for (let i = 0; i < Timepickers.length; i++) {
         let ele = Timepickers[i];
         html += `<option value='${ele.value}'>${ele.text}</option>`
     }
-    $("#txtTime").append(html);
+    $("#txtFilterTime").append(html);
+    $("#txtReportTime").append(html);
 
     // init datepicker for all input date type
     $('.isDate').datepicker({
@@ -36,10 +42,29 @@ $(document).ready(function () {
     getAllRequest();
 })
 
+function changeDateFilter(){
+    let val = $("#txtFilterTime").val();
+    if (val.toString() == "5") 
+        $("#importFilterPickTime").css("display", "block");
+    else
+        $("#importFilterPickTime").css("display", "none");
+}
+
+function changeDateReport(){
+    let val = $("#txtReportTime").val();
+    if (val.toString() == "5") 
+        $("#importReportPickTime").css("display", "block");
+    else
+        $("#importReportPickTime").css("display", "none");
+}
+
 function getAllRequest(){
     let po = $("#txtPO").val();
-    let importDate = $("#txtImportDate").val();
-    let vendor = $("#txtVendor").val();
+    let importDate = $("#txtFilterTime").val();
+    if (importDate.toString() == "5") {
+        importDate = $("#txtFilterFromDate").val() + ";" + $("#txtFilterToDate").val();
+    }
+    let vendor = $("#txtFilterVendor").val();
 
     let action = baseUrl + 'get';
     let datasend = {
@@ -57,9 +82,11 @@ function getAllRequest(){
                 let ele = data[i];
                 html += "<tr>"
                         + "<td width='10%'>"+ ele.id +"</td>"
-                        + "<td width='20%'>"+ ele.po +"</td>"
-                        + "<td width='30%'>"+ ele.import_date +"</td>"
-                        + "<td width='30%'>"+ ele.vendor +"</td>"
+                        + "<td width='15%'>"+ ele.po +"</td>"
+                        + "<td width='15%'>"+ ele.import_date +"</td>"
+                        + "<td width='20%'>"+ ele.vendor +"</td>"
+                        + "<td width='20%'>"+ ele.part_name +"</td>"
+                        + "<td width='10%'>"+ ele.total_money +"</td>"
                         + "<td width='10%'><a href='javascript:void(0)' onclick='getImportDetail("+ ele.id +")'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
                         + "</tr>";
             }
@@ -79,12 +106,12 @@ var listPart = [];
 function updateRequest(){
     listPart = [];
 
-    let id =  $("#txtDId");
-    let po =  $("#txtDPO");
-    let importDate =  $("#txtDImportDate");
-    let vendor =  $("#txtDVendor");
-    let deliverer =  $("#txtDDeliverer");
-    let receiver =  $("#txtDReceiver");
+    let id = $("#txtDId");
+    let po = $("#txtDPO");
+    let importDate = $("#txtDImportDate");
+    let vendor = $("#txtDVendor");
+    let deliverer = $("#txtDDeliverer");
+    let receiver = $("#txtDReceiver");
 
     if (!CheckNullOrEmpty(importDate, "Ngày nhập không được để trống"))
         return false;
@@ -167,10 +194,14 @@ function getImportDetail(id){
                 html += `<tr id="tr-${idx}">                   
                     <td>
                         <input type="text" class="form-control partName" value='${ele.part_name}' data-value='${idx}' id='name-${idx}'>
-                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 250px; overflow-y: scroll; border-radius: 3px; background: whitesmoke;">
                         </div>
                     </td>
-                    <td><input type="text" class="form-control partCode" value='${ele.part_code}' id='code-${idx}'></td>
+                    <td>
+                        <input type="text" class="form-control partCode" value='${ele.part_code}' data-value='${idx}' id='code-${idx}'>
+                        <div class="d-none search-code-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 250px; overflow-y: scroll; border-radius: 3px; background: whitesmoke;">
+                        </div>
+                    </td>
                     <td><input type="text" class="form-control unit" value='${ele.unit}' id='unit-${idx}'></td>
                     <td><input type="text" class="form-control qtyPO" value='${ele.qty_po}'></td>
                     <td><input type="text" class="form-control qtyImport" value='${ele.qty_real}'></td>
@@ -201,10 +232,14 @@ function addRow(){
     let html = `<tr id="tr-${idx}">
                     <td>
                         <input type="text" class="form-control partName" data-value='${idx}' id='name-${idx}'>
-                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: auto; border-radius: 3px; background: whitesmoke;">
+                        <div class="d-none search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 250px; overflow-y: scroll; border-radius: 3px; background: whitesmoke;">
                         </div>
                     </td>
-                    <td><input type="text" class="form-control partCode" id='code-${idx}'></td>
+                    <td>
+                        <input type="text" class="form-control partCode" data-value='${idx}' id='code-${idx}'>
+                        <div class="d-none search-code-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 250px; overflow-y: scroll; border-radius: 3px; background: whitesmoke;">
+                        </div>
+                    </td>
                     <td><input type="text" class="form-control unit" id='unit-${idx}'></td>
                     <td><input type="number" class="form-control qtyPO"></td>
                     <td><input type="number" class="form-control qtyImport"></td>
@@ -229,9 +264,11 @@ function deleteRow(e, idx){
 // tìm kiếm part
 // $(".partName").on("keyup", $.debounce(250, searchPart));
 $(document).on("keyup", ".partName", $.debounce(250, searchPart));
+$(document).on("keyup", ".partCode", $.debounce(250, searchPartCode));
 var partArrSearch = [];
 
 function searchPart() {
+    partArrSearch = [];
     let currentInput = $(this);
     let dataValue = currentInput.attr("data-value");
     let keyword = currentInput.val();
@@ -240,6 +277,60 @@ function searchPart() {
             let datasend = {
                 keyword: keyword,
                 pageSize: 5
+            }
+            let action = "/innovation/suggest";
+            PostDataAjax(action, datasend, function (response) {
+                LoadingHide();
+                setTimeout(function () {
+                    if (response.rs) {
+                        if (response.data.length >= 1) {
+                            let data = response.data;
+                            partArrSearch = data;
+                            let html = "";
+                            for (let i = 0; i < data.length; i++) {
+                                let ele = data[i];
+                                html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ", "+ dataValue +")'>"
+                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<div class=''>"
+                                    + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
+                                    + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
+                                    + "</div>"
+                                    + "</div>";
+                            }
+
+                            currentInput.next().removeClass('d-none');
+                            currentInput.next().html('');
+                            currentInput.next().html(html);
+                        }
+                        else {
+                            currentInput.next().addClass('d-none');
+                            currentInput.next().html('');
+                        }
+                    }
+                    else {
+                        currentInput.next().addClass('d-none');
+                        currentInput.next().html('');
+                    }
+                });
+            });
+        } else {
+            currentInput.next().addClass('d-none');
+            currentInput.next().html('');
+        }
+    });
+}
+
+function searchPartCode() {
+    partArrSearch = [];
+    let currentInput = $(this);
+    let dataValue = currentInput.attr("data-value");
+    let keyword = currentInput.val();
+    setTimeout(function () {
+        if (keyword.length >= 1) {
+            let datasend = {
+                keyword: keyword,
+                pageSize: 5,
+                type: 1
             }
             let action = "/innovation/suggest";
             PostDataAjax(action, datasend, function (response) {
@@ -298,17 +389,24 @@ function selectPart(id, value) {
     // close search result panel
     $(".search-result-panel").addClass('d-none');
     $(".search-result-panel").html('');
+    $(".search-code-result-panel").addClass('d-none');
+    $(".search-code-result-panel").html('');
 }
 
-function downloadReport(){
+function report(){
     LoadingShow();
-    let vendor = $("#txtVendor").val();
-    let filterDate = $("#txtTime").val();
+    let vendor = $("#txtReportVendor").val();
+    let importDate = $("#txtReportTime").val();
+    let txtDownloadType = $("#txtDownloadType").val();
+    if (importDate.toString() == "5") {
+        importDate = $("#txtReportFromDate").val() + ";" + $("#txtReportToDate").val();
+    }
 
     let action = baseUrl + 'download';
     let datasend = {
         vendor: vendor,
-        filterDate: filterDate
+        downloadType: txtDownloadType,
+        importDate: importDate
     };
 
     fetch(action, {

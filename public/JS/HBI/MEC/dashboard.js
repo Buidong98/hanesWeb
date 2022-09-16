@@ -2,7 +2,7 @@ var baseUrl = "/innovation/dashboard/";
 
 // Refresh data
 function refresh() {
-    window.location.href = '/innovation/import';
+    window.location.href = baseUrl;
 }
 
 $(document).on('click', '.dropdown-menu', function (e) {
@@ -22,7 +22,7 @@ $(document).ready(function () {
     let html = "";
     for (let i = 0; i < Timepickers.length; i++) {
         let ele = Timepickers[i];
-        html += `<option value='${ele.value}'>${ele.text}</option>`
+        html += `<option value='${ele.value}' ${ele.default}>${ele.text}</option>`
     }
     $("#txtTime").append(html);
 
@@ -34,8 +34,38 @@ $(document).ready(function () {
 
     // initing data
     getAllRequest();
-    reDrawPieChart(["Part 1", "Part 2", "Part 3"], [50, 30, 15]);
+    getPieChartData();
 })
+
+function changeDateFilter(){
+    let val = $("#txtTime").val();
+    if (val.toString() == "5") 
+        $("#importPickTime").css("display", "block");
+    else
+        $("#importPickTime").css("display", "none");
+}
+
+function getPieChartData(){
+    let importDate = $("#txtTime").val();
+    if (importDate.toString() == "5") {
+        importDate = $("#txtFromDate").val() + ";" + $("#txtToDate").val();
+    }
+    let action = baseUrl + 'get-pie-chart';
+    let datasend = {
+        importDate: importDate,
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if(response.rs){
+            let data = response.data;
+            reDrawPieChart(data.labels, data.data);
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
 
 function getAllRequest(){
      
@@ -89,6 +119,14 @@ function redrawBarChart(importData, exportData) {
         },
         options: {
             maintainAspectRatio: false,
+            legend: {
+                position: "right",
+                reverse: true,
+                labels: {
+                    fontColor: '#333',
+                    fontSize: 8
+                }
+            },
             layout: {
                 padding: {
                     left: 10,
@@ -147,32 +185,39 @@ function redrawBarChart(importData, exportData) {
 }
 
 // Pie Chart
+var myChart;
 function reDrawPieChart(labels, data) {
-    var ctx = document.getElementById("myPieChart");
-    var myPieChart = new Chart(ctx, {
+    if (window.myChart) {
+        window.myChart.destroy();
+    }
+    var ctx = document.getElementById("myPieChart").getContext("2d");;
+    window.myChart = new Chart(ctx, {
         // type: 'doughnut',
         type: 'pie',
         data: {
             labels: labels,
             datasets: [{
                 data: data,
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
-                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                backgroundColor: ['#4e73df', '#6610f2', '#e83e8c','#e74a3b', 'red', '#f6c23e','#858796', '#1cc88a', '#36b9cc','#4e73df'],
+                hoverBackgroundColor: ['#4e73df', '#6610f2', '#e83e8c','#e74a3b', 'red', '#f6c23e','#858796', '#1cc88a', '#36b9cc','#4e73df'],
             }],
         },
         options: {
             maintainAspectRatio: false,
             tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 2,
+                borderWidth: 0,
                 xPadding: 15,
                 yPadding: 15,
-                displayColors: false,
                 caretPadding: 10,
             },
-            cutoutPercentage: 70,
+            cutoutPercentage: 50,
+            legend: {
+                position: "right",
+                labels: {
+                    fontColor: '#333',
+                    fontSize: 8
+                }
+            },
         },
     });
 }

@@ -14,8 +14,8 @@ from sqlalchemy import create_engine
 from win32api import GetSystemMetrics
 #import random
 import datetime
-engine_hbi = create_engine('mysql+mysqlconnector://root:Hy$2020@hyspayqsqlv:3306/pr2k', echo=False)
-hostname='hyspayqsqlv'#'127.0.0.1'
+engine_hbi = create_engine('mysql+mysqlconnector://root:Hy$2020@localhost:3306/pr2k', echo=False)
+hostname='localhost'#'127.0.0.1'
 
 print("Width =", GetSystemMetrics(0))
 print("Height =", GetSystemMetrics(1))

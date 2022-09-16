@@ -10,10 +10,38 @@
     .abc {
         color:black;
     }
+    .full-overlay {
+        /*display: none;*/
+        position: fixed;
+        /* background: rgba(0, 0, 0, 1); */
+        opacity: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        -webkit-transition: opacity .3s ease;
+        -moz-transition: opacity .3s ease;
+        -o-transition: opacity .3s ease;
+        transition: opacity .3s ease;
+    }
+
+    #mainLoadingSVG {
+        position: fixed;
+        top: calc(50% - 20px);
+        left: calc(50% - 20px);
+        width: 40px;
+        height: 40px;
+        z-index: 1000000;
+        background: #fff;
+        padding: 3px;
+        border-radius: 50%;
+        display: none;
+    }
+    
 </style>
 <div class="mdl-layout__drawer" style="border: none;">
-    <div style="max-width: 100%; min-height: 80px; background-image: url('../Image/2.jpg');
-        background-size: 400px auto;">
+    <div class="sidebar-header">
         <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">Sản Xuất</span>
         <div class="mdl-layout-spacer"></div>
     </div>
@@ -58,9 +86,9 @@
         </a>
         <hr>
         <div style="margin-left: 40px;"><b>Nghiệp vụ</b></div>
-        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/Reports">
-            <i class="material-icons" style="margin-right: 20px;">description</i>
-            Kiểm tra CutLot
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/Zone">
+            <i class="material-icons" style="margin-right: 20px;">table_rows</i>
+             Quản lý zone, line
         </a>
         <hr>
         <div style="margin-left: 40px;"><b>Trở Về</b></div>
@@ -68,5 +96,9 @@
             <i class="material-icons" style="margin-right: 20px;">keyboard_backspace</i>
             Trang Chủ
         </a>
+        <div class="text-right developer">Contact dev: <a href="mailto:Tuyen.Nguyen@hanes.com">Tuyen.Nguyen@hanes.com</a></div>
     </nav>
 </div>
+<!-- Loading -->
+<div class="full-overlay"></div>
+<img id="mainLoadingSVG" src="/Images/oval.svg" />

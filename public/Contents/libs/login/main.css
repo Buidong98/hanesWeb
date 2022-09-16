@@ -193,7 +193,6 @@ iframe {
 
 .login100-form {
   width: 100%;
-  border-radius: 10px;
   background-color: #fff;
 }
 
@@ -216,7 +215,6 @@ iframe {
 }
 
 .login100-form-title {
-  font-family: Ubuntu-Bold;
   font-size: 28px;
   color: #fff;
   line-height: 1.2;
@@ -346,7 +344,6 @@ iframe {
 }
 
 .login100-form-btn {
-  font-family: Ubuntu-Bold;
   font-size: 18px;
   color: #fff;
   line-height: 1.2;
@@ -362,7 +359,6 @@ iframe {
   padding: 0 20px;
   min-width: 160px;
   height: 42px;
-  border-radius: 21px;
 
   background: #d41872;
   background: -webkit-linear-gradient(left, #a445b2, #d41872, #fa4299);
@@ -385,7 +381,7 @@ iframe {
   z-index: -1;
   width: 100%;
   height: 100%;
-  border-radius: 21px;
+  border-radius: 5px;
   background-color: #555555;
   top: 0;
   left: 0;

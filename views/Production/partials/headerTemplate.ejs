@@ -1,10 +1,109 @@
-<div class="mdl-layout-spacer"></div>
-<!-- <nav class="mdl-navigation mdl-layout--large-screen-only">
-    <a class="mdl-navigation__link" href="/Production/Production">Sản Xuất</a>
-    <a class="mdl-navigation__link" href="/Production/PayrollCheck">Kiểm Tra Tem Lương</a>
-    <a class="mdl-navigation__link" href="/Production/LineBalancing">Cân Bằng Chuyền</a>
-    <a class="mdl-navigation__link" href="/Production/OffStandard">Off Standard</a>
-    <a class="mdl-navigation__link" href="/Production/AutoKanban">Auto Kanban</a>
-    <a class="mdl-navigation__link" href="/Production/Reports">Báo Cáo</a>
-    <a class="mdl-navigation__link" href="/">Trang Chủ</a>
-</nav> -->
+<link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+<link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+<link rel="stylesheet" href="/Contents/css/main.css">
+<script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+<script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script defer src="/JS/mdl/material.min.js"></script>
+
+<style>
+    .modal {
+        background: rgba(0, 0, 0, 0.5); 
+        color: black;
+    }
+    .modal-backdrop {
+        display: none;
+    }
+</style>
+<div class="mdl-layout-spacer">
+    <ul class="pull-right list-unstyled mt-2">
+        <!-- BEGIN USER LOGIN DROPDOWN -->
+        <li class="dropdown user">
+            <a href="#" class="dropdown-toggle text-white" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                <span class="" id="user-login" ></span>
+                <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown-menu" style="left: -60px;">
+                <li>
+                    <a class="" href="/login">
+                        <a href="/login"><i class="fa fa-key"></i> Đăng xuất</a>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- END USER LOGIN DROPDOWN -->
+    </ul>
+    <button class="mr-3 btn btn-success pull-right" data-toggle="modal" data-target="#modalContribution">
+        <i class="fa fa-envelope"></i>
+        <b class="">GÓP Ý</b>
+    </button>
+</div>
+
+<div class="modal fade" id="modalContribution">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>Feedback đóng góp, xây dựng phần mềm</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Tên nhân sự</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="" autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Email nhân sự</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-12">
+                        <label for="">Mô tả</label>
+                        <div class="">
+                            <textarea type="text" class="form-control" id=""></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary text-black-50" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="addContribution()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/JS/HBI/Common/commonFactory.js"></script>
+<script>
+    $("#user-login").text(localStorage.getItem("username"));
+
+    let action = '/user';
+    PostDataAjax(action, {} , function (response) {
+        if (response) {
+            localStorage.setItem("user", JSON.stringify(response));
+        }
+        else {
+
+        }
+    });
+    var userLogin = JSON.parse(localStorage.getItem("user"));
+
+    function addContribution(){
+        toastr.success("Cảm ơn góp ý của bạn. Thanks for your contribution.", "Thành công");
+        $("#modalContribution").modal("hide");
+    }
+</script>

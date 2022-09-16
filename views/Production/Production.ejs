@@ -1,136 +1,286 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <header>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <!-- <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-purple.min.css"> -->
-        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
-        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-        <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
-        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-        <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
-        <script defer type="text/javascript" src="/JS/chart/Chart.js"></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </header>
-    <body>
-        <!-- Always shows a header, even in smaller screens. -->
-        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-            <header class="mdl-layout__header">
-                <div class="mdl-layout__header-row">
-                    <span class="mdl-layout-title">SẢN XUẤT</span>
-                    <%- include ("partials/headerTemplate.ejs"); -%>
-                </div>
-            </header>
-            <%- include ("partials/navTemplate.ejs"); -%>
+
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-purple.min.css"> -->
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+    <!-- <script defer type="text/javascript" src="/JS/chart/Chart.js"></script> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">SẢN XUẤT</span>
+                <%- include ("partials/headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
             <main class="mdl-layout__content">
                 <div class="page-content">
                     <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
                         <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
-                            <div style="margin: 10px auto;">
-                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                            <div class="d-flex" style="margin: 10px auto;">
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder"
+                                    style="width:150px; margin-right: 50px;">
                                     <input class="mdl-textfield__input" type="date" id="date_group_search">
                                     <label class="mdl-textfield__label" for="date_group_search">Chọn ngày</label>
+                                </div>
+                                <!-- <div class="" style="width: 100px; margin-right: 50px;">
+                                    <p class="mb-3"><strong>Zone</strong></p>
+                                    <select class="form-control w-100" name="" id="txtZone" onchange="getLineByZone()">
+
+                                    </select>
+                                </div> -->
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                    <select class="mdl-textfield__input h-100" name="" id="txtZone" onchange="getLineByZone()">
+
+                                    </select>
+                                    <label class="mdl-textfield__label" for="date_group_search">Zone</label>
                                 </div>
                                 <button class="mdl-button mdl-js-button mdl-button--fab 
                                         mdl-js-ripple-effect mdl-button--colored" id="btn_group_search">
                                     <i class="material-icons">search</i>
                                 </button>
                             </div>
-                            <div style="width: 100%;">
-                                <div id="table_group_spinner" style="margin-left: 50%; margin-top: 20px;"></div>
-                            </div>
                             <div style="width:90%; margin: 10px auto; background-color: white; display: none;" id="group_chart_div">
-                                <canvas id="group_chart"></canvas>
+                                <canvas id="group_chart" style="display: block; width: 505px; height: 500px;" width="505" height="480" class="chartjs-render-monitor"></canvas>
                             </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="width:90%; margin: 10px auto; background-color: white; display: none;" id="group_chart_div">
-                            <canvas id="kickout_chart"></canvas>
                         </div>
                     </div>
                 </div>
             </main>
-        </div>
-    </body>
-</html>
-<script>
-    var today=new Date();
-    var table_group_search=document.getElementById('table_group_search');
-    document.getElementById('date_group_search').value=today.toISOString().substr(0,10);
-    document.getElementById('btn_group_search').addEventListener('click', function(){
-        var table_group_load_spinner=document.getElementById('table_group_spinner');
-        table_group_load_spinner.setAttribute("class","mdl-spinner mdl-js-spinner is-active");
-        componentHandler.upgradeElement(table_group_load_spinner);
-        var xsend= new XMLHttpRequest();
-        xsend.open("POST","/Production/Production/GroupSummary",true);
-        xsend.onreadystatechange= function(){
-            if (this.readyState==4 && this.status==200){
-                data=JSON.parse(xsend.responseText);
-                if (data=='empty') {
-                    alert('Không tìm thấy dữ liệu!');
+    </div>
+
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/Contents/libs/chart/Chart.min.js"></script>
+    <script src="/Contents/libs/chart/chartjs-plugin-datalabels.min.js"></script>
+
+    <script>
+        var Enum_Production = {
+            Production: 1,
+            Cutting: 2,
+            Other: 3
+        }
+
+        var listLine = [];
+
+        function getZone() {
+            let action = '/production/zone/get';
+            let datasend = {
+            };
+            PostDataAjax(action, datasend, function (response) {
+
+                if (response.rs) {
+                    setTimeout(function () {
+                        DropDownListZone(response.data, $("#txtZone"));
+                    }, 100)
                 }
                 else {
-                    console.log(data);
-                    table_group_load_spinner.removeAttribute("class");
-                    document.getElementById("group_chart_div").style.display="grid";
+                    toastr.error(response.msg, "Thất bại");
                 }
-                var group_list=new Array();
-                var gorup_output=new Array();
-                for (var i=0; i<data.length; i++){
-                    group_list.push(data[i].LOCATION);
-                    gorup_output.push(data[i].OUTPUT);
-                }
-                draw_graph(group_list, gorup_output, 'GROUP', 'group_chart', 'horizontalBar');
-            }
+            });
         }
-        xsend.setRequestHeader("Content-type", "application/json");
-        var full_date=document.getElementById('date_group_search').value;
-        year=full_date.substr(0,4);
-        month=full_date.substr(5,2);
-        day=full_date.substr(8,2);
-        var date=year+month+day;
-        data={date: date};
-        xsend.send(JSON.stringify(data));
-    });
 
-    
-
-    function draw_graph(name, list_data, label, chart_name, typeChar){
-        var color=new Array();
-        for (var i=0; i<name.length; i++){
-            color.push('#' + (Math.random().toString(16) + '0000000').slice(2, 8));
+        function getLineByZone() {
+            let zone = $("#txtZone").val();
+            let action = '/production/zone/get-line-by-zone';
+            let datasend = {
+                zone: zone
+            };
+            PostDataAjax(action, datasend, function (response) {
+                if (response.rs) {
+                    //DropDownListLine(response.data, $("#txt_group"));
+                    listLine = response.data;
+                }
+                else {
+                    toastr.error(response.msg, "Thất bại");
+                }
+            });
         }
-        var ctx = document.getElementById(chart_name).getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: typeChar,//'bar',
-            data: {
-                labels: name,
-                datasets: [{
-                    label: label,//'Sản lượng theo Công đoạn',
-                    data: list_data,
-                    backgroundColor: color,
-                    borderWidth: 1,
-                    fill: false
-                }]
+
+        function DropDownListZone(list, selector) {
+            selector.html('');
+            let html = "";
+            for (let i = 0; i < list.length; i++) {
+                let ele = list[i];
+                if (ele.type == Enum_Production.Production)
+                    html += "<option value='" + ele.id + "'>" + ele.name + "</option>";
             }
-            ,options: {
-                // plugins:{
-                //     colorschemes:{
-                //         scheme: 'tableau.Classic10'
-                //     }
-                // },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        },
-                        gridLines:{
-                            display: true
-                        }
-                    }]
+            selector.html(html);
+        }
+
+        function DropDownListLine(list, selector) {
+            selector.html('');
+            let html = "";
+            for (let i = 0; i < list.length; i++) {
+                let ele = list[i];
+                html += "<option value='" + ele.name + "'>" + ele.name + "</option>";
+            }
+            selector.html(html);
+        }
+
+        getZone();
+        setTimeout(function () {
+            getLineByZone();
+        }, 500)
+    </script>
+
+    <script>
+        var today = new Date();
+        var table_group_search = document.getElementById('table_group_search');
+        document.getElementById('date_group_search').value = today.toISOString().substr(0, 10);
+        document.getElementById('btn_group_search').addEventListener('click',function () {
+            LoadingShow();
+            var xsend = new XMLHttpRequest();
+            xsend.open("POST", "/Production/Production/GroupSummary", true);
+            xsend.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = JSON.parse(xsend.responseText);
+                    if (data == 'empty') {
+                        alert('Không tìm thấy dữ liệu!');
+                    }
+                    else {
+                        LoadingHide();
+                        document.getElementById("group_chart_div").style.display = "grid";
+                    }
+                    var group_list = new Array();
+                    var gorup_output = new Array();
+                    for (var i = 0; i < data.length; i++) {
+                        group_list.push(data[i].LOCATION);
+                        gorup_output.push(data[i].OUTPUT);
+                    }
+                    draw_graph(group_list, gorup_output, 'GROUP', 'group_chart', 'table');
                 }
             }
+            xsend.setRequestHeader("Content-type", "application/json");
+            var full_date = document.getElementById('date_group_search').value;
+            year = full_date.substr(0, 4);
+            month = full_date.substr(5, 2);
+            day = full_date.substr(8, 2);
+            var date = year + month + day;
+
+            data = {
+                date: date,
+                line: listLine.map(x => x.line_name)
+            };
+            xsend.send(JSON.stringify(data));
         });
-    }
-</script>
+
+        function draw_graph(name, list_data, label, chart_name, typeChar) {
+            var color = new Array();
+            for (var i = 0; i < name.length; i++) {
+                color.push('#' + (Math.random().toString(16) + '0000000').slice(2, 8));
+            }
+
+            var config = {
+                type: 'bar',//'bar',
+                data: {
+                    labels: name,
+                    datasets: [{
+                        label: label,//'Sản lượng theo Công đoạn',
+                        data: list_data,
+                        backgroundColor: color,
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },  
+                options: {
+                    maintainAspectRatio: false,
+                    legend: {
+                        position: "right",
+                        reverse: true
+                    },
+                    layout: {
+                        padding: {
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            barPercentage: 0.4, // width of bar
+                            stacked: true,
+                            time: {
+                                unit: 'date'
+                            },
+                            gridLines: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                            ticks: {
+                                maxTicksLimit: 10,
+                                suggestedMin: 0, //min
+                                suggestedMax: 120, //max 
+                                padding: 20,
+                                callback: function (value, index, values) {
+                                    return number_format(value);
+                                }
+                            },
+                        }],
+                    },
+                    tooltips: {
+                        backgroundColor: "#282c34",
+                        titleMarginBottom: 10,
+                        titleFontSize: 14,
+                        xPadding: 15,
+                        yPadding: 15,
+                        intersect: true,
+                        mode: 'label',
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function (tooltipItem, chart) {
+                                var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                                return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                            }
+                        }
+                    },
+                    plugins: {
+                        datalabels: {
+                            formatter: function (value, ctx) {
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                dataArr.map(data => {
+                                    sum += data;
+                                });
+                                return value == null || value == 0 ? "" : number_format(value);
+                            },
+                            font: {
+                                weight: "bold"
+                            },
+                            color: "black"
+                        }
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
+                }
+            };
+
+            if (window.productionChart) {
+                window.productionChart.destroy();
+            }
+            let ctx = document.getElementById(chart_name);
+            window.productionChart = new Chart(ctx, config);
+        };
+
+    </script>
+</body>
+
+</html>
