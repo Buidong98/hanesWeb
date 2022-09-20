@@ -27,6 +27,7 @@
     <style>
         .dropdown .dropdown-menu {
             font-size: 14px;
+            
         }
 
         .clockpicker-popover {
@@ -69,6 +70,9 @@
         th,
         td {
             text-align: center;
+        }
+        .rowTiviBottom{
+            padding-bottom: 2.5%;
         }
     </style>
 </head>
@@ -169,300 +173,345 @@
                             <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0">
                                 <div class="">
                                     <div class="col-md-6 col-xs-12 p-0 pr-2" id="cut92">
-                                        <div class="card shadow mb-3 p-2 text-center">
-                                            <strong>CUTTING 92</strong>
+                                        <div class="card shadow mb-3 p-2 text-center ">
+                                            <div class = "row">
+                                                <div class = "col-4"></div>
+                                                <div class = "col-4">
+                                                    <strong>CUTTING 92</strong>
+                                                </div>
+                                                <div class = "col-4">
+                                                    <h5 class="m-0 font-weight-bold text-primary">Layout - Lastest update: <span class="lbLastRefreshDate" id="lbLastRefreshDate92"></span></h5>
+                                                </div>
+                                            </div>
                                         </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
-                                                <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg92"></span>%</h5>
-                                                <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92"></span></h5>
-                                                <div class="dropdown no-arrow d-flex">
-                                                    <div class="mr-3 zoomInZoomOut" data-toggle="modal" data-target="#modalAbnormalRecord"><i class="fa fa-list-ul fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Review abnormal records"></i></div>
-                                                    <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut92')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
-                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
-                                                        <form class="form-inline" id="">
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Machine</p>
-                                                                <select class="form-control w-100" multiple id="txtFilterMachine92">
-
-                                                                </select>
-                                                            </div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">View Type</p>
-                                                                <div class="switch-block">
-                                                                    <label class="switch-light switch-candy d-inline">
-                                                                        <input type="checkbox" name="" id="cbViewType92" onchange="changeViewType(92)" />
-                                                                        <span>
-                                                                            <span>Day</span>
-                                                                            <span>Week</span>
-                                                                            <a></a>
-                                                                        </span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <div class="w-100" id="dateValue92">
-                                                                    <p class="mb-1">Date Value</p>
-                                                                    <input type="text" class="form-control isDate" id="txtFilterDate92">
-                                                                </div>
-                                                                <div class="w-100" id="weekValue92">
-                                                                    <p class="mb-1">Week Value</p>
-                                                                    <div class="d-flex">
-                                                                        <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek92" placeholder="Start">
-                                                                        <input type="number" class="form-control w-50" id="txtFilterWeekEndValue92" placeholder="End">
+                                        <div class="rowTv" id="rowTivi1">
+                                            <div class="colTv" id="colTivi11" >
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg92"></span>%</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92"></span></h5>
+                                                        <div class="dropdown no-arrow d-flex">
+                                                            <div class="mr-3 zoomInZoomOut" data-toggle="modal" data-target="#modalAbnormalRecord"><i class="fa fa-list-ul fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Review abnormal records"></i></div>
+                                                            <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut92')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
+                                                            <div class="mr-3 zoomInZoomOut" onclick="screenTv(92)" data-toggle="tooltip" data-placement="top" title="Switch to the TV screen."><i class="fa fa-television" aria-hidden="true"></i></div>
+                                                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
+                                                                <form class="form-inline" id="">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Machine</p>
+                                                                        <select class="form-control w-100" multiple id="txtFilterMachine92">
+        
+                                                                        </select>
                                                                     </div>
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">View Type</p>
+                                                                        <div class="switch-block">
+                                                                            <label class="switch-light switch-candy d-inline">
+                                                                                <input type="checkbox" name="" id="cbViewType92" onchange="changeViewType(92)" />
+                                                                                <span>
+                                                                                    <span>Day</span>
+                                                                                    <span>Week</span>
+                                                                                    <a></a>
+                                                                                </span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="w-100" id="dateValue92">
+                                                                            <p class="mb-1">Date Value</p>
+                                                                            <input type="text" class="form-control isDate" id="txtFilterDate92">
+                                                                        </div>
+                                                                        <div class="w-100" id="weekValue92">
+                                                                            <p class="mb-1">Week Value</p>
+                                                                            <div class="d-flex">
+                                                                                <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek92" placeholder="Start">
+                                                                                <input type="number" class="form-control w-50" id="txtFilterWeekEndValue92" placeholder="End">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Shift</p>
+                                                                        <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift92">
+        
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="mt-3 w-100">
+                                                                        <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
+                                                                        <button type="button" class="btn btn-success btn-sm w-100" onclick="getStackBarChart92()">Submit</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Shift</p>
-                                                                <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift92">
-
-                                                                </select>
+                                                            <canvas id="myPercentBarStackChart92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="colTv" id="colTivi12">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
+                                                        <!-- <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg92Minutes"></span>%</h5> -->
+                                                        <!-- <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92Minutes"></span></h5> -->
+                                                        <div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
+                                                                </div>
                                                             </div>
-                                                            <div class="mt-3 w-100">
-                                                                <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
-                                                                <button type="button" class="btn btn-success btn-sm w-100" onclick="getStackBarChart92()">Submit</button>
+                                                            <canvas id="myMinuteBarStackChart92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="rowTv" id="rowTivi2">
+                                            <div class="colTv" id="colTivi21">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg92Speed"></span> Inch/ Min</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92Speed"></span></h5>
+                                                        <div></div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
+                                                                </div>
                                                             </div>
-                                                        </form>
+                                                            <canvas id="myChartSpeed92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="colTv" id="colTivi22">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div>
+                                                            <table class="table table-bordered">
+                                                                <thead>
+                                                                    <th></th>
+                                                                    <th>Idle</th>
+                                                                    <th>Interrupt</th>
+                                                                    <th>Diagram Qty</th>
+                                                                </thead>
+                                                                <tbody id="idleTable92">
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myPercentBarStackChart92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
                                         </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myMinuteBarStackChart92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myChartSpeed92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div>
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <th></th>
-                                                            <th>Idle</th>
-                                                            <th>Interrupt</th>
-                                                            <th>Diagram Qty</th>
-                                                        </thead>
-                                                        <tbody id="idleTable92">
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                     </div>
-
                                     <div class="col-md-6 col-xs-12 p-0 pl-2" id="cut95">
                                         <div class="card shadow mb-3 p-2 text-center">
-                                            <strong>CUTTING 95</strong>
+                                            <div class = "row">
+                                                <div class = "col-4"></div>
+                                                <div class = "col-4">
+                                                    <strong>CUTTING 95</strong>
+                                                </div>
+                                                <div class = "col-4">
+                                                    <h5 class="m-0 font-weight-bold text-primary">Layout - Lastest update: <span class="lbLastRefreshDate" id="lbLastRefreshDate92"></span></h5>
+                                                </div>
+                                            </div>
                                         </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
-                                                <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg95"></span>%</h5>
-                                                <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="text-danger" id="txtDate95"></span></h5>
-
-                                                <div class="dropdown no-arrow d-flex">
-                                                    <div class="mr-3 zoomInZoomOut" data-toggle="modal" data-target="#modalAbnormalRecord"><i class="fa fa-list-ul fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Review abnormal records"></i></div>
-                                                    <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut95')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
-                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
-                                                        <form class="form-inline" id="">
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Machine</p>
-                                                                <select class="form-control w-100" multiple id="txtFilterMachine95">
-
-                                                                </select>
+                                        <div class = "rowTv" id="rowTivi3">
+                                            <div class = "colTv" id="colTivi31">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg95"></span>%</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="text-danger" id="txtDate95"></span></h5>
+        
+                                                        <div class="dropdown no-arrow d-flex">
+                                                            <div class="mr-3 zoomInZoomOut" data-toggle="modal" data-target="#modalAbnormalRecord"><i class="fa fa-list-ul fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Review abnormal records"></i></div>
+                                                            <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut95')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
+                                                            <div class="mr-3 zoomInZoomOut" onclick="screenTv(95)" data-toggle="tooltip" data-placement="top" title="Switch to the TV screen.">
+                                                                <i class="fa fa-television" aria-hidden="true"></i>
                                                             </div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">View Type</p>
-                                                                <div class="switch-block">
-                                                                    <label class="switch-light switch-candy d-inline">
-                                                                        <input type="checkbox" name="" id="cbViewType95" onchange="changeViewType(95)" />
-                                                                        <span>
-                                                                            <span>Day</span>
-                                                                            <span>Week</span>
-                                                                            <a></a>
-                                                                        </span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <div class="w-100" id="dateValue95">
-                                                                    <p class="mb-1">Date Value</p>
-                                                                    <input type="text" class="form-control isDate" id="txtFilterDate95">
-                                                                </div>
-                                                                <div class="w-100" id="weekValue95">
-                                                                    <p class="mb-1">Week Value</p>
-                                                                    <div class="d-flex">
-                                                                        <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek95" placeholder="Start">
-                                                                        <input type="number" class="form-control w-50" id="txtFilterWeekEndValue95" placeholder="End">
+                                                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
+                                                                <form class="form-inline" id="">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Machine</p>
+                                                                        <select class="form-control w-100" multiple id="txtFilterMachine95">
+        
+                                                                        </select>
                                                                     </div>
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">View Type</p>
+                                                                        <div class="switch-block">
+                                                                            <label class="switch-light switch-candy d-inline">
+                                                                                <input type="checkbox" name="" id="cbViewType95" onchange="changeViewType(95)" />
+                                                                                <span>
+                                                                                    <span>Day</span>
+                                                                                    <span>Week</span>
+                                                                                    <a></a>
+                                                                                </span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="w-100" id="dateValue95">
+                                                                            <p class="mb-1">Date Value</p>
+                                                                            <input type="text" class="form-control isDate" id="txtFilterDate95">
+                                                                        </div>
+                                                                        <div class="w-100" id="weekValue95">
+                                                                            <p class="mb-1">Week Value</p>
+                                                                            <div class="d-flex">
+                                                                                <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek95" placeholder="Start">
+                                                                                <input type="number" class="form-control w-50" id="txtFilterWeekEndValue95" placeholder="End">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Shift</p>
+                                                                        <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift95">
+        
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="mt-3 w-100">
+                                                                        <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
+                                                                        <button type="button" class="btn btn-success btn-sm w-100" onclick="getStackBarChart95()">Submit</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="w-100">
-                                                                <p class="mb-1">Shift</p>
-                                                                <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift95">
-
-                                                                </select>
+                                                            <canvas id="myPercentBarStackChart95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class = "colTv" id="colTivi32">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
+                                                        <!-- <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg95Minutes"></span>%</h5> -->
+                                                        <!-- <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate95Minutes"></span></h5> -->
+                                                        <div></div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
+                                                                </div>
                                                             </div>
-                                                            <div class="mt-3 w-100">
-                                                                <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
-                                                                <button type="button" class="btn btn-success btn-sm w-100" onclick="getStackBarChart95()">Submit</button>
+                                                            <canvas id="myMinuteBarStackChart95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="rowTv" id="rowTivi4">
+                                            <div class="colTv" id="colTivi41">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg95Speed"></span> Inch/ Min</h5>
+                                                        <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate95Speed"></span></h5>
+                                                        <div></div>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <div class="chartjs-size-monitor">
+                                                                <div class="chartjs-size-monitor-expand">
+                                                                    <div class=""></div>
+                                                                </div>
+                                                                <div class="chartjs-size-monitor-shrink">
+                                                                    <div class=""></div>
+                                                                </div>
                                                             </div>
-                                                        </form>
+                                                            <canvas id="myChartSpeed95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="colTv" id="colTivi42">
+                                                <div class="card shadow mb-3">
+                                                    <!-- Card Header - Dropdown -->
+                                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                        <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
+                                                    </div>
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div>
+                                                            <table class="table table-bordered">
+                                                                <thead>
+                                                                    <th></th>
+                                                                    <th>Idle</th>
+                                                                    <th>Interrupt</th>
+                                                                    <th>Diagram Qty</th>
+                                                                </thead>
+                                                                <tbody id="idleTable95">
+        
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myPercentBarStackChart95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
                                         </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myMinuteBarStackChart95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div class="chart-area">
-                                                    <div class="chartjs-size-monitor">
-                                                        <div class="chartjs-size-monitor-expand">
-                                                            <div class=""></div>
-                                                        </div>
-                                                        <div class="chartjs-size-monitor-shrink">
-                                                            <div class=""></div>
-                                                        </div>
-                                                    </div>
-                                                    <canvas id="myChartSpeed95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card shadow mb-3">
-                                            <!-- Card Header - Dropdown -->
-                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
-                                            </div>
-                                            <!-- Card Body -->
-                                            <div class="card-body">
-                                                <div>
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <th></th>
-                                                            <th>Idle</th>
-                                                            <th>Interrupt</th>
-                                                            <th>Diagram Qty</th>
-                                                        </thead>
-                                                        <tbody id="idleTable95">
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>

@@ -80,8 +80,20 @@ $(document).ready(function () {
         selectBox1 = new vanillaSelectBox("#txtFilterMachine92", { "disableSelectAll": true, "maxHeight": 200, "placeHolder": "Select machine" });
         selectBox2 = new vanillaSelectBox("#txtFilterMachine95", { "disableSelectAll": true, "maxHeight": 200, "placeHolder": "Select machine" });
     }, 1000);
+    var today = new Date();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    $(".lbLastRefreshDate").text(time);
+    runSchedule()
 })
-
+function runSchedule(){
+    setInterval(() =>{
+        getStackBarChart92();
+        getStackBarChart95();
+        var today = new Date();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        $(".lbLastRefreshDate").text(time);
+    }, 30000)
+}
 // --------------------- UI -----------------------
 function changeWorkCenter(val) {
     if (val == "95") {
@@ -130,6 +142,72 @@ function zoomInZoomOut(area) {
         cutArea.classList.add("col-md-6");
     }
     clicked = !clicked;
+}
+let clickedTv = true;   
+function screenTv(area){
+    let cutArea = document.getElementById(area);
+        let rowArea1;
+        let colArea11;
+        let colArea12;
+        let rowArea2;
+        let colArea21;
+        let colArea22;
+    if(area==92){
+        cutArea = document.getElementById("cut92");
+        rowArea1 = document.getElementById("rowTivi1");
+        colArea11 = document.getElementById("colTivi11");
+        colArea12 = document.getElementById("colTivi12");
+        rowArea2 = document.getElementById("rowTivi2");
+        colArea21 = document.getElementById("colTivi21");
+        colArea22 = document.getElementById("colTivi22");
+    }else if(area==95){
+        cutArea = document.getElementById("cut95");
+        rowArea1 = document.getElementById("rowTivi3");
+        colArea11 = document.getElementById("colTivi31");
+        colArea12 = document.getElementById("colTivi32");
+        rowArea2 = document.getElementById("rowTivi4");
+        colArea21 = document.getElementById("colTivi41");
+        colArea22 = document.getElementById("colTivi42");
+    }
+   
+    if(clickedTv){
+        cutArea.classList.add("full-screen");
+        cutArea.classList.remove("col-md-6");
+        rowArea1.classList.add("row");
+        rowArea1.classList.remove("rowTv");
+        colArea11.classList.add("col-md-6");
+        colArea11.classList.remove("colTv");
+        colArea12.classList.add("col-md-6");
+        colArea12.classList.remove("colTv");
+
+        rowArea2.classList.add("row");
+        rowArea2.classList.remove("rowTv");
+        colArea21.classList.add("col-md-6");
+        colArea21.classList.add("rowTiviBottom");
+        colArea21.classList.remove("colTv");
+        colArea22.classList.add("col-md-6");
+        colArea22.classList.add("rowTiviBottom");
+        colArea22.classList.remove("colTv");
+    }else{
+        cutArea.classList.remove("full-screen");
+        cutArea.classList.add("col-md-6");
+        rowArea1.classList.remove("row");
+        rowArea1.classList.add("rowTv");
+        colArea11.classList.remove("col-md-6");
+        colArea11.classList.add("colTv");
+        colArea12.classList.remove("col-md-6");
+        colArea12.classList.add("colTv");
+
+        rowArea2.classList.remove("row");
+        rowArea2.classList.add("rowTv");
+        colArea21.classList.remove("col-md-6");
+        colArea21.classList.remove("rowTiviBottom");
+        colArea21.classList.add("colTv");
+        colArea22.classList.remove("col-md-6");
+        colArea22.classList.remove("rowTiviBottom");
+        colArea22.classList.add("colTv");
+    }
+    clickedTv = !clickedTv;
 }
 
 // ----------------- CUTTING 92 -------------------
@@ -261,9 +339,15 @@ function getStackBarChart92() {
                             hoverBorderColor: machineColor[i],
                         };
                         datasets.push(obj);
+                       
                     });
+                   // let sumCutTime = listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
+                    let c =0;
+                    let totalSpeed = datasets.map(a =>a.data.map(x=> x).reduce((x,y)=> x + y,0)).map(z => z).reduce((z,g) => z + g, 0);
+                    datasets.map(a =>a.data.map(x=> x>0 ? c +=1:c+=0))
                     drawSpeedChartWeek92(listDate, datasets);
-
+                    $("#txtAvg92Speed").text((totalSpeed/c).toFixed(2));
+                    $("#txtDate92Speed").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
                     // Idle, Interupted time average table
                     let machineList = [];
                     listMachine.forEach(ele => {
@@ -280,11 +364,16 @@ function getStackBarChart92() {
                 }
                 $("#txtAvg92").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate92").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
+                $("#txtAvg92Minutes").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
+                $("#txtDate92Minutes").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
+               
             }
             else {
                 let labels = response.data.stackBarChartData.data1.map(a => a.name);
                 let machine = response.data.stackBarChartData.data2.listMachines;
+               
                 let percentAvg = (machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0) / machine.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0)) * 100;
+               
                 let percentBarStackData = [
                     machine.map(a => a.cutTimePercent * 1),
                     machine.map(a => a.dryHaulTimePercent * 1),
@@ -302,6 +391,8 @@ function getStackBarChart92() {
                 drawStackBarChartDate92(labels, percentBarStackData);
                 $("#txtAvg92").text(percentAvg.toFixed(2));
                 $("#txtDate92").text(filterDate);
+                $("#txtAvg92Minutes").text(percentAvg.toFixed(2));
+                $("#txtDate92Minutes").text(filterDate);
 
                 drawMinuteStackBarChartDate92(labels, minuteBarStackData);
 
@@ -316,12 +407,20 @@ function getStackBarChart92() {
                     else    
                         cutSpeed.push(0);
                 })
+                let c=0;
+                cutSpeed.map(x=> x>0? c+=1:c+=0);
+                let avgSpeed = cutSpeed.reduce((a,b)=> a+b,0);
+                $("#txtAvg92Speed").text((avgSpeed/c).toFixed(1));
+                $("#txtDate92Speed").text(filterDate);
                 //drawSpeedChartDate92(labels, cutSpeed);
 
                 let datasets = [];
+                let data = [];
+                let labels1 = [];
                 let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
                 labels.forEach((ele, i) => {
-                    let obj = {
+                    
+                    /*let obj = {
                         label: ele,
                         data: [cutSpeed[i]],
                         borderColor: machineColor[i],
@@ -329,10 +428,24 @@ function getStackBarChart92() {
                         hoverBorderWidth: 5,
                         hoverBorderColor: machineColor[i],
                     };
-
-                    datasets.push(obj);
+                    
+                    datasets.push(obj);*/
+                    data.push(cutSpeed[i]);
+                    labels1.push(ele);
+                    
                 });
-                drawSpeedChartWeek92([filterDate], datasets);
+                let obj = {
+                    label: "Machine speed",
+                    data: data,
+                    borderColor: machineColor[2],
+                    backgroundColor: machineColor[2],
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: machineColor[2],
+                };
+
+                datasets.push(obj);
+                //drawSpeedChartWeek92([filterDate], datasets);
+                drawSpeedChartWeek92(labels1, datasets);
 
                 // Idle, Interupted time average table
                 avgIdleInterupt(machine, labels, '92');
@@ -1315,7 +1428,7 @@ function getStackBarChart95() {
 
                     sumTotalCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
                     sumTotalTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-
+                    
                     percentBarStackData.cutTimePercent = percentBarStackData.cutTimePercent.concat(listMachinesData.map(a => a.cutTimePercent * 1));
                     percentBarStackData.dryHaulTimePercent = percentBarStackData.dryHaulTimePercent.concat(listMachinesData.map(a => a.dryHaulTimePercent * 1));
                     percentBarStackData.idleTimePercent = percentBarStackData.idleTimePercent.concat(listMachinesData.map(a => a.idleTimePercent * 1));
@@ -1356,7 +1469,12 @@ function getStackBarChart95() {
                         datasets.push(obj);
                     });
                     drawSpeedChartWeek95(listDate, datasets);
-
+                    let c =0;
+                    let totalSpeed = datasets.map(a =>a.data.map(x=> x).reduce((x,y)=> x + y,0)).map(z => z).reduce((z,g) => z + g, 0);
+                    datasets.map(a =>a.data.map(x=> x>0 ? c +=1:c+=0))
+                    drawSpeedChartWeek92(listDate, datasets);
+                    $("#txtAvg95Speed").text((totalSpeed/c).toFixed(2));
+                    $("#txtDate95Speed").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
                     // Idle, Interupted time average table
                     let machineList = [];
                     listMachine.forEach(ele => {
@@ -1373,6 +1491,8 @@ function getStackBarChart95() {
                 }
                 $("#txtAvg95").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate95").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
+                $("#txtAvg95Minutes").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
+                $("#txtDate95Minutes").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
             }
             else {
                 let labels = response.data.stackBarChartData.data1.map(a => a.name);
@@ -1395,6 +1515,8 @@ function getStackBarChart95() {
                 drawStackBarChartDate95(labels, percentBarStackData);
                 $("#txtAvg95").text(percentAvg.toFixed(2));
                 $("#txtDate95").text(filterDate);
+                $("#txtAvg95Minutes").text(percentAvg.toFixed(2));
+                $("#txtDate95Minutes").text(filterDate);
 
                 drawMinuteStackBarChartDate95(labels, minuteBarStackData);
 
@@ -1409,12 +1531,19 @@ function getStackBarChart95() {
                     else    
                         cutSpeed.push(0);
                 })
+                let c=0;
+                cutSpeed.map(x=> x>0? c+=1:c+=0);
+                let avgSpeed = cutSpeed.reduce((a,b)=> a+b,0);
+                $("#txtAvg95Speed").text((avgSpeed/c).toFixed(2));
+                $("#txtDate95Speed").text(filterDate);
                 //drawSpeedChartDate95(labels, cutSpeed);
 
                 let datasets = [];
+                let data = [];
+                let labels1 = [];
                 let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
                 labels.forEach((ele, i) => {
-                    let obj = {
+                    /*let obj = {
                         label: ele,
                         data: [cutSpeed[i]],
                         borderColor: machineColor[i],
@@ -1423,9 +1552,21 @@ function getStackBarChart95() {
                         hoverBorderColor: machineColor[i],
                     };
 
-                    datasets.push(obj);
+                    datasets.push(obj);*/
+                    labels1.push(ele);
+                    data.push(cutSpeed[i]);
                 });
-                drawSpeedChartWeek95([filterDate], datasets);
+                let obj = {
+                    label: "Machine speed",
+                    data: data,
+                    borderColor: machineColor[2],
+                    backgroundColor: machineColor[2],
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: machineColor[2],
+                };
+
+                datasets.push(obj);
+                drawSpeedChartWeek95(labels1, datasets);
 
                 // Idle, Interupted time average table
                 avgIdleInterupt(machine, labels, '95');
