@@ -435,12 +435,12 @@ function getStackBarChart92() {
                     
                 });
                 let obj = {
-                    label: "Machine speed",
+                    label: "Machine speed(Inch/Min)",
                     data: data,
-                    borderColor: machineColor[2],
-                    backgroundColor: machineColor[2],
+                    borderColor: "#3498DB",
+                    backgroundColor: "#3498DB",
                     hoverBorderWidth: 5,
-                    hoverBorderColor: machineColor[2],
+                    hoverBorderColor:"#3498DB",
                 };
 
                 datasets.push(obj);
@@ -1557,12 +1557,12 @@ function getStackBarChart95() {
                     data.push(cutSpeed[i]);
                 });
                 let obj = {
-                    label: "Machine speed",
+                    label: "Machine speed(Inch/Min)",
                     data: data,
-                    borderColor: machineColor[2],
-                    backgroundColor: machineColor[2],
+                    borderColor:"#3498DB",
+                    backgroundColor: "#3498DB",
                     hoverBorderWidth: 5,
-                    hoverBorderColor: machineColor[2],
+                    hoverBorderColor: "#3498DB",
                 };
 
                 datasets.push(obj);
