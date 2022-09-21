@@ -92,7 +92,7 @@ function runSchedule(){
         var today = new Date();
         var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
         $(".lbLastRefreshDate").text(time);
-    }, 30000)
+    }, 300000)
 }
 // --------------------- UI -----------------------
 function changeWorkCenter(val) {
@@ -181,12 +181,11 @@ function screenTv(area){
         colArea12.classList.remove("colTv");
 
         rowArea2.classList.add("row");
+        rowArea2.classList.add("rowTiviBottom");
         rowArea2.classList.remove("rowTv");
         colArea21.classList.add("col-md-6");
-        colArea21.classList.add("rowTiviBottom");
         colArea21.classList.remove("colTv");
         colArea22.classList.add("col-md-6");
-        colArea22.classList.add("rowTiviBottom");
         colArea22.classList.remove("colTv");
     }else{
         cutArea.classList.remove("full-screen");
@@ -199,12 +198,11 @@ function screenTv(area){
         colArea12.classList.add("colTv");
 
         rowArea2.classList.remove("row");
+        rowArea2.classList.remove("rowTiviBottom");
         rowArea2.classList.add("rowTv");
         colArea21.classList.remove("col-md-6");
-        colArea21.classList.remove("rowTiviBottom");
         colArea21.classList.add("colTv");
         colArea22.classList.remove("col-md-6");
-        colArea22.classList.remove("rowTiviBottom");
         colArea22.classList.add("colTv");
     }
     clickedTv = !clickedTv;
@@ -243,6 +241,7 @@ function getStackBarChart92() {
             if (viewType) {
                 let sumTotalCutTime = 0;
                 let sumTotalTotalTime = 0;
+                let sumMachine=0;
                 let listDate = response.data.stackBarChartData.listDate;
                 let listMachine = response.data.stackBarChartData.listMachine;
                 let labels = response.data.stackBarChartData.data1;
@@ -263,7 +262,8 @@ function getStackBarChart92() {
                         let sumIdleTime = listMachinesData.map(a => a.idleTime * 1).reduce((a, b) => a + b, 0);
                         let sumInterruptTime = listMachinesData.map(a => a.interruptTime * 1).reduce((a, b) => a + b, 0);
                         let sumTotalTime = listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-
+                        let temp = listMachinesData.map(c => c.cutTime * 1>0? temp +=1:temp+=0);
+                        sumMachine+=temp;
                         sumTotalCutTime += sumCutTime;
                         sumTotalTotalTime += sumTotalTime;
 
@@ -300,7 +300,7 @@ function getStackBarChart92() {
 
                     sumTotalCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
                     sumTotalTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-
+                    listMachinesData.map(a => a.cutTime * 1>0?sumMachine+=1:sumMachine+=0);
                     percentBarStackData.cutTimePercent = percentBarStackData.cutTimePercent.concat(listMachinesData.map(a => a.cutTimePercent * 1));
                     percentBarStackData.dryHaulTimePercent = percentBarStackData.dryHaulTimePercent.concat(listMachinesData.map(a => a.dryHaulTimePercent * 1));
                     percentBarStackData.idleTimePercent = percentBarStackData.idleTimePercent.concat(listMachinesData.map(a => a.idleTimePercent * 1));
@@ -362,9 +362,10 @@ function getStackBarChart92() {
                     });
                     avgIdleInterupt(machineList, listMachine.map(x => x.name), '92');
                 }
+                console.log("fdfdg"+sumMachine)
                 $("#txtAvg92").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate92").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
-                $("#txtAvg92Minutes").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
+                $("#txtAvg92Minutes").text(((sumTotalCutTime / sumMachine)).toFixed(2));
                 $("#txtDate92Minutes").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
                
             }
@@ -373,7 +374,9 @@ function getStackBarChart92() {
                 let machine = response.data.stackBarChartData.data2.listMachines;
                
                 let percentAvg = (machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0) / machine.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0)) * 100;
-               
+                let sumMachine = 0;
+                machine.map(a => a.cutTime * 1>0?sumMachine+=1:sumMachine+=0);
+                let minAvg = machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0)/sumMachine;
                 let percentBarStackData = [
                     machine.map(a => a.cutTimePercent * 1),
                     machine.map(a => a.dryHaulTimePercent * 1),
@@ -391,7 +394,7 @@ function getStackBarChart92() {
                 drawStackBarChartDate92(labels, percentBarStackData);
                 $("#txtAvg92").text(percentAvg.toFixed(2));
                 $("#txtDate92").text(filterDate);
-                $("#txtAvg92Minutes").text(percentAvg.toFixed(2));
+                $("#txtAvg92Minutes").text(minAvg.toFixed(2));
                 $("#txtDate92Minutes").text(filterDate);
 
                 drawMinuteStackBarChartDate92(labels, minuteBarStackData);
@@ -1371,6 +1374,7 @@ function getStackBarChart95() {
             if (viewType) {
                 let sumTotalCutTime = 0;
                 let sumTotalTotalTime = 0;
+                let sumMachine=0;
                 let listDate = response.data.stackBarChartData.listDate;
                 let listMachine = response.data.stackBarChartData.listMachine;
                 let labels = response.data.stackBarChartData.data1;
@@ -1391,7 +1395,8 @@ function getStackBarChart95() {
                         let sumIdleTime = listMachinesData.map(a => a.idleTime * 1).reduce((a, b) => a + b, 0);
                         let sumInterruptTime = listMachinesData.map(a => a.interruptTime * 1).reduce((a, b) => a + b, 0);
                         let sumTotalTime = listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-
+                        let temp = listMachinesData.map(c => c.cutTime * 1>0? temp +=1:temp+=0);
+                        sumMachine+=temp;
                         sumTotalCutTime += sumCutTime;
                         sumTotalTotalTime += sumTotalTime;
 
@@ -1428,7 +1433,7 @@ function getStackBarChart95() {
 
                     sumTotalCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
                     sumTotalTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-                    
+                    listMachinesData.map(a => a.cutTime * 1>0?sumMachine+=1:sumMachine+=0);
                     percentBarStackData.cutTimePercent = percentBarStackData.cutTimePercent.concat(listMachinesData.map(a => a.cutTimePercent * 1));
                     percentBarStackData.dryHaulTimePercent = percentBarStackData.dryHaulTimePercent.concat(listMachinesData.map(a => a.dryHaulTimePercent * 1));
                     percentBarStackData.idleTimePercent = percentBarStackData.idleTimePercent.concat(listMachinesData.map(a => a.idleTimePercent * 1));
@@ -1491,13 +1496,16 @@ function getStackBarChart95() {
                 }
                 $("#txtAvg95").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate95").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
-                $("#txtAvg95Minutes").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
+                $("#txtAvg95Minutes").text(((sumTotalCutTime / sumMachine) ).toFixed(2));
                 $("#txtDate95Minutes").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
             }
             else {
                 let labels = response.data.stackBarChartData.data1.map(a => a.name);
                 let machine = response.data.stackBarChartData.data2.listMachines;
                 let percentAvg = (machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0) / machine.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0)) * 100;
+                let sumMachine = 0;
+                machine.map(a => a.cutTime * 1>0?sumMachine+=1:sumMachine+=0);
+                let minAvg = machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0)/sumMachine;
                 let percentBarStackData = [
                     machine.map(a => a.cutTimePercent * 1),
                     machine.map(a => a.dryHaulTimePercent * 1),
@@ -1515,7 +1523,7 @@ function getStackBarChart95() {
                 drawStackBarChartDate95(labels, percentBarStackData);
                 $("#txtAvg95").text(percentAvg.toFixed(2));
                 $("#txtDate95").text(filterDate);
-                $("#txtAvg95Minutes").text(percentAvg.toFixed(2));
+                $("#txtAvg95Minutes").text(minAvg.toFixed(2));
                 $("#txtDate95Minutes").text(filterDate);
 
                 drawMinuteStackBarChartDate95(labels, minuteBarStackData);
@@ -2522,6 +2530,7 @@ function getMachines() {
         else {
             toastr.error(response.msg, "Thất bại");
         }
+        
     });
 }
 
