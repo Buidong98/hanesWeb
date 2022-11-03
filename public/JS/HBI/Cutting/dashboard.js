@@ -1,5 +1,5 @@
 var baseUrl = "/cutting/dashboard/";
-
+var chartSize =16;
 var shifts = [
     { id: 0, value: "", text: 'All', default: "" },
     { id: 1, value: "a_shift", text: 'Shift 1', default: "" },
@@ -81,7 +81,7 @@ $(document).ready(function () {
         selectBox2 = new vanillaSelectBox("#txtFilterMachine95", { "disableSelectAll": true, "maxHeight": 200, "placeHolder": "Select machine" });
     }, 1000);
     var today = new Date();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var time = today.getHours() + ":" + today.getMinutes();
     $(".lbLastRefreshDate").text(time);
     runSchedule()
 })
@@ -90,7 +90,7 @@ function runSchedule(){
         getStackBarChart92();
         getStackBarChart95();
         var today = new Date();
-        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var time = today.getHours() + ":" + today.getMinutes();
         $(".lbLastRefreshDate").text(time);
     }, 300000)
 }
@@ -574,7 +574,9 @@ function drawStackBarChartDate92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value) + "%";
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
+                        
                     },
                     color: "black"
                 }
@@ -724,7 +726,8 @@ function drawStackBarChartWeek92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -851,7 +854,8 @@ function drawMinuteStackBarChartDate92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1002,7 +1006,8 @@ function drawMinuteStackBarChartWeek92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1133,7 +1138,8 @@ function drawStackBarChartAllWeek92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value) + "%";
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1234,7 +1240,8 @@ function drawSpeedChartDate92(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1326,7 +1333,8 @@ function drawSpeedChartWeek92(labels, datasets) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1679,7 +1687,8 @@ function drawStackBarChartDate95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value) + "%";
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1828,7 +1837,8 @@ function drawStackBarChartWeek95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -1934,7 +1944,8 @@ function drawMinuteStackBarChartDate95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -2083,7 +2094,8 @@ function drawMinuteStackBarChartWeek95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -2214,7 +2226,8 @@ function drawStackBarChartAllWeek95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value) + "%";
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -2315,7 +2328,8 @@ function drawSpeedChartDate95(labels, data) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
@@ -2407,7 +2421,8 @@ function drawSpeedChartWeek95(labels, datasets) {
                         return value == null || value == 0 ? "" : number_format(value);
                     },
                     font: {
-                        weight: "bold"
+                        weight: "bold",
+                        size: chartSize
                     },
                     color: "black"
                 }
