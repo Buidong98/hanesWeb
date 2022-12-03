@@ -1,14 +1,20 @@
 const logHelper = require("../common/log.js");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const util = require('util');
 var con = mysql.createPool({
+    // host: "10.113.98.238",
+    // port: 3306,
+    // user: "root",
+    // password: "Hy$2020",
+    // database: "pr2k"
+
     host: "localhost",
     port: 3306,
     user: "root",
     password: "123456",
     database: "pr2k"
 });
-con.connect(function (err) {
+con.getConnection(function (err) {
     if (err)
         logHelper.writeLog("con.connect", err);
 });

@@ -1,0 +1,28 @@
+<style>
+ .login-drop{
+    position: absolute;
+    right: 2vh;
+ }
+ .btn-login{
+    box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
+    border-radius: 5px !important;
+ }
+
+</style>
+        <div class="dropdown login-drop">
+            <button class="btn btn-primary btn-login" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user" style="font-size: 2rem; padding-right:7px"></i></i>
+                <span class="" id="user-login" style="font-size: 1.5rem;"></span>
+                <i class="fa fa-angle-down"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="/login"  style="font-size: 1.5rem;">Đăng Xuất<i class="fas fa-sign-out-alt" style="font-size: 1.5rem; padding-left:7px"></i></a>
+                </li>
+            </ul>
+        </div>
+<script>
+    $(document).ready(function () {
+        $("#user-login").text(localStorage.getItem("username"));
+    });
+</script>

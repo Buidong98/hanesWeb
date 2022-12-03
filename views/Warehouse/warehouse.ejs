@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/Contents/css/main.css">
+    <script defer src="/JS/mdl/material.min.js"></script>
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <style>
+            *{
+            margin: 0;
+            padding: 0;
+            box-sizing:border-box;
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            }
+            body{
+            background-color:#FBFCFC  ;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #2c3e50;
+            font-size: 30px;
+            }
+            /*.container-body{
+                margin: 1%;
+                width: 98%;
+                box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px;
+                border-radius: 5px;
+            }*/
+            .info{
+                padding-top: 10px;
+                border-bottom: 1px solid rgba(149, 165, 166,0.8);
+            }
+                .PO{
+                    margin-right: 65vh;
+                    padding-top: 2vh;
+                    display: flex;
+                    justify-self: start;
+                }
+                .PO-title{
+                    font-size: 3rem;
+                }
+                .PO-code{
+                    font-size: 3rem;
+                }
+                .name{
+                    display: flex;
+                    justify-content: start;
+                }
+                .id{
+                    display: flex;
+                    justify-content: start;
+                }
+                .shift{
+                    display: flex;
+                    justify-content: start;
+                }
+                .EFF{
+                    display: flex;
+                    justify-content: start;
+                }
+                .DLO-name-title{
+                    font-size: 2rem;
+                }
+                .DLO-name{
+                    font-size: 2rem;
+                    padding-left: 5px;
+                }
+                .DLO-id-title{
+                    font-size: 2rem;
+                }
+                .DLO-id{
+                    font-size: 2rem;
+                    padding-left: 5px;
+                }
+                .details-shift-title{
+                    font-size: 2rem;
+                }
+                .details-shift{
+                    font-size: 2rem;
+                    padding-left: 5px;
+                }
+                .details-EFF-title{
+                    font-size: 2rem;
+                }
+                .details-EFF{
+                    font-size: 2rem;
+                    padding-left: 5px;
+                }
+                .case-code{
+                    position: absolute;
+                    width: 30%;
+                    margin-left: 139vh;
+                    top:16vh;
+                    margin-top:7px;
+                    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+                    border-radius: 5px;
+                }
+                .contents-box{
+                    height: 70vh;
+                }
+                .contents-box-scanned{
+                    margin: 20px;
+                    border: 5px solid #ecf0f1;
+                    border-radius: 20px;
+                    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+                    background-color: #2ecc71;
+                    
+                }
+                .contents-box-yet-scan{
+                    margin: 20px;
+                    border: 5px solid #ecf0f1;
+                    border-radius: 20px;
+                    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+                    background-color: #f1c40f;
+                }
+                .contents-box-scanned-title{
+                    padding-top: 10px;
+                }
+                .counter{
+                    display: flex;
+                    justify-content: start;
+                }
+                .number-scanned{
+                    margin-left: 25px;   
+                    padding-top: 27vh;
+                    font-size: 30vh;    
+                }
+                .number-yet-scan{
+                    margin-left: 25px;
+                    padding-top: 27vh;
+                    font-size: 30vh;
+                }
+                .boxS{
+                    position:absolute;
+                    margin-left: 60vh;
+                    font-size: 34vh;
+                    padding-top: 11vh;
+                    color: rgba(44, 62, 80,0.7);
+                }
+    </style>
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title"></i> WAREHOUSE MANAGEMENT</span>
+                <%- include ("partials/headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="container-body container-fluid">
+                <div class="row info">
+                    <div class="col PO">
+                        <p class="PO-title">PO:</p>  
+                        <p id="POcode" class="PO-code">369</p> 
+                    </div>
+                    <div class="col employee">
+                        <div class="row DLO">
+                            <div class="col name">
+                                <p class="DLO-name-title">Tên:</p>  
+                                <p id="DLOName" class="DLO-name">Hoàng Minh Chiến</p> 
+                            </div>
+                            <div class="col id">
+                                <p class="DLO-id-title">Mã nhân viên:</p>  
+                                <p id="DLOid" class="DLO-id">123456</p>
+                            </div>
+                        </div> 
+                        <div class="row details">
+                            <div class="col shift">
+                                <p class="details-shift-title">Ca làm việc:</p>  
+                                <p id="detailsShift" class="details-shift">1</p> 
+                            </div>
+                            <div class="col EFF">
+                                <p class="details-EFF-title">Hiệu suất:</p>  
+                                <p id="detailsEFF" class="details-EFF">100%</p>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+                <h2 class="row contents-title" style="padding-left: 5px;padding-top: 10px;">
+                    Case label & TUN lable
+                </h2>
+                <div class="input-group mb-3 case-code">
+                    <span class="input-group-text" style="background-color:#2980b9"><i class="fa-solid fa-barcode"></i></span>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="caseCode">
+                    </div>
+                </div>
+                <div class="row contents-box">
+                    <div class="col contents-box-scanned">
+                        <h2 class="text-center contents-box-scanned-title">Thùng đã quét</h2>
+                        <div class="counter">
+                            <p id="numberScanned" class="number-scanned">160</p>
+                            <i class="fa-solid fa-box boxS"></i>
+                        </div>
+                    </div>
+                    <div class="col contents-box-yet-scan">
+                        <h2 class="text-center contents-box-scanned-title">Thùng đang quét</h2>
+                        <div class="counter">
+                            <p id="numberYetScan" class="number-yet-scan">039</p>
+                            <i class="fa-solid fa-box boxS"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="changeUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="myModalLabel">Scan mã vạch trên thẻ nhân viên để tiến hành làm việc.</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"><i class="fa-solid fa-barcode"></i></span>
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="idCode">
+                                </div>
+                              </div>
+                        </div>
+                        <div class="modal-footer">
+                        <button id="saveUse" type="button" class="btn btn-primary" style="border-radius:5px;">Lưu</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        $(window).on('load', function() {
+            $('#changeUser').modal('show');
+        });
+    </script>
+</body>
+</html>

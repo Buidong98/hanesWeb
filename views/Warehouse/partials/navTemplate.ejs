@@ -1,0 +1,68 @@
+<style>
+    .mdl-layout__drawer {
+        width: 300px;
+        left: -250px;
+    }
+    .mdl-layout__drawer.is-visible {
+        left: 0;
+    }
+  
+    .mdl-navigation__link{
+        color: black!important;
+        font-size: 20px !important;
+    }
+
+    .mdl-navigation__link i{
+        margin-right: 20px
+    }
+
+    .full-overlay {
+            /*display: none;*/
+            position: fixed;
+            background: rgba(0, 0, 0, 1);
+            opacity: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            -webkit-transition: opacity .3s ease;
+            -moz-transition: opacity .3s ease;
+            -o-transition: opacity .3s ease;
+            transition: opacity .3s ease;
+        }
+
+        #mainLoadingSVG {
+            position: fixed;
+            top: calc(50% - 20px);
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            z-index: 1000000;
+            background: #fff;
+            padding: 3px;
+            border-radius: 50%;
+            display: none;
+        }
+
+</style>
+<div class="mdl-layout__drawer" style="border: none;">
+    <div class="sidebar-header">
+        <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">WAREHOUSE</span>
+        <div class="mdl-layout-spacer"></div>
+    </div>
+    <nav class="mdl-navigation">
+        <div style="margin-left: 40px;font-size: 25px !important;"><b>Vận Hành</b></div>
+        <a class="mdl-navigation__link" href="/warehouse">
+            <i class="fas fa-box" style="margin-right: 10px;"> </i>
+                Scanning Case/TUN
+        </a>
+        <div style="margin-left: 40px;font-size: 25px !important;"><b>Trở Về</b></div>
+        <a class="mdl-navigation__link" href="/">
+            <i class="material-icons" style="margin-right: 10px;">keyboard_backspace</i>
+            Trang Chủ
+        </a>
+    </nav>
+</div>
+<!-- Loading -->
+<div class="full-overlay"></div>
