@@ -4,4 +4,5 @@ const warehouseController = require("../controllers/warehouse/barcodeScan.contro
 const dashboard = require("../controllers/warehouse/dashboard.controller.js");
 router.get("/", warehouseController.getIndex);
 router.get("/dashboard", dashboard.getIndex);
+router.post("/scanBarcode/poUpdate",warehouseController.poUpdate);
 module.exports = router;
