@@ -1,4 +1,7 @@
 var Database = require("../../database/db_warehouse.js")
+
+const helper = require('../../common/helper.js');
+const logHelper = require('../../common/log.js');
 const db = new Database();
 module.exports.getIndex = function (req, res) {
     let user = req.user;
@@ -39,4 +42,35 @@ module.exports.poUpdate =async function (req, res) {
         logHelper.writeLog("warehouse_upload_file_excel", error);
     }
     
+}
+module.exports.CheckId = async function(req, res){
+    try{
+        let id = req.body.id;
+        var query = `SELECT * FROM warehouse_user WHERE id = "${id}"`
+        var result =  await db.excuteQueryAsync(query);
+        if(result.length > 0){
+            return res.end(JSON.stringify({
+                rs: true,
+                msg: "Thay đổi mã id thành công",
+                data:result
+            }));
+        }
+        else{
+            return res.end(JSON.stringify({
+                rs: false,
+                msg: "Công nhân không tồn tại trên hệ thống ",
+                data:result
+            }));
+        }
+       
+    }
+    catch (error) {
+        logHelper.writeLog("warehouse_upload_file_excel", error);
+        return res.end(JSON.stringify({
+            rs: false,
+            msg: "Error",
+            data:""
+        }));
+        
+    }
 }

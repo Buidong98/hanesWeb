@@ -52,24 +52,50 @@ function Download_po(url){
     window.open(url, '_blank').focus();
 }
 function ScanId(){
-    $('#changeUser').modal('hide');
-    toastr.success("Nhập vào ID thành công");
     var id =  document.getElementById("idCode").value;
-    console.log(id);
-    $( "#changeUser" ).on('hidden.bs.modal', function(){
-        document.getElementById("caseCode").focus();
-        });
-        document.getElementById("DLOid").innerHTML = id;
+    $.ajax({
+        url: baseUrl + 'CheckId',
+        method: 'POST',
+        data:{'id':id},
+        dataType: 'json',
+        success: function (result) {
+            if(result.rs){
+                console.log(result.msg);
+                toastr.success(result.msg);
+                $('#changeUser').modal('hide');
+                $( "#changeUser" ).on('hidden.bs.modal', function(){
+                    document.getElementById("caseCode").focus();
+                });
+                document.getElementById("DLOid").innerHTML = id;
+                document.getElementById("DLOName").innerHTML = result.data[0]["Name"];
+            }
+            else{
+                toastr.warning(result.msg);
+                document.getElementById("idCode").value = "";
+            }
+           
+        }
+    })
+
+
+    
 }
 function SaveId(){
     $('#changeUser').modal('hide');
-    console.log("dsfdf");
     document.getElementById("caseCode").focus();
+    
 }
+var a="";
 function AddCaseCode(){
-    toastr.remove()
     var idCase = document.getElementById("caseCode").value;
-    document.getElementById("caseCode").value = "";
+    let length = a.length;
+    let indexOf = idCase.indexOf(a);
+    let result = idCase.substring(indexOf+length);
+    a= result;
+    console.log(a);
+    console.log(result);
+    toastr.remove();
+    document.getElementById("caseCode").value = result;
     toastr.options = {
         "closeButton": false,
         "debug": false,
@@ -87,5 +113,5 @@ function AddCaseCode(){
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
       }
-    toastr.success(`Đã thêm thùng ${idCase} thành công`,{ "positionClass": "toast-bottom-right"});
+    toastr.success(`Đã thêm thùng ${result} thành công`);
 }
