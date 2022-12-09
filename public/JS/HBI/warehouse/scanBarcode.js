@@ -3,22 +3,15 @@ const baseUrl = "/warehouse/scanBarcode/";
 
 
 $(document).ready(function () {
-    $('#changeUser').modal('show');
-   // document.getElementById("#changeUser").focus();
+     $('#changeUser').modal('show');
    $( "#changeUser" ).on('shown.bs.modal', function(){
     document.getElementById("idCode").focus();
     });
 
 });
 
-window.onload = function() {
-  //  $('#changeUser').focus();
-    //document.getElementById("idCode").focus();
-    console.log( document.getElementById("caseCode").value );
-  }
 async function  uploadExcel(){
     if (window.FormData !== undefined) {
-        console.log( document.getElementById('FilePo').files.length );
         const file = document.getElementById('FilePo').files[0];
         var dataJson = {};
         await file.arrayBuffer().then((res) => {
@@ -39,12 +32,14 @@ async function  uploadExcel(){
                     console.log(result);
                    // LoadingHide();
                    toastr.success("Upload file po thành công");
+                   document.getElementById('FilePo').value = "";
                 }
             })
         }
         else{
             //LoadingHide();
             toastr.error("File po sai định dạng");
+            document.getElementById('FilePo').value = "";
         }
     }
 }
@@ -52,6 +47,9 @@ function Download_po(url){
     window.open(url, '_blank').focus();
 }
 function ScanId(){
+    toastr.options = {
+    "positionClass": "toast-bottom-right"
+  }
     var id =  document.getElementById("idCode").value;
     $.ajax({
         url: baseUrl + 'CheckId',
@@ -61,7 +59,10 @@ function ScanId(){
         success: function (result) {
             if(result.rs){
                 console.log(result.msg);
+                
+                toastr.remove()
                 toastr.success(result.msg);
+                
                 $('#changeUser').modal('hide');
                 $( "#changeUser" ).on('hidden.bs.modal', function(){
                     document.getElementById("caseCode").focus();
@@ -70,10 +71,12 @@ function ScanId(){
                 document.getElementById("DLOName").innerHTML = result.data[0]["Name"];
             }
             else{
+                toastr.remove()
                 toastr.warning(result.msg);
+              
                 document.getElementById("idCode").value = "";
             }
-           
+          
         }
     })
 
@@ -85,33 +88,17 @@ function SaveId(){
     document.getElementById("caseCode").focus();
     
 }
-var a="";
+var beforeScan="";
 function AddCaseCode(){
     var idCase = document.getElementById("caseCode").value;
-    let length = a.length;
-    let indexOf = idCase.indexOf(a);
-    let result = idCase.substring(indexOf+length);
-    a= result;
-    console.log(a);
-    console.log(result);
+    let length = beforeScan.length;
+    let indexOf = idCase.indexOf(beforeScan);
+    let caseScan = idCase.substring(indexOf+length);
+    beforeScan= caseScan;
     toastr.remove();
-    document.getElementById("caseCode").value = result;
+    document.getElementById("caseCode").value = caseScan;
     toastr.options = {
-        "closeButton": false,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": false,
-        "positionClass": "toast-bottom-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "5000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
+        "positionClass": "toast-bottom-right"
       }
-    toastr.success(`Đã thêm thùng ${result} thành công`);
+    toastr.success(`Đã thêm thùng ${caseScan} thành công`);
 }
