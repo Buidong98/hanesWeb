@@ -1,18 +1,12 @@
-let labels = [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8];
+let labels = ['0.5','1','1.5','2','2.5','3','3.5','4','4.5'];
 
 let data = {
   labels: labels,
   datasets: [{
-    label: 'cn1',
-    data: [65, 59, 80, 81, 56, 55, 40,1,2,3,4,5,6,7,8,65, 59, 80, 81, 56, 55, 40,1,2,3,4,5,6,7,8],
+    label: 'ID:210625',
+    data: [25, 30, 29, 28, 12, 32, 27,22,21],
     backgroundColor: [
       'rgba(255, 99, 132, 0.2)',
-      'rgba(255, 159, 64, 0.2)',
-      'rgba(255, 205, 86, 0.2)',
-      'rgba(75, 192, 192, 0.2)',
-      'rgba(54, 162, 235, 0.2)',
-      'rgba(153, 102, 255, 0.2)',
-      'rgba(201, 203, 207, 0.2)'
     ],
     borderColor: [
       'rgb(255, 99, 132)',
@@ -23,19 +17,13 @@ let data = {
       'rgb(153, 102, 255)',
       'rgb(201, 203, 207)'
     ],
-    borderWidth: 1
+    borderWidth: 3
   },
   {
-    label: 'cn2',
-    data: [45, 39, 30,81, 56, 25, 45,1,2,3,4,5,6,7,8,45, 39, 30,81, 56, 25, 45,1,2,3,4,5,6,7,8],
+    label: 'ID:180067',
+    data: [20, 35, 30, 25, 10, 33, 23,20 ,19],
     backgroundColor: [
-      'rgba(255, 29, 132, 0.2)',
-      'rgba(255, 159, 64, 0.2)',
-      'rgba(255, 205, 86, 0.2)',
-      'rgba(175, 192, 192, 0.2)',
-      'rgba(34, 162, 235, 0.2)',
-      'rgba(153, 102, 255, 0.2)',
-      'rgba(201, 23, 207, 0.2)'
+      'rgba(155, 29, 132, 0.2)',
     ],
     borderColor: [
       'rgb(255, 99, 132)',
@@ -46,7 +34,7 @@ let data = {
       'rgb(153, 102, 255)',
       'rgb(201, 203, 207)'
     ],
-    borderWidth: 1
+    borderWidth: 3
   },
 ]
 };
@@ -68,14 +56,16 @@ let configChart1 = {
     },
     scales: {
       x: {
-        stacked: true,
+        min: 0,
+        display: true, 
+        beginAtZero: true, 
       },
       y: {
         min: 0,
         ticks: {
-          // Include a dollar sign in the ticks
+          beginAtZero: true,
           callback: function(value, index, ticks) {
-              return value + " pcs";
+            return `${value} pcs`;
           }
       },
       }
