@@ -5,7 +5,7 @@ const logHelper = require('../../common/log.js');
 const db = new Database();
 module.exports.getIndex = function (req, res) {
     let user = req.user;
-    res.render('Warehouse/warehouse', { user: user });
+    res.render('Warehouse/shippingMarkScan', { user: user });
 }
 module.exports.poUpdate =async function (req, res) { 
     try{
