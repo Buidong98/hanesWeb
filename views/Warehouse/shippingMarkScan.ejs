@@ -101,7 +101,45 @@
                     height: 5vh;
                 }
                 .contents-main{
-                    height: 75vh;
+                    height: 70vh;
+                }
+                .contents-main-listItem{
+                    height: 65vh;
+                }
+                .table-responsive{
+                    max-height:65vh;
+                }
+                .listItem-header{
+                    position: sticky !important;
+                    top: 0;
+                    color: #ecf0f1;
+                    background-color: #8e44ad;
+                    font-size: 2.5vh;
+                    text-align: center;
+                    
+                }
+                .contents-main-listItem-options{
+                    display: flex;
+                    justify-content: end;
+                }
+                .listItem-options-delete-all{
+                    margin: .5vh 1vh 1vh 0vh;
+                    width: 20vh;
+                    border-radius: 3px;
+                }
+                .listItem-options-submit{
+                    margin: .5vh 0vh 1vh 0vh;
+                    width: 20vh;
+                    border-radius: 3px;
+                }
+                .listItem-body{
+                    color: rgba(45, 52, 54,1.0);
+                    background-color: rgba(85, 239, 196,.2);
+                    font-size: 2.5vh;
+                    text-align: center;
+                }
+                .bnt-delete_item{
+                    border-radius: 3px;
                 }
                 .contents-main-itemDetails{
                     margin-right: 1vh;
@@ -113,21 +151,18 @@
                  }
                  .licensePlates-title{
                     font-size: 2.5vh;
-                    width: 14vh;
+                    white-space: nowrap;
                  }
                  .licensePlates-code{
-                    position: relative;
-                    padding-left: 3px;
-                    font-size: 2.5vh;
+                    padding: 3px 0.8vh 0vh 0.8vh;
+                    margin-left: 1vh;
                     width: 16vh;
-                    height: 3vh;
+                    font-size: 2.5vh;
                     color: #2980b9;
                  }
                  .bnt-licensePlates{
-                    margin-bottom: 2.5vh;
-                    color: #ecf0f1;
-                    height: 3vh;
-                    border-radius: 3px;
+                   padding: 0vh 1.5vh 0vh 1.5vh;
+                   border-radius: 0px 3px 3px 0px;
                  }
                  .itemCon{
                     display: flex;
@@ -173,11 +208,11 @@
                     border-top: 1px solid #000;
                  }
                  .sumPallet-title{
-                    font-size: 3rem;
+                    font-size: 5vh;
                  }
                  .sumPallet-code{
                     padding-left: 3px;
-                    font-size: 3rem;
+                    font-size: 5vh;
                     color: #16a085;
                  }
                  .item-1{
@@ -185,35 +220,35 @@
                     padding-top: 1vh;
                     display: flex;
                     justify-content: start;
-                    height: 10vh;
+                    height: 8vh;
                  }
                  .item{
                     position: relative;
                     padding-top: 5vh;
                     display: flex;
                     justify-content: center;
-                    height: 15vh;
+                    height: 13vh;
                  }
                  .item-title{
                     font-size: 7vh;
                  }
                  .item-code{
                     padding-left: 2vh;
-                    font-size: 16vh;
+                    font-size: 15vh;
                     color: #2980b9;
                  }
                  .pallet-1{
                     position: relative;
                     display: flex;
-                    padding-top: 3vh;
+                    padding-top: 2vh;
                     height: 8vh;
                     justify-content: start;
                  }
                  .pallet{
                     position: relative;
                     display: flex;
-                    padding-top: 8vh;
-                    height: 15vh;
+                    margin-top: 8vh;
+                    height: 10vh;
                     justify-content: center;
                  }
                  .pallet-title{
@@ -221,7 +256,7 @@
                  }
                  .pallet-code{
                     padding-left: 2vh;
-                    font-size: 16vh;
+                    font-size: 18vh;
                     color: #16a085;
                  }
     </style>
@@ -240,7 +275,6 @@
                     <div class="col header">
                         <p class="header-title">Shipping Mark QR Code Scanning</p>  
                     </div>
-
                     <div class="col-4 employee">
                         <div class="row DLO">
                             <div class="col name">
@@ -263,10 +297,8 @@
                                 <p id="detailsDept" class="details-dept">Warehouse</p>
                             </div>
                         </div> 
-                    </div>
-                  
+                    </div>                
                 </div>
-
                 <div class="row contents-title">
                     <div class="col-4">
                         <div class="input-group mb-3 d-flex" >
@@ -277,15 +309,45 @@
                 </div>
 
                 <div class="row contents-main">
-                    <div class="col-7 contents-main-listItem" style="background-color:#2980b9;">
+                    <div class="col-7 contents-main-listItem">
+                        <div class="row table-responsive">
+                            <table class="table header-fixed listItem">
+                                <thead >
+                                  <tr class="listItem-header">
+                                    <th scope="col">#</th>
+                                    <th scope="col">Mã PO</th>
+                                    <th scope="col">Mã kiện</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col">Mã thùng(#)</th>
+                                    <th scope="col">/</th>
+                                  </tr>
+                                </thead>
+                                <tbody class="listItem-body">
+                                <% for( let index = 0; index < 40; index++ ) { %>
+                                    <tr>
+                                        <th scope="row"><%=index%></th>
+                                        <td>123253346</td>
+                                        <td>AB123</td>
+                                        <td>12345</td>
+                                        <td>#01</td>
+                                        <td><button type="button" class="btn btn-danger bnt-delete_item">Xoá</button></td>
+                                      </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row contents-main-listItem-options">
+                            <button type="button" class="btn btn-danger listItem-options-delete-all">Xoá hết</button>
+                            <button type="button" class="btn btn-primary listItem-options-submit">Đóng Pallet</button>
+                        </div>
                     </div>
                     <div class="col contents-main-itemDetails">
                         <div class="row" style="padding-top:15px;">
                             <div class="col licensePlates">
                                 <p class="licensePlates-title">Biển số xe:</p>
-                                <input type="text" id="licensePlatesCode" class="licensePlates-code" placeholder="89F-99999" aria-describedby="basic-addon2">
-                                <div class="input-group-append">
-                                <button class="btn btn-success bnt-licensePlates" type="button">Nhập</button>
+                                <div class="input-group mb-3">
+                                    <input type="text" id="licensePlatesCode" class="form-control licensePlates-code" placeholder="89F-99999">
+                                    <button class="btn btn-success bnt-licensePlates" type="button">Nhập</button>
                                 </div>
                             </div>
                             <div class="col itemCon">
