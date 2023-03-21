@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
     <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
     <link rel="stylesheet" href="/Contents/css/main.css">
+    <link href="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.css" rel="stylesheet">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
     <script src="/JS/HBI/wareHouse/shippingMarkScan.js"></script>
@@ -21,6 +22,9 @@
     <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table-vue.min.js"></script>
     <style>
             *{
             margin: 0;
@@ -108,7 +112,6 @@
                 }
                 .table-responsive{
                     max-height:65vh;
-                    flex-direction: column-reverse;
                 }
                 .listItem-header{
                     position: sticky !important;
@@ -129,7 +132,7 @@
                     border-radius: 3px;
                 }
                 .listItem-options-submit{
-                    margin: .5vh .5vh 1vh 0vh;
+                    margin: .5vh 0vh 1vh 0vh;
                     width: 20vh;
                     border-radius: 3px;
                 }
@@ -235,7 +238,7 @@
                  }
                  .item-code{
                     padding-left: 2vh;
-                    font-size: 15vh;
+                    font-size: 6vh;
                     color: #2980b9;
                  }
                  .pallet-1{
@@ -310,58 +313,41 @@
                 </div>
 
                 <div class="row contents-main">
-                    <div class="col-7 contents-main-listItem">
-                        <div class="row table-responsive">
-                            <table class="table header-fixed listItem">
-                                <thead >
-                                  <tr class="listItem-header">
-                                    <th scope="col">#</th>
-                                    <th scope="col">Mã PO</th>
-                                    <th scope="col">Mã kiện</th>
-                                    <th scope="col">Số lượng</th>
-                                    <th scope="col">Mã thùng(#)</th>
-                                    <th scope="col">/</th>
-                                  </tr>
-                                </thead>
-                                <tbody class="listItem-body">
-                                <% for( let index = 0; index < 40; index++ ) { %>
-                                    <tr>
-                                        <th scope="row"><%=index%></th>
-                                        <td>123253346</td>
-                                        <td>AB123</td>
-                                        <td>12345</td>
-                                        <td>#01</td>
-                                        <td><button type="button" class="btn btn-danger bnt-delete_item">Xoá</button></td>
-                                      </tr>
-                                <% } %>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="col-7 contents-main-listItem" style="font-size:1.2rem; text-align:center;">
+                        <table
+                            id="table"
+                            data-toolbar="#toolbar"
+                            data-search="true"
+                            data-response-handler="responseHandler">
+                        </table>
+                        <script>
+                            var $table = $('#table')
+                        </script>
                         <div class="row contents-main-listItem-options">
-                            <button type="button" class="btn btn-danger listItem-options-delete-all">Xoá hết</button>
-                            <button type="button" class="btn btn-primary listItem-options-submit">Đóng Pallet</button>
+                            <button type="button" class="btn btn-danger listItem-options-delete-all" onclick="DeleteAll()">Xoá hết</button>
+                            <!-- <button type="button" class="btn btn-primary listItem-options-submit" onclick="closePallet()">Đóng Pallet</button> -->
                         </div>
                     </div>
                     <div class="col contents-main-itemDetails">
                         <div class="row" style="padding-top:15px;">
-                            <div class="col licensePlates">
+                            <div class="col-7 licensePlates">
                                 <p class="licensePlates-title">Biển số xe:</p>
                                 <div class="input-group mb-3">
                                     <input type="text" id="licensePlatesCode" class="form-control licensePlates-code" placeholder="89F-99999">
-                                    <button class="btn btn-success bnt-licensePlates" type="button">Nhập</button>
+                                    <button class="btn btn-success bnt-licensePlates" type="button" onclick="addLicense()">Nhập</button>
                                 </div>
                             </div>
-                            <div class="col itemCon">
+                            <div class="col-5 itemCon">
                                 <p class="itemCon-title">Kiện/xe:</p>  
                                 <p id="itemConCode" class="itemCon-code">999</p> 
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col PO">
+                            <div class="col-7 PO">
                                 <p class="PO-title">Mã PO:</p>  
-                                <p id="POCode" class="PO-code">123253346</p> 
+                                <p id="poCode" class="PO-code">123253346</p> 
                             </div>
-                            <div class="col quantity">
+                            <div class="col-5 quantity">
                                 <p class="quantity-title">Số lượng:</p>  
                                 <p id="quantityCode" class="quantity-code">12345</p> 
                             </div>
@@ -380,7 +366,7 @@
                             <p class="pallet-title">Số kiện/Pallet:</p>  
                         </div>
                         <div class="col pallet">
-                            <p id="palletCode" class="pallet-code">100</i></p> 
+                            <p id="box/pallet" class="pallet-code">100</i></p> 
                         </div>
                     </div>
                 </div>

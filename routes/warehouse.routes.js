@@ -10,4 +10,5 @@ router.get("/accountant",accountant.getIndex);
 router.get("/dashboard", dashboard.getIndex);
 router.post("/scanBarcode/poUpdate",shippingMarkScan.poUpdate);
 router.post("/scanBarcode/CheckId",shippingMarkScan.CheckId);
+router.post("/scanBarcode/UploadPallet",shippingMarkScan.UploadPallet);
 module.exports = router;

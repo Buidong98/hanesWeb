@@ -46,7 +46,9 @@ module.exports.poUpdate =async function (req, res) {
 module.exports.CheckId = async function(req, res){
     try{
         let id = req.body.id;
+        
         var query = `SELECT * FROM warehouse_user WHERE id = "${id}"`
+        console.log(query)
         var result =  await db.excuteQueryAsync(query);
         if(result.length > 0){
             return res.end(JSON.stringify({
@@ -70,6 +72,47 @@ module.exports.CheckId = async function(req, res){
             rs: false,
             msg: "Error",
             data:""
+        }));
+        
+    }
+}
+module.exports.UploadPallet = async function(req, res){
+    try{
+        
+        let dataScan = req.body.dataScan;
+        let pallet = req.body.palletId;
+        let licensePlates = req.body.licensePlates;
+        console.table(dataScan);
+        
+            let query ="INSERT INTO warehouse_shipping_data_scan (po,hbi_code,quantity_actual,box_carton,`date`,id_employee, license_plates,pallet) VALUES\n";
+            dataScan.forEach(function(item,index){
+                if(index+1 != dataScan.length){
+                    query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}'),\n`;
+                }
+               else{
+                query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}')`;
+               }
+            });
+            //console.log(query);
+            var result =  await db.excuteQueryAsync(query);
+            if(result == null) {
+                 return res.end(JSON.stringify({
+                rs: false,
+                msg: "Không thể thêm pallet"
+            }));
+            }
+            return res.end(JSON.stringify({
+                rs: true,
+                msg: "Thêm pallet thành công"
+            }));
+       
+       
+    }
+    catch (error) {
+        logHelper.writeLog("warehouse_upload_file_excel", error);
+        return res.end(JSON.stringify({
+            rs: false,
+            msg: "Không thể thêm paller error:" + error
         }));
         
     }

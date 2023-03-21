@@ -1,7 +1,8 @@
 const baseUrl = "/warehouse/scanBarcode/";
-
-
-
+var dataScan=[];
+var id = "";
+var licensePlates = "";
+var palletId="";
 $(document).ready(function () {
      $('#changeUser').modal('show');
    $( "#changeUser" ).on('shown.bs.modal', function(){
@@ -50,7 +51,8 @@ function ScanId(){
     toastr.options = {
     "positionClass": "toast-bottom-right"
   }
-    var id =  document.getElementById("idCode").value;
+    id =  document.getElementById("idCode").value;
+    console.log(id)
     $.ajax({
         url: baseUrl + 'CheckId',
         method: 'POST',
@@ -67,6 +69,7 @@ function ScanId(){
                 $( "#changeUser" ).on('hidden.bs.modal', function(){
                     document.getElementById("caseCode").focus();
                 });
+                
                 document.getElementById("DLOid").innerHTML = id;
                 document.getElementById("DLOName").innerHTML = result.data[0]["Name"];
             }
@@ -100,5 +103,154 @@ function AddCaseCode(){
     toastr.options = {
         "positionClass": "toast-bottom-right"
       }
-    toastr.success(`Đã thêm thùng ${caseScan} thành công`);
+      if(caseScan.length > 15){
+        let data = caseScan.split(";");
+        
+        let po = (typeof data[0]!=='undefined' ? data[0] :"");
+        
+        let code = (typeof data[1]!=='undefined' ? data[1] :"");
+        let quantity = (typeof data[2]!=='undefined' ? data[2] :"0");
+        let box = (typeof data[3]!=='undefined' ? data[3] :"0");
+        addBoxToPallet(po,code,quantity,box);
+        toastr.success(`Đã thêm thùng po:  ${po} thành công`);
+      }
+      if(caseScan.length == 9){
+        palletId = caseScan;
+        console.log("close pallet")
+        closePallet();
+      }
 }
+
+
+var boxQuantity = 0;
+function addLicense(){
+  licensePlates = document.getElementById("licensePlatesCode").value;
+  
+  if(licensePlates != ""){
+    toastr.success("Thay đổi biển số xe thành công");
+  }
+  else
+  toastr.warning("Bạn cần nhập vào biển số xe");
+  
+}
+function addBoxToPallet(po,code,quantity,box){
+  
+  boxQuantity= boxQuantity+1;
+  dataScan.push({
+      id:boxQuantity,
+      po: po,
+      code:code ,
+      quantity: quantity,
+      box:box,
+      id_employee:id
+    });
+    document.getElementById("itemCode").innerHTML =code;
+    document.getElementById("quantityCode").innerHTML =quantity;
+    document.getElementById("poCode").innerHTML =po;
+
+    initTable();
+}
+function deleteScan(row,data){
+    console.log(dataScan.length);
+    dataScan=[];
+    boxQuantity = 0;
+    data.forEach(function(item, index) { 
+        
+        if(item.id != row.id) {
+            boxQuantity += 1;
+            console.log("id   "+index);
+            dataScan.push({
+                id:boxQuantity,
+                po: item.po,
+                code:item.code,
+                quantity: item.quantity,
+                box:item.box,
+                id_employee:id
+
+            })
+        }
+        initTable();
+    });
+    
+}
+function DeleteAll(){
+    dataScan=[];
+    boxQuantity=0;
+    initTable();
+}
+function closePallet(){
+  if(dataScan.length>0){
+    $.ajax({
+      url: baseUrl + 'UploadPallet',
+      method: 'POST',
+      data:{'dataScan':dataScan,'palletId':palletId,'licensePlates':licensePlates},
+      dataType: 'json',
+      success: function (result) {
+        if(result.rs){
+          dataScan=[];
+          boxQuantity=0;
+          initTable();
+          toastr.success(result.msg);
+        }
+        else
+            toastr.error(result.msg);
+      }
+    })
+  }
+  else
+    toastr.error("Pallet rỗng, bạn cần thêm thùng vào pallet");
+ 
+}
+ function initTable() {
+    console.log("fdf")
+    document.getElementById("box/pallet").innerHTML =dataScan.length;
+    $table.bootstrapTable('destroy').bootstrapTable({
+        height: 740,
+        locale: $('#locale').val(),
+      
+        columns: [
+         
+          {
+            title: '#',
+            field: 'id'
+          },
+          {
+            title: 'PO',
+            field: 'po'
+          },
+          {
+            field: 'code',
+            title: 'HBI Code'
+          },
+          {
+            field: 'quantity',
+            title: 'Quantity'
+          },
+          {
+            field: 'box',
+            title: 'Box/Carton#'
+          },
+          {
+            field: 'action',
+            title: 'Actions',
+            align: 'center',
+            formatter: function () {
+               
+              return '<button type="button" class="like btn btn-danger bnt-delete_item">Xoá</button>'
+            },
+            events: {
+              'click .like': function (e, value, row) {
+                deleteScan(row,dataScan);
+               
+              }
+            }
+          }
+        ],
+        data:dataScan
+      
+    })
+ }
+ $(function() {
+     initTable();
+     $('#locale').change(initTable)
+   })
