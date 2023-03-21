@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/Contents/css/main.css">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
-    <!-- <script src="/JS/HBI/wareHouse/shippingMarkScan.js"></script> -->
+    <script src="/JS/HBI/wareHouse/shippingMarkScan.js"></script>
     <script src="/Contents/libs/select2/select2.min.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/shim.min.js"></script>
@@ -108,6 +108,7 @@
                 }
                 .table-responsive{
                     max-height:65vh;
+                    flex-direction: column-reverse;
                 }
                 .listItem-header{
                     position: sticky !important;
@@ -128,7 +129,7 @@
                     border-radius: 3px;
                 }
                 .listItem-options-submit{
-                    margin: .5vh 0vh 1vh 0vh;
+                    margin: .5vh .5vh 1vh 0vh;
                     width: 20vh;
                     border-radius: 3px;
                 }
