@@ -1,4 +1,4 @@
-const baseUrl = "/warehouse/scanBarcode/";
+const baseUrl = "/warehouse/shippingMark/";
 var dataScan=[];
 var id = "";
 var licensePlates = "";
@@ -11,42 +11,8 @@ $(document).ready(function () {
 
 });
 
-async function  uploadExcel(){
-    if (window.FormData !== undefined) {
-        const file = document.getElementById('FilePo').files[0];
-        var dataJson = {};
-        await file.arrayBuffer().then((res) => {
-            let data = new Uint8Array(res);
-            let workbook = XLSX.read(data,{type:"array"});
-            let first_sheet_name = workbook.SheetNames[0];
-            let worksheet = workbook.Sheets[first_sheet_name];
-            dataJson = XLSX.utils.sheet_to_json(worksheet);
-        })
-        //LoadingShow();
-        if(typeof dataJson[0].WAREHOUSE != "undefined" && typeof dataJson[0].PR_NUM != "undefined" && typeof dataJson[0].ITEM_STYLE != "undefined"){           
-            $.ajax({
-                url: baseUrl + 'poUpdate',
-                method: 'POST',
-                data:{'dataJson':dataJson},
-                dataType: 'json',
-                success: function (result) {
-                    console.log(result);
-                   // LoadingHide();
-                   toastr.success("Upload file po thành công");
-                   document.getElementById('FilePo').value = "";
-                }
-            })
-        }
-        else{
-            //LoadingHide();
-            toastr.error("File po sai định dạng");
-            document.getElementById('FilePo').value = "";
-        }
-    }
-}
-function Download_po(url){
-    window.open(url, '_blank').focus();
-}
+
+
 function ScanId(){
     toastr.options = {
     "positionClass": "toast-bottom-right"
@@ -83,8 +49,6 @@ function ScanId(){
         }
     })
 
-
-    
 }
 function SaveId(){
     $('#changeUser').modal('hide');
@@ -122,22 +86,26 @@ function AddCaseCode(){
 }
 
 
-var boxQuantity = 0;
+var idNumber = 0;
 function addLicense(){
   licensePlates = document.getElementById("licensePlatesCode").value;
   
   if(licensePlates != ""){
     toastr.success("Thay đổi biển số xe thành công");
+    document.getElementById("caseCode").focus();
   }
-  else
-  toastr.warning("Bạn cần nhập vào biển số xe");
+  else{
+    toastr.warning("Bạn cần nhập vào biển số xe");
+    document.getElementById("licensePlatesCode").focus();
+  }
+ 
   
 }
 function addBoxToPallet(po,code,quantity,box){
   
-  boxQuantity= boxQuantity+1;
+  idNumber= idNumber+1;
   dataScan.push({
-      id:boxQuantity,
+      id:idNumber,
       po: po,
       code:code ,
       quantity: quantity,
@@ -148,19 +116,19 @@ function addBoxToPallet(po,code,quantity,box){
     document.getElementById("quantityCode").innerHTML =quantity;
     document.getElementById("poCode").innerHTML =po;
 
-    initTable();
+    loadDataTable();
 }
-function deleteScan(row,data){
+function deleteScan(id){
+    var data = dataScan;
     console.log(dataScan.length);
     dataScan=[];
-    boxQuantity = 0;
+    idNumber = 0;
     data.forEach(function(item, index) { 
-        
-        if(item.id != row.id) {
-            boxQuantity += 1;
+        if(item.id != id) {
+            idNumber += 1;
             console.log("id   "+index);
             dataScan.push({
-                id:boxQuantity,
+                id:idNumber,
                 po: item.po,
                 code:item.code,
                 quantity: item.quantity,
@@ -169,14 +137,14 @@ function deleteScan(row,data){
 
             })
         }
-        initTable();
+        loadDataTable();
     });
     
 }
 function DeleteAll(){
     dataScan=[];
-    boxQuantity=0;
-    initTable();
+    idNumber=0;
+    loadDataTable();
 }
 function closePallet(){
   if(dataScan.length>0){
@@ -188,8 +156,8 @@ function closePallet(){
       success: function (result) {
         if(result.rs){
           dataScan=[];
-          boxQuantity=0;
-          initTable();
+          idNumber=0;
+          loadDataTable();
           toastr.success(result.msg);
         }
         else
@@ -201,56 +169,73 @@ function closePallet(){
     toastr.error("Pallet rỗng, bạn cần thêm thùng vào pallet");
  
 }
- function initTable() {
-    console.log("fdf")
-    document.getElementById("box/pallet").innerHTML =dataScan.length;
-    $table.bootstrapTable('destroy').bootstrapTable({
-        height: 740,
-        locale: $('#locale').val(),
+//  function loadDataTable() {
+//     console.log("fdf")
+//     document.getElementById("box/pallet").innerHTML =dataScan.length;
+//     $table.bootstrapTable('destroy').bootstrapTable({
+//         height: "450"   ,
+//         locale: $('#locale').val(),
       
-        columns: [
+//         columns: [
          
-          {
-            title: '#',
-            field: 'id'
-          },
-          {
-            title: 'PO',
-            field: 'po'
-          },
-          {
-            field: 'code',
-            title: 'HBI Code'
-          },
-          {
-            field: 'quantity',
-            title: 'Quantity'
-          },
-          {
-            field: 'box',
-            title: 'Box/Carton#'
-          },
-          {
-            field: 'action',
-            title: 'Actions',
-            align: 'center',
-            formatter: function () {
+//           {
+//             title: '#',
+//             field: 'id'
+//           },
+//           {
+//             title: 'PO',
+//             field: 'po'
+//           },
+//           {
+//             field: 'code',
+//             title: 'HBI Code'
+//           },
+//           {
+//             field: 'quantity',
+//             title: 'Quantity'
+//           },
+//           {
+//             field: 'box',
+//             title: 'Box/Carton#'
+//           },
+//           {
+//             field: 'action',
+//             title: 'Actions',
+//             align: 'center',
+//             formatter: function () {
                
-              return '<button type="button" class="like btn btn-danger bnt-delete_item">Xoá</button>'
-            },
-            events: {
-              'click .like': function (e, value, row) {
-                deleteScan(row,dataScan);
+//               return '<button type="button" class="like btn btn-danger bnt-delete_item">Xoá</button>'
+//             },
+//             events: {
+//               'click .like': function (e, value, row) {
+//                 deleteScan(row,dataScan);
                
-              }
-            }
-          }
-        ],
-        data:dataScan
+//               }
+//             }
+//           }
+//         ],
+//         data:dataScan
       
+//     })
+//  }
+ function loadDataTable(){
+    var tableBody ="";
+    dataScan.forEach(function (item, index) {
+        tableBody += `<tr class="row-body">
+        <td class="listItem-body">${index +1}</th>
+        <td class="listItem-body">${item["po"]}</td>
+        <td class="listItem-body">${item["code"]}</td>
+        <td class="listItem-body">${item["quantity"]}</td>
+        <td class="listItem-body">${item["box"]}</td>
+        <td class="listItem-body">  
+            <button type="button" onclick=" deleteScan(${index +1})" class="like btn btn-danger bnt-delete_item">Xoá</button>
+        </td>
+        </tr>`;
     })
+    document.getElementById('tableBody').innerHTML = tableBody;
+
  }
  $(function() {
-     initTable();
-     $('#locale').change(initTable)
+     loadDataTable();
+     $('#locale').change(loadDataTable)
    })

@@ -110,8 +110,12 @@
                 .contents-main-listItem{
                     height: 65vh;
                 }
+                .table-container{
+                    height:65vh;
+                }
                 .table-responsive{
                     max-height:65vh;
+                    flex-direction: column-reverse;
                 }
                 .listItem-header{
                     position: sticky !important;
@@ -136,7 +140,11 @@
                     width: 20vh;
                     border-radius: 3px;
                 }
+                .row-body{
+                    height: 3vh !important;
+                }
                 .listItem-body{
+                   
                     color: rgba(45, 52, 54,1.0);
                     background-color: rgba(85, 239, 196,.2);
                     font-size: 2.5vh;
@@ -313,16 +321,46 @@
                 </div>
 
                 <div class="row contents-main">
-                    <div class="col-7 contents-main-listItem" style="font-size:1.2rem; text-align:center;">
-                        <table
+                    <div class="col-7 contents-main-listItem " style="font-size:1.2rem; text-align:center;">
+                        <!-- <table
                             id="table"
                             data-toolbar="#toolbar"
                             data-search="true"
                             data-response-handler="responseHandler">
-                        </table>
-                        <script>
+                        </table> -->
+                        <div class="table-container">
+                            <div class="row table-responsive">
+                                <table class="table header-fixed listItem">
+                                    <thead>
+                                        <tr id="tableHeader" class="listItem-header">
+                                            <th scope="col" class="listItem-header-actual">#</th>
+                                            <th scope="col"class="listItem-header-actual">Po</th>
+                                            <th scope="col" class="listItem-header-actual">HBI Code</th>
+                                            <th scope="col" class="listItem-header-actual">Quantity</th>
+                                            <th scope="col" class="listItem-header-plan">Box/Carton#</th>
+                                            <th scope="col" class="listItem-header-plan">/</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody" class="listItem-body">
+                                        <tr>
+                                            <td class="listItem-body">1</th>
+                                            <td class="listItem-body">43</td>
+                                            <td class="listItem-body">545</td>
+                                            <td class="listItem-body">656</td>
+                                            <td class="listItem-body">75</td>
+                                            <td class="listItem-body">
+                                                <button type="button" onclick="" class="like btn btn-danger bnt-delete_item">Xoá</button>
+                                            </td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                       
+                        <!-- <script>
                             var $table = $('#table')
-                        </script>
+                        </script> -->
                         <div class="row contents-main-listItem-options">
                             <button type="button" class="btn btn-danger listItem-options-delete-all" onclick="DeleteAll()">Xoá hết</button>
                             <!-- <button type="button" class="btn btn-primary listItem-options-submit" onclick="closePallet()">Đóng Pallet</button> -->
@@ -333,7 +371,7 @@
                             <div class="col-7 licensePlates">
                                 <p class="licensePlates-title">Biển số xe:</p>
                                 <div class="input-group mb-3">
-                                    <input type="text" id="licensePlatesCode" class="form-control licensePlates-code" placeholder="89F-99999">
+                                    <input type="text" id="licensePlatesCode" class="form-control licensePlates-code"multiple onchange="addLicense()" placeholder="89F-99999">
                                     <button class="btn btn-success bnt-licensePlates" type="button" onclick="addLicense()">Nhập</button>
                                 </div>
                             </div>
