@@ -11,7 +11,7 @@ module.exports.planUpload =async function (req, res) {
         var data = req.body.dataJson;
        
         let status = [];
-        await db.excuteQueryAsync('delete from warehouse_shipping_plan_error WHERE error_date = DATE(NOW());');
+        await db.excuteQueryAsync(`delete from warehouse_shipping_plan_error WHERE error_date = DATE(NOW()) or po is not null;`);
         await data.forEach(async function (item, index) {
             var query = `call usp_wasehouse_shipping_plan(
                     "${(typeof item["po"]!=='undefined' ? item["po"] :"")}",
@@ -59,8 +59,9 @@ module.exports.findDateChanged = async function (req, res, next) {
     try{
         var date = req.body.date;
         var table = req.body.select_table;
-        if(table == 'plan'|| table == 'total'||table=='addin'){
+        if(table == 'plan'|| table == 'total'||table=='addin' || table=='planError'){
             var query = `SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' GROUP BY po`;
+            console.log(query)
         }   
         else if(table == 'scan'){
             var query = `SELECT po,pallet FROM warehouse_shipping_data_scan WHERE date(DATE)='${date}'`;

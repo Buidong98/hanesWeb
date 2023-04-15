@@ -63,7 +63,6 @@ async function uploadExcel() {
                                 break;
                         }
                     })
-                    
                     // LoadingHide();
                     if(result.rs){
                         document.getElementById('inputfilePlan').files[0] = "";
@@ -78,11 +77,8 @@ async function uploadExcel() {
                         if(replace >0)
                         toastr.success(`Replace ${replace} bản ghi thành công`);
                     }
-                   
-
                     else
                     toastr.error(result.msg);
-
                     // document.getElementById('FilePo').value = "";
                 }
             })
@@ -110,7 +106,7 @@ function findDateChanged(obj) {
             var optionvendor = "<option selected>All</option>";
             if (result.data.length > 0) {
                 let mvendor =[];
-                if(selectTable == 'plan'|| selectTable == 'total'||selectTable == 'addin'){
+                if(selectTable == 'plan'|| selectTable == 'total'||selectTable == 'addin' || selectTable=='planError'){
                     result.data.forEach(function (item, index) {
                         if (item['po'] != null) {
                             optionPO += `<option class="chart_header_option" value=${item['po']}>${item['po']}</option>\n`;

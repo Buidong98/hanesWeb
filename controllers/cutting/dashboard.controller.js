@@ -328,13 +328,14 @@ module.exports.getStackBarMachineData = async function (req, res) {
                 for (let i = 0; i < labels.length; i++) {
                     const objLabel = labels[i];
                     let machine = new CuttingMachineData(objLabel.code, objLabel.position);
-
+                    
                     for (let i = 0; i < result92.length; i++) {
+                        a= result92[i];
                         let ele = result92[i];
                         if (ele["machine_code"] == objLabel.code)
                             sumData92(machine, ele);
                     }
-
+                  
                     for (let i = 0; i < result95.length; i++) {
                         let ele = result95[i];
                         if (ele["machine_code"] == objLabel.code)
@@ -629,7 +630,7 @@ function sumData92(machine, ele) {
     machine.idleTime += idleTime;
 
     machine.cutSpeed += cutSpeed;
-    machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime});
+    machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime,cutSpeed:cutSpeed});
 }
 
 function sumData95(machine, ele) {
@@ -655,7 +656,7 @@ function sumData95(machine, ele) {
 
     machine.cutSpeed += cutSpeed;
    // machine.cutFilenameList.push(cutFilename);
-   machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime});
+   machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime,cutSpeed:cutSpeed});
 }
 
 module.exports.getMachineStatusRealtime = function(req, res){
