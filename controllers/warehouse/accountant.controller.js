@@ -9,40 +9,37 @@ module.exports.getIndex = function (req, res) {
 module.exports.planUpload =async function (req, res) { 
     try{
         var data = req.body.dataJson;
-        var query =`INSERT INTO warehouse_shipping_plan (po,hbi_code,DATE,po_release,quantity_plan,unit,package_quantity,vender,location,po_line_nbr) values`;
-        for (let i = 0; i < data.length; i++){
-            query += await `( 
-            "${(typeof data[i]["po"]!=='undefined' ? data[i]["po"] :"")}",
-            "${(typeof data[i]["hbi_code"]!=='undefined' ? data[i]["hbi_code"] :"")}",
-            "${(typeof data[i]["date"]!=='undefined' ? ExcelDateToJSDate(data[i]["date"]) :"now()")}",
-            "${(typeof data[i]["po_release"]!=='undefined' ? data[i]["po_release"] :"")}",
-            "${(typeof data[i]["quantity_plan"]!=='undefined' ? data[i]["quantity_plan"] :"0")}",
-            "${(typeof data[i]["unit"]!=='undefined' ? data[i]["unit"] :"")}",
-            "${ (typeof data[i]["package_quantity"]!=='undefined' ? data[i]["package_quantity"] :"0")}",
-            "${(typeof data[i]["vender"]!=='undefined' ? data[i]["vender"] :"")}",
-            "${(typeof data[i]["location"]!=='undefined' ? data[i]["location"] :"")}",
-            "${(typeof data[i]["po_line_nbr"]!=='undefined' ? data[i]["po_line_nbr"] :"")}"
-            )`
-            if (i<data.length - 1)
-                query += ",\n"
-        }
        
-      
-        // await db.excuteNonQueryAsync("DELETE FROM warehouse_scan_po WHERE WAREHOUSE IS NOT NULL;");
-        var result  = await db.excuteNonQueryAsync(query);
-        if(result == null) {
-            return res.end(JSON.stringify({
-                rs: false,
-                msg: "Không thể upload file po, xin vui lòng kiểm tra lại"
-       }));
-       }
-        return res.end(JSON.stringify({
-            rs: true,
-            msg: "Upload plan thành công"
-        }));
+        let status = [];
+        await db.excuteQueryAsync('delete from warehouse_shipping_plan_error WHERE error_date = DATE(NOW());');
+        await data.forEach(async function (item, index) {
+            var query = `call usp_wasehouse_shipping_plan(
+                    "${(typeof item["po"]!=='undefined' ? item["po"] :"")}",
+                    "${(typeof item["hbi_code"]!=='undefined' ? item["hbi_code"] :"")}",
+                    "${(typeof item["date"]!=='undefined' ? ExcelDateToJSDate(item["date"]) :"now()")}",
+                    "${(typeof item["po_release"]!=='undefined' ? item["po_release"] :"")}",
+                    "${(typeof item["quantity_plan"]!=='undefined' ? item["quantity_plan"] :"0")}",
+                    "${(typeof item["unit"]!=='undefined' ? item["unit"] :"")}",
+                    "${ (typeof item["package_quantity"]!=='undefined' ? item["package_quantity"] :"0")}",
+                    "${(typeof item["vendor"]!=='undefined' ? item["vendor"] :"")}",
+                    "${(typeof item["location"]!=='undefined' ? item["location"] :"")}",
+                    "${(typeof item["po_line_nbr"]!=='undefined' ? item["po_line_nbr"] :"")}",
+                    "${(typeof item["status"]!=='undefined'&& item["status"] != ""? item["status"] :"i")}"
+                    )`;
+           var result  = await db.excuteQueryAsync(query);
+            status.push(result[0][0]);
+            if(index == data.length-1){
+                return res.end(JSON.stringify({
+                    rs: true,
+                    msg: "Upload plan thành công",
+                    status:status
+                }));
+            }
+        });
+       
     }
     catch (error) {
-        logHelper.writeLog("warehouse_upload_file_excel", error);
+        //logHelper.writeLog("warehouse_upload_file_excel", error);
         return res.end(JSON.stringify({
             rs: false,
             msg: "Không thể upload file po, xin vui lòng kiểm tra lại"
@@ -51,16 +48,19 @@ module.exports.planUpload =async function (req, res) {
     
 }
 function ExcelDateToJSDate(date) {
-    
     dt = new Date(Math.round((date - 25569)*86400*1000));
-    return `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`
+    if(isNaN(dt.getFullYear())){
+        dt = new Date(date)
+        return `${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`
+    }
+    return `${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`
   }
 module.exports.findDateChanged = async function (req, res, next) { 
     try{
         var date = req.body.date;
         var table = req.body.select_table;
         if(table == 'plan'|| table == 'total'||table=='addin'){
-            var query = `SELECT po,vender FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' GROUP BY po`;
+            var query = `SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' GROUP BY po`;
         }   
         else if(table == 'scan'){
             var query = `SELECT po,pallet FROM warehouse_shipping_data_scan WHERE date(DATE)='${date}'`;
@@ -78,23 +78,22 @@ module.exports.findDateChanged = async function (req, res, next) {
         msg: ""
     }));}
 }
-module.exports.findVenderChanged =async function (req, res, next) { 
-   
+module.exports.findvendorChanged =async function (req, res, next) {
     try{
-        var vender = req.body.vender;
+        var vendor = req.body.vendor;
         var table = req.body.select_table;
         var date = req.body.date;
         var query ="";
-        if(table == 'total'|| table == 'plan' || table == 'addin'){
-            query = vender=="All" ?
-        `SELECT po,vender FROM vw_warehouse_shipping_data  WHERE plan_date = '${date}' GROUP BY po`
-        :`SELECT po,vender FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' and vender = '${vender}' GROUP BY po`
+        if(table == 'total'|| table == 'plan' || table == 'planError' || table == 'addin'){
+            query = vendor=="All" ?
+        `SELECT po,vendor FROM vw_warehouse_shipping_data  WHERE plan_date = '${date}' GROUP BY po`
+        :`SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' and vendor = '${vendor}' GROUP BY po`
         }
         else if(table=='scan'){
-            query = vender=="All" ?
+            query = vendor=="All" ?
         `SELECT po FROM warehouse_shipping_data_scan  WHERE date(date) = '${date}' GROUP BY po`
         :`SELECT po FROM warehouse_shipping_data_scan WHERE date(date) = '${date}' and pallet
-         = '${vender}' GROUP BY po`
+         = '${vendor}' GROUP BY po`
         }
         var data = await db.excuteQueryAsync(query);
         return res.end(JSON.stringify({
@@ -111,7 +110,7 @@ module.exports.findVenderChanged =async function (req, res, next) {
 module.exports.LoadDataTable =  async function (req, res, next) {
     try{
         var  date = req.body.date;
-        var vender = req.body.vender;
+        var vendor = req.body.vendor;
         var po = req.body.po;
         var selectTable = req.body.selectTable;
         var query ="";
@@ -123,7 +122,10 @@ module.exports.LoadDataTable =  async function (req, res, next) {
                 query = `SELECT * FROM vw_warehouse_shipping_data WHERE plan_date = '${date}'`;
                 break;
             case "plan":
-                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vender FROM warehouse_shipping_plan where date = '${date}'`;
+                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan where date = '${date}'`;
+                break;
+            case "planError":
+                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan_error where date = '${date}'`;
                 break;
             case "addin":
                 query = `SELECT *FROM vw_warehouse_shipping_addin  WHERE DATE(date) = '${date}'`;
@@ -136,7 +138,7 @@ module.exports.LoadDataTable =  async function (req, res, next) {
         //     query = `SELECT * FROM vw_warehouse_shipping_data WHERE plan_date = '${date}'`;
         // }
         // else if(selectTable =="plan"){
-        //     query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vender FROM warehouse_shipping_plan where date = '${date}'`;
+        //     query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor FROM warehouse_shipping_plan where date = '${date}'`;
         // } 
         // else if(selectTable=="addin"){
         //     query = `SELECT * FROM warehouse_shipping_data_scan WHERE DATE(date) = '${date}'`;
@@ -144,11 +146,11 @@ module.exports.LoadDataTable =  async function (req, res, next) {
         if(po != "All"){
             query += ` and po = '${po}'`;
         }
-        if(vender != "All" && selectTable != "scan"){
-            query += `and vender = '${vender}'`;
+        if(vendor != "All" && selectTable != "scan"){
+            query += `and vendor = '${vendor}'`;
         }
-        if(vender != "All" && selectTable == "scan"){
-            query += `and pallet = '${vender}'`;
+        if(vendor != "All" && selectTable == "scan"){
+            query += `and pallet = '${vendor}'`;
         }
         
         var data = await db.excuteQueryAsync(query);
@@ -206,10 +208,18 @@ module.exports.LoadDataTable =  async function (req, res, next) {
         }));
     }
  }
- function formatDate(date){
-    if(typeof date == 'string'){
-        date1 = new Date(date);
-        return `${date1.getFullYear()}-${date1.getMonth()+1}-${date1.getDate()}`
-    }
+//  function formatDate(date){
+//     if(typeof date == 'string'){
+//         date1 = new Date(date);
+//         return `${date1.getFullYear()}-${date1.getMonth()+1}-${date1.getDate()}`
+//     }
 
- }
+//  }
+function formatDate(date) {
+    if (typeof date == 'string') {
+        date1 = new Date(date);
+        var month = date1.getMonth() + 1 < 10 ? `0${date1.getMonth()+1}` : date1.getMonth() + 1;
+        var day = date1.getDate() < 10 ? `0${date1.getDate()}` : date1.getDate();
+        return `${date1.getFullYear()}-${month}-${day}`
+    }
+}

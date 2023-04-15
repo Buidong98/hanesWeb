@@ -12,7 +12,7 @@ router.post("/shippingMark/CheckId",shippingMarkScan.CheckId);
 router.post("/shippingMark/UploadPallet",shippingMarkScan.UploadPallet);
 router.post("/shippingMark/planUpload",accountant.planUpload);
 router.post("/shippingMark/findDateChanged",accountant.findDateChanged);
-router.post("/shippingMark/findVenderChanged",accountant.findVenderChanged);
+router.post("/shippingMark/findVendorChanged",accountant.findvendorChanged);
 router.post("/shippingMark/LoadDataTable",accountant.LoadDataTable);
 router.post("/shippingMark/updateQuantity",accountant.updateQuantity);
 module.exports = router;

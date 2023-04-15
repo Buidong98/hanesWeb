@@ -43,9 +43,43 @@ async function uploadExcel() {
                 dataType: 'json',
                 success: function (result) {
                     console.log(result);
+                    let error=0;
+                    let insert = 0;
+                    let update = 0;
+                    let replace = 0;
+                    result.status.forEach (function (item, index) {
+                        switch(item['plan_status']) {
+                            case '0',0:
+                                error += 1;
+                                break;
+                            case '1',1:
+                                insert += 1;
+                                break;
+                            case '2',2:
+                                update += 1;
+                                break;
+                            case '3',3:
+                                replace += 1;
+                                break;
+                        }
+                    })
+                    
                     // LoadingHide();
-                    if(result.rs)
-                    toastr.success(result.msg);
+                    if(result.rs){
+                        document.getElementById('inputfilePlan').files[0] = "";
+                        document.getElementById('inputfilePlan').value = "";
+
+                        if(error >0)
+                        toastr.error(`Không thể insert ${error} bản ghi`);
+                        if(insert >0)
+                        toastr.success(`Insert ${insert} bản ghi mới thành công`);
+                        if(update >0)
+                        toastr.success(`Update ${update} bản ghi thành công`);
+                        if(replace >0)
+                        toastr.success(`Replace ${replace} bản ghi thành công`);
+                    }
+                   
+
                     else
                     toastr.error(result.msg);
 
@@ -73,17 +107,17 @@ function findDateChanged(obj) {
         dataType: 'json',
         success: function (result) {
             var optionPO = "<option selected>All</option>";
-            var optionVender = "<option selected>All</option>";
+            var optionvendor = "<option selected>All</option>";
             if (result.data.length > 0) {
-                let mVender =[];
+                let mvendor =[];
                 if(selectTable == 'plan'|| selectTable == 'total'||selectTable == 'addin'){
                     result.data.forEach(function (item, index) {
                         if (item['po'] != null) {
                             optionPO += `<option class="chart_header_option" value=${item['po']}>${item['po']}</option>\n`;
                             
-                            if(!mVender.includes(item['vender'])){
-                                optionVender += `<option class="chart_header_option" value="${item['vender']}">${item['vender']}</option>\n`;
-                                mVender.push(item['vender']);
+                            if(!mvendor.includes(item['vendor'])){
+                                optionvendor += `<option class="chart_header_option" value="${item['vendor']}">${item['vendor']}</option>\n`;
+                                mvendor.push(item['vendor']);
                             }
                         }
                     });
@@ -97,7 +131,7 @@ function findDateChanged(obj) {
                             po.push(item['po']);
                         }
                             if(!pallet.includes(item['pallet'])){
-                            optionVender += `<option class="chart_header_option" value="${item['pallet']}">${item['pallet']}</option>\n`;
+                            optionvendor += `<option class="chart_header_option" value="${item['pallet']}">${item['pallet']}</option>\n`;
                             pallet.push(item['pallet']);
                         }
                         
@@ -106,20 +140,20 @@ function findDateChanged(obj) {
             
             }
             document.getElementById('findPo').innerHTML = optionPO;
-            document.getElementById('findVender').innerHTML = optionVender;
+            document.getElementById('findvendor').innerHTML = optionvendor;
         }
     })
 }
 
-function findVenderChanged(obj) {
+function findvendorChanged(obj) {
     var selectTable =  document.getElementById("selectTable").value;
     var date =  document.getElementById("findDate").value;
     toastr.success(obj)
     $.ajax({
-        url: baseUrl + 'findVenderChanged',
+        url: baseUrl + 'findvendorChanged',
         method: 'POST',
         data: {
-            'vender': obj,'select_table':selectTable,'date':date
+            'vendor': obj,'select_table':selectTable,'date':date
         },
         dataType: 'json',
         success: function (result) {
@@ -143,24 +177,24 @@ function changeSelectTable(obj){
         Lọc bản ghi bất thường
         </label>
         <input class="form-check-input" type="checkbox" checked ="true" value="1" id="checkAbnormal">`;
-        document.getElementById("titleVender").innerHTML = "Vender:";
+        document.getElementById("titlevendor").innerHTML = "vendor:";
     }
     if(obj =="scan"){
         findDateChanged(date)
-        document.getElementById('findVender').innerHTML ="";
+        document.getElementById('findvendor').innerHTML ="";
         document.getElementById("form_checkAbnormal").innerHTML ="";
-        document.getElementById("titleVender").innerHTML = "pallet:";
+        document.getElementById("titlevendor").innerHTML = "pallet:";
 
     }
-    if(obj =="plan"){
+    if(obj =="plan" || obj =="planError"){
         findDateChanged(date)
         document.getElementById("form_checkAbnormal").innerHTML ="";
-        document.getElementById("titleVender").innerHTML = "Vender:";
+        document.getElementById("titlevendor").innerHTML = "vendor:";
 
     }
     if(obj =="addin"){
         findDateChanged(date);
-        document.getElementById("titleVender").innerHTML = "Vender:";
+        document.getElementById("titlevendor").innerHTML = "vendor:";
 
     }
 }
@@ -170,7 +204,7 @@ let dataSheetName = "";
 function loadDataTable() {
    
     var date = document.getElementById("findDate").value;
-    var vender = document.getElementById("findVender").value;
+    var vendor = document.getElementById("findvendor").value;
     var po = document.getElementById("findPo").value;
     var selectTable = document.getElementById("selectTable").value;
     $.ajax({
@@ -178,7 +212,7 @@ function loadDataTable() {
         method: 'POST',
         data: {
             'date': date,
-            'vender': vender,
+            'vendor': vendor,
             'po': po,
             'selectTable':selectTable
         },
@@ -195,7 +229,7 @@ function loadDataTable() {
                     <th scope="col" class="listItem-header-actual">Quantity plan</th>
                     <th scope="col" class="listItem-header-actual">Quantity actual</th>
                     <th scope="col" class="listItem-header-actual">Quantity confirm</th>
-                    <th scope="col" class="listItem-header-actual">vender</th>
+                    <th scope="col" class="listItem-header-actual">vendor</th>
                     <th scope="col" class="listItem-header-actual">date</th>
                     `;
                     var i =0;
@@ -211,7 +245,7 @@ function loadDataTable() {
                                 "Quantity plan":item["quantity_actual"],
                                 "Quantity actual":item["quantity_actual"],
                                 "Quantity confirm":item["quantity_confirm"],
-                                "vender":item["vender"],
+                                "vendor":item["vendor"],
                                 "date":item["plan_date"]
                             });
                             i++;
@@ -219,19 +253,19 @@ function loadDataTable() {
                             <td class="listItem-body-actual">${i}</th>
                             <td class="listItem-body-actual">${item["po"]}</td>
                             <td class="listItem-body-actual">${item["hbi_code"]}</td>
-                            <td class="listItem-body-actual">${item["quantity_plan"]}</td>
-                            <td class="listItem-body-actual">${item["quantity_actual"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity_plan"])}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity_actual"])}</td>
                             <td class="listItem-body-plan">
                                 <!-- Button trigger modal -->
                                 <div class="row">
-                                <h class="quantityConfirmItem col-10" id="quantityConfirmItem${index}">${item["quantity_confirm"]}</h>
+                                <h class="quantityConfirmItem col-10" id="quantityConfirmItem${index}">${formatNumber(item["quantity_confirm"])}</h>
                                 <a class="quntittModelOn col-2"  data-bs-toggle="modal" data-bs-placement="bottom" data-bs-target="#quantityComfirm" 
                                 data-bookid='{"po":"${item["po"]}", "hbi_code":"${item["hbi_code"]}", "plan_date":"${item["plan_date"]}","quantityPlan":"${item["quantity_plan"]}","quantityActual":"${item["quantity_actual"]}","index":"${index}","quantity_confirm":"${item["quantity_confirm"]}"}'>
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>
                                 </div>
                             </td>
-                            <td class="listItem-body-actual">${item["vender"]}</td>
+                            <td class="listItem-body-actual">${item["vendor"]}</td>
                             <td class="listItem-body-actual">${formatDate(item["plan_date"])}</td>
                             </tr>`;
                         }
@@ -265,7 +299,7 @@ function loadDataTable() {
                         <td class="listItem-body-actual">${item["hbi_code"]}</td>
                         <td class="listItem-body-actual">${item["pallet"]}</td>
                         <td class="listItem-body-actual">${item["license_plates"]}</td>
-                        <td class="listItem-body-actual">${item["quantity_actual"]}</td>
+                        <td class="listItem-body-actual">${formatNumber(item["quantity_actual"])}</td>
                         <td class="listItem-body-actual">${item["date"]}</td>
                         <td class="listItem-body-actual">${item["id_employee"]}</td>
                         </tr>`;
@@ -281,7 +315,7 @@ function loadDataTable() {
                         <th scope="col" class="listItem-header-actual">Quantity plan</th>
                         <th scope="col" class="listItem-header-actual">Unit</th>
                         <th scope="col" class="listItem-header-actual">Package quantity</th>
-                        <th scope="col" class="listItem-header-actual">Vender</th>
+                        <th scope="col" class="listItem-header-actual">Vendor</th>
                         <th scope="col" class="listItem-header-actual">Date</th>
                         `;
                         dataExcel = [];
@@ -295,7 +329,7 @@ function loadDataTable() {
                             "Quantity plan":item["quantity_plan"],
                             "Unit":item["unit"],
                             "Package quantity":item["package_quantity"],
-                            "Vender":item["vender"],
+                            "vendor":item["vendor"],
                             "Date":item["DATE"]
                         });
                             tableBody += `<tr>
@@ -304,13 +338,55 @@ function loadDataTable() {
                             <td class="listItem-body-actual">${item["hbi_code"]}</td>
                             <td class="listItem-body-actual">${item["location"]}</td>
                             <td class="listItem-body-actual">${item["po_release"]}</td>
-                            <td class="listItem-body-actual">${item["quantity_plan"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity_plan"])}</td>
                             <td class="listItem-body-actual">${item["unit"]}</td>
                             <td class="listItem-body-actual">${item["package_quantity"]}</td>
-                            <td class="listItem-body-actual">${item["vender"]}</td>
+                            <td class="listItem-body-actual">${item["vendor"]}</td>
                             <td class="listItem-body-actual">${item["DATE"]}</td>
                             </tr>`;
                         });}
+                        break;
+                    case 'planError':
+                        tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
+                        <th scope="col" class="listItem-header-actual">Po release</th>
+                        <th scope="col" class="listItem-header-actual">PO</th>
+                        <th scope="col"class="listItem-header-actual">Code</th>
+                        <th scope="col" class="listItem-header-actual">Location</th>
+                        <th scope="col" class="listItem-header-actual">Quantity plan</th>
+                        <th scope="col" class="listItem-header-actual">Unit</th>
+                        <th scope="col" class="listItem-header-actual">Package quantity</th>
+                        <th scope="col" class="listItem-header-actual">Vendor</th>
+                        <th scope="col" class="listItem-header-actual">Date</th>
+                        `;
+                        dataExcel = [];
+                        dataFileName = "Plan error table";
+                        dataSheetName="Plan error data";
+                        result.data.forEach(function (item, index) {
+                            dataExcel.push({
+                            "po_release":item["po_release"],"po":item["po"],
+                            "hbi_code":item["hbi_code"],
+                            "location":item["location"],
+                            "quantity_plan":item["quantity_plan"],
+                            "unit":item["unit"],
+                            "package_quantity":item["package_quantity"],
+                            "vendor":item["vendor"],
+                            "date":formatDate2(item["DATE"]),
+                            "po_line_nbr":item["po_line_nbr"],
+                            "status":""
+                        });
+                            tableBody += `<tr>
+                            <td class="listItem-body-actual">${index+1}</th>
+                            <td class="listItem-body-actual">${item["po_release"]}</td>
+                            <td class="listItem-body-actual">${item["po"]}</td>
+                            <td class="listItem-body-actual">${item["hbi_code"]}</td>
+                            <td class="listItem-body-actual">${item["location"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity_plan"])}</td>
+                            <td class="listItem-body-actual">${item["unit"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["package_quantity"])}</td>
+                            <td class="listItem-body-actual">${item["vendor"]}</td>
+                            <td class="listItem-body-actual">${formatDate2(item["DATE"])}</td>
+                            </tr>`;
+                        });
                         break;
                     case 'addin':
                         {tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
@@ -327,11 +403,13 @@ function loadDataTable() {
                         `;
                         let LINE_FC1 = "A";
                         let po_Code = "DIRM";
+                        let conpany = "3844";
                         dataExcel = [];
                         dataFileName = "ADD-IN";
                         dataSheetName="ADDIN";
                         result.data.forEach(function (item, index) {	
-                            dataExcel.push({"PO-NUMBER":item["po"],
+                            dataExcel.push({"COMPANY":conpany,
+                                            "PO-NUMBER":item["po"],
                                             "PO-RELEASE":item["po_release"],
                                             "PO-CODE":po_Code,
                                             "LINE-FC1":LINE_FC1,
@@ -344,7 +422,7 @@ function loadDataTable() {
                                             "BIN":item["location"],
                                             "Column1":"",
                                             "Results from PO30.1":"",
-                                            "Vender":item["vender"],
+                                            "vendor":item["vendor"],
                                         });
                             tableBody += `<tr>
                             <td class="listItem-body-actual">${index+1}</th>
@@ -354,10 +432,10 @@ function loadDataTable() {
                             <td class="listItem-body-actual">${LINE_FC1}</td>
                             <td class="listItem-body-actual">${item["po_line_nbr"]}</td>
                             <td class="listItem-body-actual">${item["hbi_code"]}</td>
-                            <td class="listItem-body-actual">${item["quantity"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity"])}</td>
                             <td class="listItem-body-actual">${item["unit"]}</td>
                             <td class="listItem-body-actual">${item["location"]}</td>
-                            <td class="listItem-body-actual">${item["vender"]}</td>
+                            <td class="listItem-body-actual">${item["vendor"]}</td>
                             </tr>`;
                         });}
                     break;
@@ -395,10 +473,12 @@ $("#quantityComfirm" ).on('shown.bs.modal', function(){
 })
 
 function saveQuantity(){
-    var quantityComfirm = document.getElementById('modalQuantityConfirm').value;
+    var quantityComfirm = (document.getElementById('modalQuantityConfirm').value).replaceAll(',','');
     toastr.remove();
+    toastr.success(quantityComfirm);
     if(parseInt(quantityComfirm)>=0){
         if( confirmData["quantity_confirm"] != quantityComfirm){
+           
             confirmData["quantity_confirm"] = quantityComfirm;
             const d = new Date(confirmData["plan_date"]);
             $.ajax({
@@ -432,6 +512,14 @@ function formatDate(date) {
         return `${date1.getFullYear()}-${month}-${day}`
     }
 }
+function formatDate2(date) {
+    if (typeof date == 'string') {
+        date1 = new Date(date);
+        var month = date1.getMonth() + 1 < 10 ? `0${date1.getMonth()+1}` : date1.getMonth() + 1;
+        var day = date1.getDate() < 10 ? `0${date1.getDate()}` : date1.getDate();
+        return `${month}/${day}/${date1.getFullYear()}`
+    }
+}
 async function  DownloadReport(){
     loadDataTable();
     exportToExcel(dataFileName,dataSheetName,dataExcel);
@@ -444,3 +532,33 @@ function exportToExcel(fileName, sheetName, data) {
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     XLSX.writeFile(wb, `${fileName}.xlsx`);
 }
+function formatNumber(data){
+    let num = data;
+    let ar = [];
+    let res ="";
+    
+    while(num/1000 > 0){
+        let pd = num % 1000;
+        
+        let a = "";
+        if(pd<100 && pd >10 && num >=1000)
+            a = "0"+Math.round(pd*100)/100;
+        else if(pd<10 && num >=1000)
+            a = "00"+Math.round(pd*100)/100;
+        else 
+            a = Math.round(pd)
+        num = Math.round(num/1000 - pd/1000)
+        // ar.push(Math.round(pd*100)/100);
+        ar.push(a);
+        
+    }
+    ar.reverse().forEach(function (item, index) {
+        if(index+1 < ar.length) {
+            res += item + ",";
+        }
+        else
+        res += item;
+    })
+    return res;
+}
+    
