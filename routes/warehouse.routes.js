@@ -15,4 +15,5 @@ router.post("/shippingMark/findDateChanged",accountant.findDateChanged);
 router.post("/shippingMark/findVendorChanged",accountant.findvendorChanged);
 router.post("/shippingMark/LoadDataTable",accountant.LoadDataTable);
 router.post("/shippingMark/updateQuantity",accountant.updateQuantity);
+router.post("/shippingMark/deletePlan",accountant.deletePlan);
 module.exports = router;
