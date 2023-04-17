@@ -161,11 +161,8 @@ module.exports.LoadDataTable =  async function (req, res, next) {
             query += `and pallet = '${vendor}'`;
         }
         if(selectTable == "plan" && `${checkBox}`=='true'){
-            console.log(selectTable == "plan" && checkBox)
             query +='GROUP BY vendor';
-            console.log(query);
         }
-       
         var data = await db.excuteQueryAsync(query);
         return res.end(JSON.stringify({
             rs: true,

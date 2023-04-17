@@ -215,16 +215,20 @@ function changeSelectTable(obj){
         document.getElementById("form_checkAbnormal").innerHTML ="";
         document.getElementById("titlevendor").innerHTML = "vendor:";
         findDateChanged(date)
-        document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
-        Lọc theo vendor
-        </label>
-        <input class="form-check-input" type="checkbox"  value="1" id="checkAbnormal">`;
+        if(obj =="plan"){
+            document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
+            Lọc theo vendor
+            </label>
+            <input class="form-check-input" type="checkbox"  value="1" id="checkAbnormal">`;
+        }
+        
         document.getElementById("titlevendor").innerHTML = "vendor:";
 
     }
     if(obj =="addin"){
         findDateChanged(date);
         document.getElementById("titlevendor").innerHTML = "vendor:";
+        document.getElementById("form_checkAbnormal").innerHTML ="";
 
     }
 }
@@ -232,11 +236,15 @@ let dataExcel = [];
 let dataFileName = "";
 let dataSheetName = "";
 function loadDataTable() {
-    var checkBox = document.getElementById('checkAbnormal').checked;
+    
     var date = document.getElementById("findDate").value;
     var vendor = document.getElementById("findvendor").value;
     var po = document.getElementById("findPo").value;
     var selectTable = document.getElementById("selectTable").value;
+    var checkBox = false;
+    if(selectTable=="plan" || selectTable=="total"){
+        checkBox = document.getElementById('checkAbnormal').checked;
+    }
     $.ajax({
         url: baseUrl + 'LoadDataTable',
         method: 'POST',
@@ -303,7 +311,8 @@ function loadDataTable() {
                     });}
                     break;
                 case 'scan':
-                    {tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
+                    console.log('Scanning')
+                    tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
                     <th scope="col" class="listItem-header-actual">PO</th>
                     <th scope="col"class="listItem-header-actual">Code</th>
                     <th scope="col"class="listItem-header-actual">Pallet</th>
@@ -334,7 +343,7 @@ function loadDataTable() {
                         <td class="listItem-body-actual">${item["date"]}</td>
                         <td class="listItem-body-actual">${item["id_employee"]}</td>
                         </tr>`;
-                    });}
+                    });
                     break;
                 case 'plan':
                     
