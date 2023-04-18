@@ -86,8 +86,11 @@ async function uploadExcel() {
 
                         if(error >0)
                         toastr.error(`Không thể insert ${error} bản ghi`);
-                        if(insert >0)
-                        toastr.success(`Insert ${insert} bản ghi mới thành công`);
+                        if(insert >0){
+                            toastr.success(`Insert ${insert} bản ghi mới thành công`);
+                            loadDataTable();
+                        }
+                       
                         if(update >0)
                         toastr.success(`Update ${update} bản ghi thành công`);
                         if(replace >0)
