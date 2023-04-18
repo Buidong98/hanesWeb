@@ -238,6 +238,31 @@ module.exports.deletePlan =  async function (req, res, next) {
         }));
     }
 }
+module.exports.deleteAllPlan =  async function (req, res, next) {
+    let data = req.body.data;
+    let query = `DELETE from warehouse_shipping_plan WHERE date = '${data['date']}'`
+        if(data['vendor'] != 'All'){
+            query += `and vendor = '${data['vendor']}'`
+        }
+        if(data['po'] != 'All'){
+            query += `and po = '${data['po']}'`
+        }
+       
+        var sql1 = await db.excuteQueryAsync(query);
+        if(sql1 != null){
+       return res.end(JSON.stringify({
+           rs: true,
+           msg:`Đã xoá thành công`,
+           query:query 
+       }));}
+       else{
+           return res.end(JSON.stringify({
+               rs: false,
+               msg:`Không xoá được `,
+               query:query 
+           }));
+       }
+}
 function formatDate(date) {
     if (typeof date == 'string') {
         date1 = new Date(date);

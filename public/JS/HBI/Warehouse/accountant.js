@@ -1,7 +1,9 @@
 // const { text } = require("body-parser");
 
 const baseUrl = "/warehouse/shippingMark/";
-
+let dataExcel = []; 
+let dataFileName = "";
+let dataSheetName = "";
 $(document).ready(function () {
     var now = new Date();
     var month = (now.getMonth() + 1);
@@ -201,25 +203,31 @@ function changeSelectTable(obj){
         Lọc bản ghi bất thường
         </label>
         <input class="form-check-input" type="checkbox" checked ="true" value="1" id="checkAbnormal">`;
+        document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "vendor:";
     }
     if(obj =="scan"){
         findDateChanged(date)
         document.getElementById('findvendor').innerHTML ="";
         document.getElementById("form_checkAbnormal").innerHTML ="";
+        document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "pallet:";
 
     }
     if(obj =="plan" || obj =="planError"){
         findDateChanged(date)
         document.getElementById("form_checkAbnormal").innerHTML ="";
+        document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "vendor:";
         findDateChanged(date)
         if(obj =="plan"){
+            document.getElementById("delete_all_plan").innerHTML =`<button type="button" class="btn btn-danger bnt-fil-download" onclick="deleteAllPlan()">
+            <i class="fa-solid fa-trash-can"></i></button>`;
             document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
             Lọc theo vendor
             </label>
-            <input class="form-check-input" type="checkbox"  value="1" id="checkAbnormal">`;
+            <input class="form-check-input" type="checkbox" onclick="myChecker()" value="1" id="checkAbnormal">`;
+          
         }
         
         document.getElementById("titlevendor").innerHTML = "vendor:";
@@ -229,12 +237,21 @@ function changeSelectTable(obj){
         findDateChanged(date);
         document.getElementById("titlevendor").innerHTML = "vendor:";
         document.getElementById("form_checkAbnormal").innerHTML ="";
+        document.getElementById("delete_all_plan").innerHTML = "";
 
     }
 }
-let dataExcel = []; 
-let dataFileName = "";
-let dataSheetName = "";
+
+function myChecker() {
+    var checkBox = document.getElementById('checkAbnormal').checked;
+    if(checkBox){
+        document.getElementById("delete_all_plan").innerHTML = "";
+    }
+    else{
+        document.getElementById("delete_all_plan").innerHTML =`<button type="button" class="btn btn-danger bnt-fil-download" onclick="deletAllPlan()">
+        <i class="fa-solid fa-trash-can"></i></button>`;
+    }
+}
 function loadDataTable() {
     
     var date = document.getElementById("findDate").value;
@@ -432,49 +449,49 @@ function loadDataTable() {
 
                     }
                         break;
-                    case 'planError':
-                        tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
-                        <th scope="col" class="listItem-header-actual">Po release</th>
-                        <th scope="col" class="listItem-header-actual">PO</th>
-                        <th scope="col"class="listItem-header-actual">Code</th>
-                        <th scope="col" class="listItem-header-actual">Location</th>
-                        <th scope="col" class="listItem-header-actual">Quantity plan</th>
-                        <th scope="col" class="listItem-header-actual">Unit</th>
-                        <th scope="col" class="listItem-header-actual">Package quantity</th>
-                        <th scope="col" class="listItem-header-actual">Vendor</th>
-                        <th scope="col" class="listItem-header-actual">Date</th>
-                        `;
-                        dataExcel = [];
-                        dataFileName = "Plan error table";
-                        dataSheetName="Plan error data";
-                        result.data.forEach(function (item, index) {
-                            dataExcel.push({
-                            "po_release":item["po_release"],"po":item["po"],
-                            "hbi_code":item["hbi_code"],
-                            "location":item["location"],
-                            "quantity_plan":item["quantity_plan"],
-                            "unit":item["unit"],
-                            "package_quantity":item["package_quantity"],
-                            "vendor":item["vendor"],
-                            "date":formatDate2(item["DATE"]),
-                            "po_line_nbr":item["po_line_nbr"],
-                            "status":""
-                        });
-                            tableBody += `<tr>
-                            <td class="listItem-body-actual">${index+1}</th>
-                            <td class="listItem-body-actual">${item["po_release"]}</td>
-                            <td class="listItem-body-actual">${item["po"]}</td>
-                            <td class="listItem-body-actual">${item["hbi_code"]}</td>
-                            <td class="listItem-body-actual">${item["location"]}</td>
-                            <td class="listItem-body-actual">${formatNumber(item["quantity_plan"])}</td>
-                            <td class="listItem-body-actual">${item["unit"]}</td>
-                            <td class="listItem-body-actual">${formatNumber(item["package_quantity"])}</td>
-                            <td class="listItem-body-actual">${item["vendor"]}</td>
-                            <td class="listItem-body-actual">${formatDate2(item["DATE"])}</td>
-                            </tr>`;
-                        });
-                        break;
-                    case 'addin':
+                case 'planError':
+                    tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
+                    <th scope="col" class="listItem-header-actual">Po release</th>
+                    <th scope="col" class="listItem-header-actual">PO</th>
+                    <th scope="col"class="listItem-header-actual">Code</th>
+                    <th scope="col" class="listItem-header-actual">Location</th>
+                    <th scope="col" class="listItem-header-actual">Quantity plan</th>
+                    <th scope="col" class="listItem-header-actual">Unit</th>
+                    <th scope="col" class="listItem-header-actual">Package quantity</th>
+                    <th scope="col" class="listItem-header-actual">Vendor</th>
+                    <th scope="col" class="listItem-header-actual">Date</th>
+                    `;
+                    dataExcel = [];
+                    dataFileName = "Plan error table";
+                    dataSheetName="Plan error data";
+                    result.data.forEach(function (item, index) {
+                        dataExcel.push({
+                        "po_release":item["po_release"],"po":item["po"],
+                        "hbi_code":item["hbi_code"],
+                        "location":item["location"],
+                        "quantity_plan":item["quantity_plan"],
+                        "unit":item["unit"],
+                        "package_quantity":item["package_quantity"],
+                        "vendor":item["vendor"],
+                        "date":formatDate2(item["DATE"]),
+                        "po_line_nbr":item["po_line_nbr"],
+                        "status":""
+                    });
+                        tableBody += `<tr>
+                        <td class="listItem-body-actual">${index+1}</th>
+                        <td class="listItem-body-actual">${item["po_release"]}</td>
+                        <td class="listItem-body-actual">${item["po"]}</td>
+                        <td class="listItem-body-actual">${item["hbi_code"]}</td>
+                        <td class="listItem-body-actual">${item["location"]}</td>
+                        <td class="listItem-body-actual">${formatNumber(item["quantity_plan"])}</td>
+                        <td class="listItem-body-actual">${item["unit"]}</td>
+                        <td class="listItem-body-actual">${formatNumber(item["package_quantity"])}</td>
+                        <td class="listItem-body-actual">${item["vendor"]}</td>
+                        <td class="listItem-body-actual">${formatDate2(item["DATE"])}</td>
+                        </tr>`;
+                    });
+                    break;
+                case 'addin':
                         {tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
                         <th scope="col" class="listItem-header-actual">PO-NUMBER</th>
                         <th scope="col"class="listItem-header-actual">PO-RELEASE</th>
@@ -531,8 +548,33 @@ function loadDataTable() {
         }
     })
 }
+function deleteAllPlan(){
+    var date = document.getElementById("findDate").value;
+    var vendor = document.getElementById("findvendor").value;
+    var po = document.getElementById("findPo").value; 
+    $.ajax({
+        url: baseUrl + 'deleteAllPlan',
+        method: 'POST',
+        data: {
+            'data': {"po":po,
+            'vendor': vendor,
+            'date':date}
+        },
+        dataType: 'json',
+        success: function (result) {
+            toastr.remove();
+            if(result.rs){
+                loadDataTable()
+                toastr.success(result.msg);
+            }
+            else{
+                toastr.error(result.msg);
+            }
+        }}
+    )
+    
+}
 function deletePlan(po,hbi_code,date,number){
-    console.log(`po: ${po}, code: ${hbi_code}, date: ${date}, number: ${number}`);
     $.ajax({
         url: baseUrl + 'deletePlan',
         method: 'POST',
@@ -555,6 +597,7 @@ function deletePlan(po,hbi_code,date,number){
         }
     });
 }
+
 var confirmData;
 var myModal = document.getElementById('quantityComfirm');
 myModal.addEventListener('show.bs.modal', function () {
