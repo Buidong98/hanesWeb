@@ -19,9 +19,9 @@ module.exports.planUpload =async function (req, res) {
                     "${(typeof item["hbi_code"]!=='undefined' ? item["hbi_code"] :"")}",
                     "${(typeof item["date"]!=='undefined' ? ExcelDateToJSDate(item["date"]) :"now()")}",
                     "${(typeof item["po_release"]!=='undefined' ? item["po_release"] :"")}",
-                    "${(typeof item["quantity_plan"]!=='undefined' ? item["quantity_plan"] :"0")}",
+                    "${(typeof item["quantity_plan"]!=='undefined' || item["quantity_plan"] ==="" ? item["quantity_plan"] :"0")}",
                     "${(typeof item["unit"]!=='undefined' ? item["unit"] :"")}",
-                    "${ (typeof item["package_quantity"]!=='undefined' ? item["package_quantity"] :"0")}",
+                    "${ (typeof item["package_quantity"]!=='undefined' || item["package_quantity"] ===""  ? item["package_quantity"] :"0")}",
                     "${(typeof item["vendor"]!=='undefined' ? item["vendor"] :"")}",
                     "${(typeof item["location"]!=='undefined' ? item["location"] :"")}",
                     "${(typeof item["po_line_nbr"]!=='undefined' ? item["po_line_nbr"] :"")}",
@@ -29,7 +29,7 @@ module.exports.planUpload =async function (req, res) {
                     "${(typeof item["number"]!=='undefined'&& item["number"] != ""? item["number"] :"i")}"
                     )`;
                 var result  = await db.excuteQueryAsync(query);
-                status.push(result[0][0]);
+                await status.push(result[0][0]);
             
             if(index == data.length-1){
                 return res.end(JSON.stringify({
@@ -161,7 +161,10 @@ module.exports.LoadDataTable =  async function (req, res, next) {
             query += `and pallet = '${vendor}'`;
         }
         if(selectTable == "plan" && `${checkBox}`=='true'){
-            query +='GROUP BY vendor';
+            query +='GROUP BY vendor ';
+        }
+        if(selectTable != "scan"){
+            query += ' order by vendor'
         }
         var data = await db.excuteQueryAsync(query);
         return res.end(JSON.stringify({

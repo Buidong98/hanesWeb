@@ -4,7 +4,7 @@ const baseUrl = "/warehouse/shippingMark/";
 let dataExcel = []; 
 let dataFileName = "";
 let dataSheetName = "";
-$(document).ready(function () {
+$(document).ready(async function () {
     var now = new Date();
     var month = (now.getMonth() + 1);
     var day = now.getDate();
@@ -47,7 +47,7 @@ async function uploadExcel() {
                 }
             });
         })
-        // LoadingShow();
+        //  LoadingShow();
         if (typeof dataJson[0]["po"] != "undefined" && typeof dataJson[0]["hbi_code"] != "undefined" && typeof dataJson[0]["quantity_plan"] != "undefined") {
             $.ajax({
                 url: baseUrl + 'planUpload',
@@ -177,7 +177,6 @@ function findDateChanged(obj) {
 function findvendorChanged(obj) {
     var selectTable =  document.getElementById("selectTable").value;
     var date =  document.getElementById("findDate").value;
-    toastr.success(obj)
     $.ajax({
         url: baseUrl + 'findvendorChanged',
         method: 'POST',
@@ -198,6 +197,8 @@ function findvendorChanged(obj) {
         }
     })
 }
+function findPoChanged(obj){
+}
 function changeSelectTable(obj){
     var date =  document.getElementById("findDate").value;
     if(obj =="total"){
@@ -205,7 +206,7 @@ function changeSelectTable(obj){
         document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
         Lọc bản ghi bất thường
         </label>
-        <input class="form-check-input" type="checkbox" checked ="true" value="1" id="checkAbnormal">`;
+        <input class="form-check-input" type="checkbox" onclick="checkedTotal()" checked ="true" value="1" id="checkAbnormal">`;
         document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "vendor:";
     }
@@ -229,7 +230,7 @@ function changeSelectTable(obj){
             document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
             Lọc theo vendor
             </label>
-            <input class="form-check-input" type="checkbox" onclick="myChecker()" value="1" id="checkAbnormal">`;
+            <input class="form-check-input" type="checkbox" onclick="CheckerPlan()" value="1" id="checkAbnormal">`;
           
         }
         
@@ -245,7 +246,10 @@ function changeSelectTable(obj){
     }
 }
 
-function myChecker() {
+function checkedTotal(){
+}
+
+function CheckerPlan() {
     var checkBox = document.getElementById('checkAbnormal').checked;
     if(checkBox){
         document.getElementById("delete_all_plan").innerHTML = "";
@@ -255,6 +259,7 @@ function myChecker() {
         <i class="fa-solid fa-trash-can"></i></button>`;
     }
 }
+
 function loadDataTable() {
     
     var date = document.getElementById("findDate").value;
@@ -277,6 +282,7 @@ function loadDataTable() {
         },
         dataType: 'json',
         success: function (result) {
+            LoadingShow();
             var tableHeader="";
             var tableBody = "";
             switch(selectTable){
@@ -548,6 +554,7 @@ function loadDataTable() {
             }
             document.getElementById('tableHeader').innerHTML = tableHeader;
             document.getElementById('tableBody').innerHTML = tableBody;
+            LoadingHide();
         }
     })
 }
