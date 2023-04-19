@@ -57,25 +57,28 @@ function SaveId(){
 }
 var beforeScan="";
 function AddCaseCode(){
-    var idCase = document.getElementById("caseCode").value;
-    let length = beforeScan.length;
-    let indexOf = idCase.indexOf(beforeScan);
-    let caseScan = idCase.substring(indexOf+length);
-    beforeScan= caseScan;
+    var caseScan = document.getElementById("caseCode").value;
+    // var idCase = document.getElementById("caseCode").value;
+    // let length = beforeScan.length;
+    // let indexOf = idCase.indexOf(beforeScan);
+    // let caseScan = idCase.substring(indexOf+length);
+    // beforeScan= caseScan;
+    // document.getElementById("caseCode").value = caseScan;
+    document.getElementById("caseCode").value="";
     toastr.remove();
-    document.getElementById("caseCode").value = caseScan;
     toastr.options = {
         "positionClass": "toast-bottom-right"
       }
       if(caseScan.length > 15){
         let data = caseScan.split(";");
         
-        let po = (typeof data[0]!=='undefined' ? data[0] :"");
-        
+        let po_data = (typeof data[0]!=='undefined' ? data[0] :"");
+        let po = (po_data!="" ? (typeof po_data.split("-")[0]!=='undefined' ? po_data.split("-")[0] :""):"");
+        let po_release = (po_data!="" ? (typeof po_data.split("-")[1]!=='undefined' ? po_data.split("-")[1] :""):"");
         let code = (typeof data[1]!=='undefined' ? data[1] :"");
         let quantity = (typeof data[2]!=='undefined' ? data[2] :"0");
         let box = (typeof data[3]!=='undefined' ? data[3] :"0");
-        addBoxToPallet(po,code,quantity,box);
+        addBoxToPallet(po,code,quantity,box,po_release);
         toastr.success(`Đã thêm thùng po:  ${po} thành công`);
       }
       if(caseScan.length == 9){
@@ -98,10 +101,8 @@ function addLicense(){
     toastr.warning("Bạn cần nhập vào biển số xe");
     document.getElementById("licensePlatesCode").focus();
   }
- 
-  
 }
-function addBoxToPallet(po,code,quantity,box){
+function addBoxToPallet(po,code,quantity,box,po_release){
   
   idNumber= idNumber+1;
   dataScan.push({
@@ -110,12 +111,13 @@ function addBoxToPallet(po,code,quantity,box){
       code:code ,
       quantity: quantity,
       box:box,
-      id_employee:id
+      id_employee:id,
+      po_release:po_release
     });
+    console.log(dataScan)
     document.getElementById("itemCode").innerHTML =code;
     document.getElementById("quantityCode").innerHTML =quantity;
     document.getElementById("poCode").innerHTML =po;
-
     loadDataTable();
 }
 function deleteScan(id){
@@ -130,11 +132,11 @@ function deleteScan(id){
             dataScan.push({
                 id:idNumber,
                 po: item.po,
+                po_release:item.po_release,
                 code:item.code,
                 quantity: item.quantity,
                 box:item.box,
                 id_employee:id
-
             })
         }
         loadDataTable();
@@ -147,7 +149,9 @@ function DeleteAll(){
     loadDataTable();
 }
 function closePallet(){
+    
   if(dataScan.length>0){
+    LoadingShow();
     $.ajax({
       url: baseUrl + 'UploadPallet',
       method: 'POST',
@@ -162,6 +166,7 @@ function closePallet(){
         }
         else
             toastr.error(result.msg);
+        LoadingHide();
       }
     })
   }
@@ -224,6 +229,7 @@ function closePallet(){
         tableBody += `<tr class="row-body">
         <td class="listItem-body">${index +1}</th>
         <td class="listItem-body">${item["po"]}</td>
+        <td class="listItem-body">${item["po_release"]}</td>
         <td class="listItem-body">${item["code"]}</td>
         <td class="listItem-body">${item["quantity"]}</td>
         <td class="listItem-body">${item["box"]}</td>
@@ -232,6 +238,7 @@ function closePallet(){
         </td>
         </tr>`;
     })
+    document.getElementById("box/pallet").innerHTML =dataScan.length;
     document.getElementById('tableBody').innerHTML = tableBody;
 
  }

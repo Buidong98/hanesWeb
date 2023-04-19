@@ -12,7 +12,6 @@ module.exports.CheckId = async function(req, res){
         let id = req.body.id;
         
         var query = `SELECT * FROM warehouse_user WHERE id = "${id}"`
-        console.log(query)
         var result =  await db.excuteQueryAsync(query);
         if(result.length > 0){
             return res.end(JSON.stringify({
@@ -46,18 +45,16 @@ module.exports.UploadPallet = async function(req, res){
         let dataScan = req.body.dataScan;
         let pallet = req.body.palletId;
         let licensePlates = req.body.licensePlates;
-        console.table(dataScan);
         
-            let query ="INSERT INTO warehouse_shipping_data_scan (po,hbi_code,quantity_actual,box_carton,`date`,id_employee, license_plates,pallet) VALUES\n";
+            let query ="INSERT INTO warehouse_shipping_data_scan (po,hbi_code,quantity_actual,box_carton,`date`,id_employee, license_plates,pallet,po_release) VALUES\n";
             dataScan.forEach(function(item,index){
                 if(index+1 != dataScan.length){
-                    query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}'),\n`;
+                    query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}','${item.po_release}'),\n`;
                 }
                else{
-                query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}')`;
+                    query += `('${item.po}','${item.code}','${item.quantity}','${item.box}',now(),'${item.id_employee}','${licensePlates}','${pallet}','${item.po_release}')`;
                }
             });
-            //console.log(query);
             var result =  await db.excuteQueryAsync(query);
             if(result == null) {
                  return res.end(JSON.stringify({
