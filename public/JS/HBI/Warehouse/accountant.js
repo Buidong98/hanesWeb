@@ -23,6 +23,7 @@ $(document).ready(async function () {
 });
 async function uploadExcel() {
     if (window.FormData !== undefined) {
+        LoadingShow();
         const file = document.getElementById('inputfilePlan').files[0];
         var dataJson = {};
         await file.arrayBuffer().then((res) => {
@@ -47,7 +48,7 @@ async function uploadExcel() {
                 }
             });
         })
-        //  LoadingShow();
+         
         if (typeof dataJson[0]["po"] != "undefined" && typeof dataJson[0]["hbi_code"] != "undefined" && typeof dataJson[0]["quantity_plan"] != "undefined") {
             $.ajax({
                 url: baseUrl + 'planUpload',
@@ -79,7 +80,7 @@ async function uploadExcel() {
                         }
                     })
                     
-                    // LoadingHide();
+                    LoadingHide();
                     if(result.rs){
                         document.getElementById('inputfilePlan').files[0] = "";
                         document.getElementById('inputfilePlan').value = "";
@@ -105,7 +106,7 @@ async function uploadExcel() {
                 }
             })
         } else {
-            //LoadingHide();
+            LoadingHide();
             toastr.error("File po sai định dạng");
             //document.getElementById('FilePo').value = "";
         }

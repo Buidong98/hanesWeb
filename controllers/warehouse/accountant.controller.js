@@ -133,7 +133,7 @@ module.exports.LoadDataTable =  async function (req, res, next) {
                     {query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr,number FROM warehouse_shipping_plan where date = '${date}'`;}
                 break;
             case "planError":
-                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan_error where date = '${date}'`;
+                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan_error where error_date = '${date}'`;
                 break;
             case "addin":
                 query = `SELECT *FROM vw_warehouse_shipping_addin  WHERE DATE(date) = '${date}'`;
