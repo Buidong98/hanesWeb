@@ -13,13 +13,13 @@ $(document).ready(async function () {
     if (day < 10)
         day = "0" + day;
     var today = now.getFullYear() + '-' + month + '-' + day;
-    document.getElementById("findDate").defaultValue = today;
-    findDateChanged(today);
+    document.getElementById("findToDate").defaultValue = today;
+    document.getElementById("findFromDate").defaultValue = today;
+    DateChanged(today,today);
     loadDataTable();
     toastr.options = {
         "positionClass": "toast-bottom-right"
       };
-    // document.getElementById('findDate').valueAsDate = new Date();
 });
 async function uploadExcel() {
     if (window.FormData !== undefined) {
@@ -126,13 +126,32 @@ function check_arr(element,arr){
 function ExcelDateToJSDate(date) {
     return new Date(Math.round((date - 25569) * 86400 * 1000));
 }
-function findDateChanged(obj) {
+function FindFromDate(fromDate){
+    var toDate = document.getElementById("findToDate").value;
+    if(subDate(toDate,fromDate)<0){
+        document.getElementById("findToDate").value = fromDate;
+    }
+    DateChanged(fromDate,toDate);
+}
+function FindToDate(toDate){
+    var fromDate = document.getElementById("findFromDate").value;
+    if(subDate(toDate,fromDate)<0){
+        document.getElementById("findFromDate").value = toDate;
+    }
+    DateChanged(fromDate,toDate);
+}
+function subDate(date1,date2){
+    var fromDate = new Date(date1);
+    var toDate = new Date(date2);
+    return (fromDate-toDate)/(24*60*60*1000)
+}
+function DateChanged(fromDate,toDate) {
     var selectTable =  document.getElementById("selectTable").value;
     $.ajax({
         url: baseUrl + 'findDateChanged',
         method: 'POST',
         data: {
-            'date': obj,'select_table':selectTable
+            'fromDate': fromDate,'toDate':toDate,'select_table':selectTable
         },
         dataType: 'json',
         success: function (result) {
@@ -177,12 +196,13 @@ function findDateChanged(obj) {
 
 function findvendorChanged(obj) {
     var selectTable =  document.getElementById("selectTable").value;
-    var date =  document.getElementById("findDate").value;
+    var fromDate =  document.getElementById("findFromDate").value;
+    var toDate =  document.getElementById("findToDate").value;
     $.ajax({
         url: baseUrl + 'findvendorChanged',
         method: 'POST',
         data: {
-            'vendor': obj,'select_table':selectTable,'date':date
+            'vendor': obj,'select_table':selectTable,'fromDate':fromDate,'toDate':toDate
         },
         dataType: 'json',
         success: function (result) {
@@ -200,10 +220,11 @@ function findvendorChanged(obj) {
 }
 function findPoChanged(obj){
 }
-function changeSelectTable(obj){
-    var date =  document.getElementById("findDate").value;
+function changeSelectTable(obj){ 
+    var fromDate =  document.getElementById("findFromDate").value;
+    var toDate =  document.getElementById("findToDate").value;
     if(obj =="total"){
-        findDateChanged(date)
+        DateChanged(fromDate,toDate);
         document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
         Lọc bản ghi bất thường
         </label>
@@ -212,19 +233,22 @@ function changeSelectTable(obj){
         document.getElementById("titlevendor").innerHTML = "vendor:";
     }
     if(obj =="scan"){
-        findDateChanged(date)
+        DateChanged(fromDate,toDate);
+        document.getElementById("form_checkAbnormal").innerHTML = `<label class="form-check-label" for="checkAbnormal">
+        Bảng scan chi tiết
+        </label>
+        <input class="form-check-input" type="checkbox"  value="1" id="checkAbnormal">`;
         document.getElementById('findvendor').innerHTML ="";
-        document.getElementById("form_checkAbnormal").innerHTML ="";
         document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "pallet:";
 
     }
     if(obj =="plan" || obj =="planError"){
-        findDateChanged(date)
+        DateChanged(fromDate,toDate);
         document.getElementById("form_checkAbnormal").innerHTML ="";
         document.getElementById("delete_all_plan").innerHTML = "";
         document.getElementById("titlevendor").innerHTML = "vendor:";
-        findDateChanged(date)
+        DateChanged(fromDate,toDate);
         if(obj =="plan"){
             document.getElementById("delete_all_plan").innerHTML =`<button type="button" class="btn btn-danger bnt-fil-download" onclick="deleteAllPlan()">
             <i class="fa-solid fa-trash-can"></i></button>`;
@@ -239,7 +263,7 @@ function changeSelectTable(obj){
 
     }
     if(obj =="addin"){
-        findDateChanged(date);
+        DateChanged(fromDate,toDate);;
         document.getElementById("titlevendor").innerHTML = "vendor:";
         document.getElementById("form_checkAbnormal").innerHTML ="";
         document.getElementById("delete_all_plan").innerHTML = "";
@@ -247,8 +271,7 @@ function changeSelectTable(obj){
     }
 }
 
-function checkedTotal(){
-}
+
 
 function CheckerPlan() {
     var checkBox = document.getElementById('checkAbnormal').checked;
@@ -262,20 +285,21 @@ function CheckerPlan() {
 }
 
 function loadDataTable() {
-    
-    var date = document.getElementById("findDate").value;
+    var fromDate =  document.getElementById("findFromDate").value;
+    var toDate =  document.getElementById("findToDate").value;
     var vendor = document.getElementById("findvendor").value;
     var po = document.getElementById("findPo").value;
     var selectTable = document.getElementById("selectTable").value;
     var checkBox = false;
-    if(selectTable=="plan" || selectTable=="total"){
+    if(selectTable=="plan" || selectTable=="total" || selectTable=="scan"){
         checkBox = document.getElementById('checkAbnormal').checked;
     }
     $.ajax({
         url: baseUrl + 'LoadDataTable',
         method: 'POST',
         data: {
-            'date': date,
+            'fromDate': fromDate,
+            'toDate': toDate,
             'vendor': vendor,
             'po': po,
             'selectTable':selectTable,
@@ -312,7 +336,7 @@ function loadDataTable() {
                                 "Quantity actual":item["quantity_actual"],
                                 "Quantity confirm":item["quantity_confirm"],
                                 "vendor":item["vendor"],
-                                "date":item["plan_date"]
+                                "date":formatDate(item["plan_date"],'yyyy-MM-dd')
                             });
                             i++;
                             tableBody += `<tr>
@@ -332,14 +356,46 @@ function loadDataTable() {
                                 </div>
                             </td>
                             <td class="listItem-body-actual">${item["vendor"]}</td>
-                            <td class="listItem-body-actual">${formatDate(item["plan_date"])}</td>
+                            <td class="listItem-body-actual">${formatDate(item["plan_date"],'yyyy-MM-dd')}</td>
                             </tr>`;
                         }
                     });}
                     break;
                 case 'scan':
-                    console.log('Scanning')
-                    tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
+                    if(!checkBox){
+                        tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
+                        <th scope="col" class="listItem-header-actual">PO</th>
+                        <th scope="col"class="listItem-header-actual">Code</th>
+                        <th scope="col" class="listItem-header-actual">Quantity actual</th>
+                        <th scope="col" class="listItem-header-actual">Unit</th>
+                        <th scope="col"class="listItem-header-actual">Pallet</th>
+                        <th scope="col"class="listItem-header-actual">Date</th>
+                        `;
+                        dataExcel = [];
+                        dataFileName = "Scan table";
+                        dataSheetName="Scan data";
+                        result.data.forEach(function (item, index) {
+                            dataExcel.push({"PO":item["po"],
+                            "Code":item["hbi_code"], 
+                            "Quantity actual":item["quantity_actual"],
+                            "Unit":item["unit"],
+                            "Pallet":item["pallet"],
+                            "Date":formatDate(item["date"],'yyyy-MM-dd')
+                        });
+                            tableBody += `<tr>
+                            <td class="listItem-body-actual">${index +1}</th>
+                            <td class="listItem-body-actual">${item["po"]}</td>
+                            <td class="listItem-body-actual">${item["hbi_code"]}</td>
+                            <td class="listItem-body-actual">${formatNumber(item["quantity_actual"])}</td>
+                            <td class="listItem-body-actual">${item["unit"]}</td>
+                            <td class="listItem-body-actual">${item["pallet"]}</td>
+                            <td class="listItem-body-actual">${formatDate(item["date"],'yyyy-MM-dd')}</td>
+
+                            </tr>`;
+                        });
+                    }
+                    else{
+                        tableHeader = `<th scope="col" class="listItem-header-actual">#</th>
                     <th scope="col" class="listItem-header-actual">PO</th>
                     <th scope="col"class="listItem-header-actual">Code</th>
                     <th scope="col"class="listItem-header-actual">Pallet</th>
@@ -357,7 +413,7 @@ function loadDataTable() {
                         "Pallet":item["pallet"],
                         "Lisence plates":item["license_plates"],
                         "Quantity actual":item["quantity_actual"],
-                        "date":item["date"],
+                        "date":formatDate(item["date"],'yyyy-MM-dd hh:mm:ss'),
                         "Id employee":item["id_employee"]
                     });
                         tableBody += `<tr>
@@ -367,10 +423,12 @@ function loadDataTable() {
                         <td class="listItem-body-actual">${item["pallet"]}</td>
                         <td class="listItem-body-actual">${item["license_plates"]}</td>
                         <td class="listItem-body-actual">${formatNumber(item["quantity_actual"])}</td>
-                        <td class="listItem-body-actual">${item["date"]}</td>
+                        <td class="listItem-body-actual">${formatDate(item["date"],'yyyy-MM-dd hh:mm:ss')}</td>
                         <td class="listItem-body-actual">${item["id_employee"]}</td>
                         </tr>`;
                     });
+                    }
+                    
                     break;
                 case 'plan':
                     
@@ -400,7 +458,7 @@ function loadDataTable() {
                                 "unit":item["unit"],
                                 "package_quantity":item["package_quantity"],
                                 "vendor":item["vendor"],
-                                "date":formatDate2(item["DATE"]),
+                                "date":formatDate(item["DATE"],'MM/dd/yyyy'),
                                 "po_line_nbr":item["po_line_nbr"],
                                 "status":""
                             });
@@ -414,9 +472,9 @@ function loadDataTable() {
                             <td class="listItem-body-actual">${item["unit"]}</td>
                             <td class="listItem-body-actual">${item["package_quantity"]}</td>
                             <td class="listItem-body-actual">${item["vendor"]}</td>
-                            <td class="listItem-body-actual">${formatDate(item["DATE"])}</td>
+                            <td class="listItem-body-actual">${formatDate(item["DATE"],'yyyy-MM-dd')}</td>
                             <td class="listItem-body-actual">  
-                            <button type="button" onclick=" deletePlan('${item["po"]}','${item["hbi_code"]}','${formatDate(item["DATE"])}','${item["number"]}')" class="like btn btn-danger bnt-delete_item">Xoá</button>
+                            <button type="button" onclick=" deletePlan('${item["po"]}','${item["hbi_code"]}','${formatDate(item["DATE"],'yyyy-MM-dd')}','${item["number"]}')" class="like btn btn-danger bnt-delete_item">Xoá</button>
                             </td>
                             </tr>`;
                         });
@@ -440,7 +498,7 @@ function loadDataTable() {
                             });
                             tableBody += `<tr>
                             <td class="listItem-body-actual">${index+1}</th>
-                            <td class="listItem-body-actual">${formatDate(item["DATE"])}</td>
+                            <td class="listItem-body-actual">${formatDate(item["DATE"],'yyyy-MM-dd')}</td>
                             <td class="listItem-body-actual">${item["vendor"]}</td>
                             <td class="listItem-body-actual">${item["total"]}</td>
                             </tr>`;
@@ -483,7 +541,7 @@ function loadDataTable() {
                         "unit":item["unit"],
                         "package_quantity":item["package_quantity"],
                         "vendor":item["vendor"],
-                        "date":formatDate2(item["DATE"]),
+                        "date":formatDate(item["DATE"],'MM/dd/yyyy'),
                         "po_line_nbr":item["po_line_nbr"],
                         "status":""
                     });
@@ -497,7 +555,7 @@ function loadDataTable() {
                         <td class="listItem-body-actual">${item["unit"]}</td>
                         <td class="listItem-body-actual">${formatNumber(item["package_quantity"])}</td>
                         <td class="listItem-body-actual">${item["vendor"]}</td>
-                        <td class="listItem-body-actual">${formatDate2(item["DATE"])}</td>
+                        <td class="listItem-body-actual">${formatDate(item["DATE"],'yyyy-MM-dd')}</td>
                         </tr>`;
                     });
                     break;
@@ -668,21 +726,31 @@ function saveQuantity(){
     else{toastr.error("Bạn cần nhập vào qunatity confirm là số tự nhiên");}
 }
 
-function formatDate(date) {
+function formatDate(date,format) {
     if (typeof date == 'string') {
         date1 = new Date(date);
         var month = date1.getMonth() + 1 < 10 ? `0${date1.getMonth()+1}` : date1.getMonth() + 1;
         var day = date1.getDate() < 10 ? `0${date1.getDate()}` : date1.getDate();
-        return `${date1.getFullYear()}-${month}-${day}`
+        var year = date1.getFullYear();
+        var hour = date1.getHours();
+        var minute = date1.getMinutes();
+        var second = date1.getSeconds();
+         console.log(format)
+        switch (format){
+            
+            case 'yyyy-MM-dd':
+                console.log(format)
+                return `${date1.getFullYear()}-${month}-${day}`;
+            case 'MM/dd/yyyy':
+                console.log(format)
+                return `${month}/${day}/${year}`;
+            case 'yyyy-MM-dd hh:mm:ss':
+                console.log('fd')
+                return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
     }
-}
-function formatDate2(date) {
-    if (typeof date == 'string') {
-        date1 = new Date(date);
-        var month = date1.getMonth() + 1 < 10 ? `0${date1.getMonth()+1}` : date1.getMonth() + 1;
-        var day = date1.getDate() < 10 ? `0${date1.getDate()}` : date1.getDate();
-        return `${month}/${day}/${date1.getFullYear()}`
-    }
+   
+   
 }
 async function  DownloadReport(){
     loadDataTable();
@@ -725,4 +793,3 @@ function formatNumber(data){
     })
     return res;
 }
-    

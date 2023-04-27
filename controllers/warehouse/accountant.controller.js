@@ -60,15 +60,15 @@ function ExcelDateToJSDate(date) {
   }
 module.exports.findDateChanged = async function (req, res, next) { 
     try{
-        var date = req.body.date;
+        var fromDate = req.body.fromDate;
+        var toDate = req.body.toDate;
         var table = req.body.select_table;
         if(table == 'plan'|| table == 'total'||table=='addin' || table=='planError'){
-            var query = `SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' GROUP BY po`;
+            var query = `SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date >= '${fromDate}' and plan_date <= '${toDate}'  GROUP BY po`;
         }   
         else if(table == 'scan'){
-            var query = `SELECT po,pallet FROM warehouse_shipping_data_scan WHERE date(DATE)='${date}'`;
+            var query = `SELECT po,pallet FROM warehouse_shipping_data_scan WHERE  date(DATE) >= '${fromDate}' and date(DATE) <= '${toDate}'`;
         }
-       
         var data = await db.excuteQueryAsync(query);
         return res.end(JSON.stringify({
             rs: true,
@@ -85,17 +85,18 @@ module.exports.findvendorChanged =async function (req, res, next) {
     try{
         var vendor = req.body.vendor;
         var table = req.body.select_table;
-        var date = req.body.date;
+        var fromDate = req.body.fromDate;
+        var toDate = req.body.toDate;
         var query ="";
         if(table == 'total'|| table == 'plan' || table == 'planError' || table == 'addin'){
             query = vendor=="All" ?
-        `SELECT po,vendor FROM vw_warehouse_shipping_data  WHERE plan_date = '${date}' GROUP BY po`
-        :`SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date = '${date}' and vendor = '${vendor}' GROUP BY po`
+        `SELECT po,vendor FROM vw_warehouse_shipping_data  WHERE plan_date >= '${fromDate}' and plan_date <= '${toDate}' GROUP BY po`
+        :`SELECT po,vendor FROM vw_warehouse_shipping_data WHERE plan_date >= '${fromDate}' and plan_date <= '${toDate}' and vendor = '${vendor}' GROUP BY po`
         }
         else if(table=='scan'){
             query = vendor=="All" ?
-        `SELECT po FROM warehouse_shipping_data_scan  WHERE date(date) = '${date}' GROUP BY po`
-        :`SELECT po FROM warehouse_shipping_data_scan WHERE date(date) = '${date}' and pallet
+        `SELECT po FROM warehouse_shipping_data_scan  WHERE  date(date) >= '${fromDate}' and date(date) <= '${toDate}' GROUP BY po`
+        :`SELECT po FROM warehouse_shipping_data_scan WHERE date(date) >= '${fromDate}' and date(date) <= '${toDate}' and pallet
          = '${vendor}' GROUP BY po`
         }
         var data = await db.excuteQueryAsync(query);
@@ -114,43 +115,39 @@ module.exports.LoadDataTable =  async function (req, res, next) {
     try{
        
         var checkBox = req.body.checkBox;
-        var  date = req.body.date;
+        var fromDate = req.body.fromDate;
+        var toDate = req.body.toDate;
         var vendor = req.body.vendor;
         var po = req.body.po;
         var selectTable = req.body.selectTable;
         var query ="";
         switch (selectTable) {
             case "scan":
-                query =`SELECT * FROM warehouse_shipping_data_scan WHERE DATE(date) = '${date}'`;
+                if(`${checkBox}`!='true')
+                {query = `SELECT s.po,s.hbi_code,sum(s.quantity_actual) AS quantity_actual,s.pallet,p.unit ,s.date FROM warehouse_shipping_data_scan AS s
+                left JOIN (SELECT *from warehouse_shipping_plan  GROUP BY po , hbi_code ) AS p
+                ON s.po = p.po and s.hbi_code = p.hbi_code  where  date(s.date) >= '${fromDate}' and date(s.date) <= '${toDate}'`;}
+            else 
+                {query =`SELECT * FROM warehouse_shipping_data_scan WHERE  date(date) >= '${fromDate}' and date(date) <= '${toDate}'`;}
+            break;
+                
                 break;
             case "total":
-                query = `SELECT * FROM vw_warehouse_shipping_data WHERE plan_date = '${date}'`;
+                query = `SELECT * FROM vw_warehouse_shipping_data WHERE plan_date >= '${fromDate}' and plan_date <= '${toDate}'`;
                 break;
             case "plan":
                 if(`${checkBox}`=='true')
-                    {query = `SELECT  DATE,  vendor,COUNT(vendor) AS total FROM warehouse_shipping_plan where date = '${date}'`;}
+                    {query = `SELECT  DATE,  vendor,COUNT(vendor) AS total FROM warehouse_shipping_plan where date >= '${fromDate}' and date <= '${toDate}'`;}
                 else 
-                    {query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr,number FROM warehouse_shipping_plan where date = '${date}'`;}
+                    {query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr,number FROM warehouse_shipping_plan where date >= '${fromDate}' and date <= '${toDate}'`;}
                 break;
             case "planError":
-                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan_error where error_date = '${date}'`;
+                query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor, po_line_nbr FROM warehouse_shipping_plan_error where error_date >= '${fromDate}' and error_date <= '${toDate}'`;
                 break;
             case "addin":
-                query = `SELECT *FROM vw_warehouse_shipping_addin  WHERE DATE(date) = '${date}'`;
+                query = `SELECT *FROM vw_warehouse_shipping_addin  WHERE  date(date) >= '${fromDate}' and date(date) <= '${toDate}' `;
                 break;
         }
-        // if(selectTable == "scan"){
-        //     query = `SELECT * FROM warehouse_shipping_data_scan WHERE DATE(date) = '${date}'`;
-        // }
-        // else if(selectTable =="total"){
-        //     query = `SELECT * FROM vw_warehouse_shipping_data WHERE plan_date = '${date}'`;
-        // }
-        // else if(selectTable =="plan"){
-        //     query = `SELECT po, hbi_code, DATE, po_release, quantity_plan, unit, package_quantity, location, vendor FROM warehouse_shipping_plan where date = '${date}'`;
-        // } 
-        // else if(selectTable=="addin"){
-        //     query = `SELECT * FROM warehouse_shipping_data_scan WHERE DATE(date) = '${date}'`;
-        // }
         if(po != "All"){
             query += ` and po = '${po}'`;
         }
@@ -164,7 +161,11 @@ module.exports.LoadDataTable =  async function (req, res, next) {
             query +='GROUP BY vendor ';
         }
         if(selectTable != "scan"){
-            query += ' order by vendor'
+            
+                query += selectTable=="total"?' order by plan_date, vendor ': ' order by date, vendor ';
+        }
+        if(`${checkBox}`!='true' && selectTable == "scan"){
+            query += ' GROUP BY s.po , s.hbi_code ORDER BY s.date, s.pallet'
         }
         var data = await db.excuteQueryAsync(query);
         return res.end(JSON.stringify({

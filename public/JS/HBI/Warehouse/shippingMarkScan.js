@@ -8,7 +8,6 @@ $(document).ready(function () {
    $( "#changeUser" ).on('shown.bs.modal', function(){
     document.getElementById("idCode").focus();
     });
-
 });
 
 
@@ -27,25 +26,20 @@ function ScanId(){
         success: function (result) {
             if(result.rs){
                 console.log(result.msg);
-                
                 toastr.remove()
                 toastr.success(result.msg);
-                
                 $('#changeUser').modal('hide');
                 $( "#changeUser" ).on('hidden.bs.modal', function(){
                     document.getElementById("caseCode").focus();
                 });
-                
                 document.getElementById("DLOid").innerHTML = id;
                 document.getElementById("DLOName").innerHTML = result.data[0]["Name"];
             }
             else{
                 toastr.remove()
                 toastr.warning(result.msg);
-              
                 document.getElementById("idCode").value = "";
             }
-          
         }
     })
 
@@ -58,12 +52,6 @@ function SaveId(){
 var beforeScan="";
 function AddCaseCode(){
     var caseScan = document.getElementById("caseCode").value;
-    // var idCase = document.getElementById("caseCode").value;
-    // let length = beforeScan.length;
-    // let indexOf = idCase.indexOf(beforeScan);
-    // let caseScan = idCase.substring(indexOf+length);
-    // beforeScan= caseScan;
-    // document.getElementById("caseCode").value = caseScan;
     document.getElementById("caseCode").value="";
     toastr.remove();
     toastr.options = {
@@ -71,7 +59,6 @@ function AddCaseCode(){
       }
       if(caseScan.length > 15){
         let data = caseScan.split(";");
-        
         let po_data = (typeof data[0]!=='undefined' ? data[0] :"");
         let po = (po_data!="" ? (typeof po_data.split("-")[0]!=='undefined' ? po_data.split("-")[0] :""):"");
         let po_release = (po_data!="" ? (typeof po_data.split("-")[1]!=='undefined' ? po_data.split("-")[1] :""):"");
@@ -87,8 +74,6 @@ function AddCaseCode(){
         closePallet();
       }
 }
-
-
 var idNumber = 0;
 function addLicense(){
   licensePlates = document.getElementById("licensePlatesCode").value;
@@ -103,7 +88,6 @@ function addLicense(){
   }
 }
 function addBoxToPallet(po,code,quantity,box,po_release){
-  
   idNumber= idNumber+1;
   dataScan.push({
       id:idNumber,
@@ -174,55 +158,7 @@ function closePallet(){
     toastr.error("Pallet rỗng, bạn cần thêm thùng vào pallet");
  
 }
-//  function loadDataTable() {
-//     console.log("fdf")
-//     document.getElementById("box/pallet").innerHTML =dataScan.length;
-//     $table.bootstrapTable('destroy').bootstrapTable({
-//         height: "450"   ,
-//         locale: $('#locale').val(),
-      
-//         columns: [
-         
-//           {
-//             title: '#',
-//             field: 'id'
-//           },
-//           {
-//             title: 'PO',
-//             field: 'po'
-//           },
-//           {
-//             field: 'code',
-//             title: 'HBI Code'
-//           },
-//           {
-//             field: 'quantity',
-//             title: 'Quantity'
-//           },
-//           {
-//             field: 'box',
-//             title: 'Box/Carton#'
-//           },
-//           {
-//             field: 'action',
-//             title: 'Actions',
-//             align: 'center',
-//             formatter: function () {
-               
-//               return '<button type="button" class="like btn btn-danger bnt-delete_item">Xoá</button>'
-//             },
-//             events: {
-//               'click .like': function (e, value, row) {
-//                 deleteScan(row,dataScan);
-               
-//               }
-//             }
-//           }
-//         ],
-//         data:dataScan
-      
-//     })
-//  }
+
  function loadDataTable(){
     var tableBody ="";
     dataScan.forEach(function (item, index) {
