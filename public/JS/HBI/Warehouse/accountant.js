@@ -294,6 +294,7 @@ function loadDataTable() {
     if(selectTable=="plan" || selectTable=="total" || selectTable=="scan"){
         checkBox = document.getElementById('checkAbnormal').checked;
     }
+    DateChanged(fromDate,toDate);
     $.ajax({
         url: baseUrl + 'LoadDataTable',
         method: 'POST',
@@ -618,7 +619,8 @@ function loadDataTable() {
     })
 }
 function deleteAllPlan(){
-    var date = document.getElementById("findDate").value;
+    var fromDate =  document.getElementById("findFromDate").value;
+    var toDate =  document.getElementById("findToDate").value;
     var vendor = document.getElementById("findvendor").value;
     var po = document.getElementById("findPo").value; 
     $.ajax({
@@ -627,7 +629,8 @@ function deleteAllPlan(){
         data: {
             'data': {"po":po,
             'vendor': vendor,
-            'date':date}
+            'fromDate': fromDate,
+            'toDate': toDate}
         },
         dataType: 'json',
         success: function (result) {

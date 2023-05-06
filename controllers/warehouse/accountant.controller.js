@@ -244,7 +244,7 @@ module.exports.deletePlan =  async function (req, res, next) {
 }
 module.exports.deleteAllPlan =  async function (req, res, next) {
     let data = req.body.data;
-    let query = `DELETE from warehouse_shipping_plan WHERE date = '${data['date']}'`
+    let query = `DELETE from warehouse_shipping_plan WHERE date >= '${data['fromDate']}' and date<= '${data['toDate']}' `
         if(data['vendor'] != 'All'){
             query += `and vendor = '${data['vendor']}'`
         }
